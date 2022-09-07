@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include <steem/schema/abstract_schema.hpp>
-#include <steem/schema/schema_impl.hpp>
+#include <freezone/schema/abstract_schema.hpp>
+#include <freezone/schema/schema_impl.hpp>
 
-#include <steem/protocol/types.hpp>
+#include <freezone/protocol/types.hpp>
 
-namespace steem { namespace schema { namespace detail {
+namespace freezone { namespace schema { namespace detail {
 
 //////////////////////////////////////////////
 // account_name_type                        //
@@ -15,13 +15,13 @@ namespace steem { namespace schema { namespace detail {
 struct schema_account_name_type_impl
    : public abstract_schema
 {
-   STEEM_SCHEMA_CLASS_BODY( schema_account_name_type_impl )
+   freezone_SCHEMA_CLASS_BODY( schema_account_name_type_impl )
 };
 
 }
 
 template<>
-struct schema_reflect< steem::protocol::account_name_type >
+struct schema_reflect< freezone::protocol::account_name_type >
 {
    typedef detail::schema_account_name_type_impl           schema_impl_type;
 };
@@ -31,11 +31,11 @@ struct schema_reflect< steem::protocol::account_name_type >
 namespace fc {
 
 template<>
-struct get_typename< steem::protocol::account_name_type >
+struct get_typename< freezone::protocol::account_name_type >
 {
    static const char* name()
    {
-      return "steem::protocol::account_name_type";
+      return "freezone::protocol::account_name_type";
    }
 };
 

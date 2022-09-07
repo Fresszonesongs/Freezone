@@ -1,7 +1,7 @@
-#include <steem/protocol/validation.hpp>
-#include <steem/protocol/steem_required_actions.hpp>
+#include <freezone/protocol/validation.hpp>
+#include <freezone/protocol/freezone_required_actions.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 #ifdef IS_TEST_NET
 void example_required_action::validate()const
@@ -15,52 +15,52 @@ bool operator==( const example_required_action& lhs, const example_required_acti
 }
 #endif
 
-void smt_ico_launch_action::validate() const
+void SST_ico_launch_action::validate() const
 {
    validate_account_name( control_account );
-   validate_smt_symbol( symbol );
+   validate_SST_symbol( symbol );
 }
 
-bool operator==( const smt_ico_launch_action& lhs, const smt_ico_launch_action& rhs )
+bool operator==( const SST_ico_launch_action& lhs, const SST_ico_launch_action& rhs )
 {
    return
       lhs.control_account == rhs.control_account &&
       lhs.symbol == rhs.symbol;
 }
 
-void smt_ico_evaluation_action::validate() const
+void SST_ico_evaluation_action::validate() const
 {
    validate_account_name( control_account );
-   validate_smt_symbol( symbol );
+   validate_SST_symbol( symbol );
 }
 
-bool operator==( const smt_ico_evaluation_action& lhs, const smt_ico_evaluation_action& rhs )
+bool operator==( const SST_ico_evaluation_action& lhs, const SST_ico_evaluation_action& rhs )
 {
    return
       lhs.control_account == rhs.control_account &&
       lhs.symbol == rhs.symbol;
 }
 
-void smt_token_launch_action::validate() const
+void SST_token_launch_action::validate() const
 {
    validate_account_name( control_account );
-   validate_smt_symbol( symbol );
+   validate_SST_symbol( symbol );
 }
 
-bool operator==( const smt_token_launch_action& lhs, const smt_token_launch_action& rhs )
+bool operator==( const SST_token_launch_action& lhs, const SST_token_launch_action& rhs )
 {
    return
       lhs.control_account == rhs.control_account &&
       lhs.symbol == rhs.symbol;
 }
 
-void smt_refund_action::validate() const
+void SST_refund_action::validate() const
 {
    validate_account_name( contributor );
-   validate_smt_symbol( symbol );
+   validate_SST_symbol( symbol );
 }
 
-bool operator==( const smt_refund_action& lhs, const smt_refund_action& rhs )
+bool operator==( const SST_refund_action& lhs, const SST_refund_action& rhs )
 {
    return
       lhs.symbol == rhs.symbol &&
@@ -69,10 +69,10 @@ bool operator==( const smt_refund_action& lhs, const smt_refund_action& rhs )
       lhs.refund == rhs.refund;
 }
 
-void smt_contributor_payout_action::validate() const
+void SST_contributor_payout_action::validate() const
 {
    validate_account_name( contributor );
-   validate_smt_symbol( symbol );
+   validate_SST_symbol( symbol );
 }
 
 bool operator==( const contribution_payout& rhs, const contribution_payout& lhs )
@@ -82,7 +82,7 @@ bool operator==( const contribution_payout& rhs, const contribution_payout& lhs 
       rhs.to_vesting == lhs.to_vesting;
 }
 
-bool operator==( const smt_contributor_payout_action& lhs, const smt_contributor_payout_action& rhs )
+bool operator==( const SST_contributor_payout_action& lhs, const SST_contributor_payout_action& rhs )
 {
    return
       lhs.symbol == rhs.symbol &&
@@ -92,22 +92,22 @@ bool operator==( const smt_contributor_payout_action& lhs, const smt_contributor
       lhs.payouts == rhs.payouts;
 }
 
-void smt_founder_payout_action::validate() const
+void SST_founder_payout_action::validate() const
 {
-   validate_smt_symbol( symbol );
+   validate_SST_symbol( symbol );
 
    for ( auto& payout : account_payouts )
       validate_account_name( payout.first );
 }
 
-bool operator==( const smt_founder_payout_action& lhs, const smt_founder_payout_action& rhs )
+bool operator==( const SST_founder_payout_action& lhs, const SST_founder_payout_action& rhs )
 {
    return
       lhs.symbol == rhs.symbol &&
       lhs.account_payouts == rhs.account_payouts &&
-      lhs.market_maker_steem == rhs.market_maker_steem &&
+      lhs.market_maker_freezone == rhs.market_maker_freezone &&
       lhs.market_maker_tokens == rhs.market_maker_tokens &&
       lhs.reward_balance == rhs.reward_balance;
 }
 
-} } //steem::protocol
+} } //freezone::protocol

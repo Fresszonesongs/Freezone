@@ -1,29 +1,29 @@
 #pragma once
 
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
 #include <chainbase/chainbase.hpp>
 
-#include <steem/protocol/types.hpp>
-#include <steem/protocol/authority.hpp>
+#include <freezone/protocol/types.hpp>
+#include <freezone/protocol/authority.hpp>
 
-#include <steem/chain/buffer_type.hpp>
+#include <freezone/chain/buffer_type.hpp>
 
-#include <steem/chain/multi_index_types.hpp>
+#include <freezone/chain/multi_index_types.hpp>
 
 #ifndef ENABLE_MIRA
-#define STEEM_STD_ALLOCATOR_CONSTRUCTOR( object_type )   \
+#define freezone_STD_ALLOCATOR_CONSTRUCTOR( object_type )   \
       object_type () = delete;                           \
    public:
 #else
-#define STEEM_STD_ALLOCATOR_CONSTRUCTOR( object_type )   \
+#define freezone_STD_ALLOCATOR_CONSTRUCTOR( object_type )   \
    public:                                               \
       object_type () {}
 #endif
 
-#define STEEM_OBJECT_ID_TYPE( object ) typedef oid< object ## _object > object ## _id_type;
+#define freezone_OBJECT_ID_TYPE( object ) typedef oid< object ## _object > object ## _id_type;
 
-namespace steem {
+namespace freezone {
 
 namespace protocol {
 
@@ -38,11 +38,11 @@ using chainbase::object;
 using chainbase::oid;
 using chainbase::allocator;
 
-using steem::protocol::block_id_type;
-using steem::protocol::transaction_id_type;
-using steem::protocol::chain_id_type;
-using steem::protocol::account_name_type;
-using steem::protocol::share_type;
+using freezone::protocol::block_id_type;
+using freezone::protocol::transaction_id_type;
+using freezone::protocol::chain_id_type;
+using freezone::protocol::account_name_type;
+using freezone::protocol::share_type;
 
 using chainbase::shared_string;
 
@@ -88,16 +88,16 @@ enum object_type
    pending_optional_action_object_type,
    proposal_object_type,
    proposal_vote_object_type,
-   // SMT objects
-   smt_token_object_type,
+   // SST objects
+   SST_token_object_type,
    account_regular_balance_object_type,
    account_rewards_balance_object_type,
    nai_pool_object_type,
-   smt_token_emissions_object_type,
-   smt_contribution_object_type,
-   smt_ico_object_type,
-   comment_smt_beneficiaries_object_type,
-   smt_ico_tier_object_type
+   SST_token_emissions_object_type,
+   SST_contribution_object_type,
+   SST_ico_object_type,
+   comment_SST_beneficiaries_object_type,
+   SST_ico_tier_object_type
 };
 
 class dynamic_global_property_object;
@@ -133,15 +133,15 @@ class vesting_delegation_expiration_object;
 class pending_required_action_object;
 class pending_optional_action_object;
 
-class smt_token_object;
+class SST_token_object;
 class account_regular_balance_object;
 class account_rewards_balance_object;
 class nai_pool_object;
-class smt_token_emissions_object;
-class smt_contribution_object;
-class smt_ico_object;
-class comment_smt_beneficiaries_object;
-class smt_ico_tier_object;
+class SST_token_emissions_object;
+class SST_contribution_object;
+class SST_ico_object;
+class comment_SST_beneficiaries_object;
+class SST_ico_tier_object;
 
 class proposal_object;
 class proposal_vote_object;
@@ -179,15 +179,15 @@ typedef oid< vesting_delegation_expiration_object   > vesting_delegation_expirat
 typedef oid< pending_required_action_object         > pending_required_action_id_type;
 typedef oid< pending_optional_action_object         > pending_optional_action_id_type;
 
-typedef oid< smt_token_object                       > smt_token_id_type;
+typedef oid< SST_token_object                       > SST_token_id_type;
 typedef oid< account_regular_balance_object         > account_regular_balance_id_type;
 typedef oid< account_rewards_balance_object         > account_rewards_balance_id_type;
 typedef oid< nai_pool_object                        > nai_pool_id_type;
-typedef oid< smt_token_emissions_object             > smt_token_emissions_object_id_type;
-typedef oid< smt_contribution_object                > smt_contribution_object_id_type;
-typedef oid< smt_ico_object                         > smt_ico_object_id_type;
-typedef oid< comment_smt_beneficiaries_object       > comment_smt_beneficiaries_id_type;
-typedef oid< smt_ico_tier_object                    > smt_ico_tier_object_id_type;
+typedef oid< SST_token_emissions_object             > SST_token_emissions_object_id_type;
+typedef oid< SST_contribution_object                > SST_contribution_object_id_type;
+typedef oid< SST_ico_object                         > SST_ico_object_id_type;
+typedef oid< comment_SST_beneficiaries_object       > comment_SST_beneficiaries_id_type;
+typedef oid< SST_ico_tier_object                    > SST_ico_tier_object_id_type;
 
 typedef oid< proposal_object > proposal_id_type;
 typedef oid< proposal_vote_object > proposal_vote_id_type;
@@ -199,17 +199,17 @@ enum bandwidth_type
    market   ///< Rate limiting for all other actions
 };
 
-} } //steem::chain
+} } //freezone::chain
 
 #ifdef ENABLE_MIRA
 namespace mira {
 
 template< typename T > struct is_static_length< chainbase::oid< T > > : public boost::true_type {};
 template< typename T > struct is_static_length< fc::fixed_string< T > > : public boost::true_type {};
-template<> struct is_static_length< steem::protocol::account_name_type > : public boost::true_type {};
-template<> struct is_static_length< steem::protocol::asset_symbol_type > : public boost::true_type {};
-template<> struct is_static_length< steem::protocol::asset > : public boost::true_type {};
-template<> struct is_static_length< steem::protocol::price > : public boost::true_type {};
+template<> struct is_static_length< freezone::protocol::account_name_type > : public boost::true_type {};
+template<> struct is_static_length< freezone::protocol::asset_symbol_type > : public boost::true_type {};
+template<> struct is_static_length< freezone::protocol::asset > : public boost::true_type {};
+template<> struct is_static_length< freezone::protocol::price > : public boost::true_type {};
 
 } // mira
 #endif
@@ -219,12 +219,12 @@ namespace fc
 class variant;
 
 #ifndef ENABLE_MIRA
-inline void to_variant( const steem::chain::shared_string& s, variant& var )
+inline void to_variant( const freezone::chain::shared_string& s, variant& var )
 {
-   var = fc::string( steem::chain::to_string( s ) );
+   var = fc::string( freezone::chain::to_string( s ) );
 }
 
-inline void from_variant( const variant& var, steem::chain::shared_string& s )
+inline void from_variant( const variant& var, freezone::chain::shared_string& s )
 {
    auto str = var.as_string();
    s.assign( str.begin(), str.end() );
@@ -272,7 +272,7 @@ void unpack( Stream& s, chainbase::oid<T>& id, uint32_t )
 template< typename Stream >
 void pack( Stream& s, const chainbase::shared_string& ss )
 {
-   std::string str = steem::chain::to_string( ss );
+   std::string str = freezone::chain::to_string( ss );
    fc::raw::pack( s, str );
 }
 
@@ -282,7 +282,7 @@ void unpack( Stream& s, chainbase::shared_string& ss, uint32_t depth )
    depth++;
    std::string str;
    fc::raw::unpack( s, str, depth );
-   steem::chain::from_string( ss, str );
+   freezone::chain::from_string( ss, str );
 }
 #endif
 
@@ -339,7 +339,7 @@ void unpack( Stream& s, boost::interprocess::flat_map< K, V, C, A >& value, uint
 
 #ifndef ENABLE_MIRA
 template< typename T >
-T unpack_from_vector( const steem::chain::buffer_type& s )
+T unpack_from_vector( const freezone::chain::buffer_type& s )
 {
    try
    {
@@ -356,12 +356,12 @@ T unpack_from_vector( const steem::chain::buffer_type& s )
 }
 
 #ifndef ENABLE_MIRA
-template<> struct get_typename< steem::chain::shared_string > { static const char* name() { return get_typename< string >::name(); } };
+template<> struct get_typename< freezone::chain::shared_string > { static const char* name() { return get_typename< string >::name(); } };
 #endif
 
 } // namespace fc::raw
 
-FC_REFLECT_ENUM( steem::chain::object_type,
+FC_REFLECT_ENUM( freezone::chain::object_type,
                  (dynamic_global_property_object_type)
                  (account_object_type)
                  (account_metadata_object_type)
@@ -396,15 +396,15 @@ FC_REFLECT_ENUM( steem::chain::object_type,
                  (pending_optional_action_object_type)
                  (proposal_object_type)
                  (proposal_vote_object_type)
-                 (smt_token_object_type)
+                 (SST_token_object_type)
                  (account_regular_balance_object_type)
                  (account_rewards_balance_object_type)
                  (nai_pool_object_type)
-                 (smt_token_emissions_object_type)
-                 (smt_contribution_object_type)
-                 (smt_ico_object_type)
-                 (comment_smt_beneficiaries_object_type)
-                 (smt_ico_tier_object_type)
+                 (SST_token_emissions_object_type)
+                 (SST_contribution_object_type)
+                 (SST_ico_object_type)
+                 (comment_SST_beneficiaries_object_type)
+                 (SST_ico_tier_object_type)
                )
 
-FC_REFLECT_ENUM( steem::chain::bandwidth_type, (post)(forum)(market) )
+FC_REFLECT_ENUM( freezone::chain::bandwidth_type, (post)(forum)(market) )

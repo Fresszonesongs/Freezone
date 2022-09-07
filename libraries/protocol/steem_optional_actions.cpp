@@ -1,8 +1,8 @@
-#include <steem/protocol/validation.hpp>
-#include <steem/protocol/steem_optional_actions.hpp>
-#include <steem/protocol/smt_util.hpp>
+#include <freezone/protocol/validation.hpp>
+#include <freezone/protocol/freezone_optional_actions.hpp>
+#include <freezone/protocol/SST_util.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 #ifdef IS_TEST_NET
 void example_optional_action::validate()const
@@ -11,17 +11,17 @@ void example_optional_action::validate()const
 }
 #endif
 
-void smt_token_emission_action::validate() const
+void SST_token_emission_action::validate() const
 {
    validate_account_name( control_account );
-   validate_smt_symbol( symbol );
+   validate_SST_symbol( symbol );
    FC_ASSERT( emissions.empty() == false, "Emissions cannot be empty" );
    for ( const auto& e : emissions )
    {
-      FC_ASSERT( smt::unit_target::is_valid_emissions_destination( e.first ),
+      FC_ASSERT( SST::unit_target::is_valid_emissions_destination( e.first ),
          "Emissions destination ${n} is invalid", ("n", e.first) );
       FC_ASSERT( e.second > 0, "Emissions must be greater than 0" );
    }
 }
 
-} } //steem::protocol
+} } //freezone::protocol

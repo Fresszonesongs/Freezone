@@ -1,21 +1,21 @@
 #pragma once
-#include <steem/protocol/base.hpp>
-#include <steem/protocol/block_header.hpp>
-#include <steem/protocol/asset.hpp>
+#include <freezone/protocol/base.hpp>
+#include <freezone/protocol/block_header.hpp>
+#include <freezone/protocol/asset.hpp>
 
 #include <fc/utf8.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
    struct author_reward_operation : public virtual_operation {
       author_reward_operation(){}
       author_reward_operation( const account_name_type& a, const string& p, const asset& s, const asset& st, const asset& v )
-         :author(a), permlink(p), sbd_payout(s), steem_payout(st), vesting_payout(v){}
+         :author(a), permlink(p), sbd_payout(s), freezone_payout(st), vesting_payout(v){}
 
       account_name_type author;
       string            permlink;
       asset             sbd_payout;
-      asset             steem_payout;
+      asset             freezone_payout;
       asset             vesting_payout;
    };
 
@@ -158,13 +158,13 @@ namespace steem { namespace protocol {
    {
       comment_benefactor_reward_operation() {}
       comment_benefactor_reward_operation( const account_name_type& b, const account_name_type& a, const string& p, const asset& s, const asset& st, const asset& v )
-         : benefactor( b ), author( a ), permlink( p ), sbd_payout( s ), steem_payout( st ), vesting_payout( v ) {}
+         : benefactor( b ), author( a ), permlink( p ), sbd_payout( s ), freezone_payout( st ), vesting_payout( v ) {}
 
       account_name_type benefactor;
       account_name_type author;
       string            permlink;
       asset             sbd_payout;
-      asset             steem_payout;
+      asset             freezone_payout;
       asset             liquid_payout;
       asset             vesting_payout;
    };
@@ -192,22 +192,22 @@ namespace steem { namespace protocol {
       asset additional_funds;
    };
 
-} } //steem::protocol
+} } //freezone::protocol
 
-FC_REFLECT( steem::protocol::author_reward_operation, (author)(permlink)(sbd_payout)(steem_payout)(vesting_payout) )
-FC_REFLECT( steem::protocol::curation_reward_operation, (curator)(reward)(comment_author)(comment_permlink) )
-FC_REFLECT( steem::protocol::comment_reward_operation, (author)(permlink)(payout) )
-FC_REFLECT( steem::protocol::fill_convert_request_operation, (owner)(requestid)(amount_in)(amount_out) )
-FC_REFLECT( steem::protocol::liquidity_reward_operation, (owner)(payout) )
-FC_REFLECT( steem::protocol::interest_operation, (owner)(interest) )
-FC_REFLECT( steem::protocol::fill_vesting_withdraw_operation, (from_account)(to_account)(withdrawn)(deposited) )
-FC_REFLECT( steem::protocol::shutdown_witness_operation, (owner) )
-FC_REFLECT( steem::protocol::fill_order_operation, (current_owner)(current_orderid)(current_pays)(open_owner)(open_orderid)(open_pays) )
-FC_REFLECT( steem::protocol::fill_transfer_from_savings_operation, (from)(to)(amount)(request_id)(memo) )
-FC_REFLECT( steem::protocol::hardfork_operation, (hardfork_id) )
-FC_REFLECT( steem::protocol::comment_payout_update_operation, (author)(permlink) )
-FC_REFLECT( steem::protocol::return_vesting_delegation_operation, (account)(vesting_shares) )
-FC_REFLECT( steem::protocol::comment_benefactor_reward_operation, (benefactor)(author)(permlink)(sbd_payout)(steem_payout)(liquid_payout)(vesting_payout) )
-FC_REFLECT( steem::protocol::producer_reward_operation, (producer)(vesting_shares) )
-FC_REFLECT( steem::protocol::clear_null_account_balance_operation, (total_cleared) )
-FC_REFLECT( steem::protocol::sps_fund_operation, (additional_funds) )
+FC_REFLECT( freezone::protocol::author_reward_operation, (author)(permlink)(sbd_payout)(freezone_payout)(vesting_payout) )
+FC_REFLECT( freezone::protocol::curation_reward_operation, (curator)(reward)(comment_author)(comment_permlink) )
+FC_REFLECT( freezone::protocol::comment_reward_operation, (author)(permlink)(payout) )
+FC_REFLECT( freezone::protocol::fill_convert_request_operation, (owner)(requestid)(amount_in)(amount_out) )
+FC_REFLECT( freezone::protocol::liquidity_reward_operation, (owner)(payout) )
+FC_REFLECT( freezone::protocol::interest_operation, (owner)(interest) )
+FC_REFLECT( freezone::protocol::fill_vesting_withdraw_operation, (from_account)(to_account)(withdrawn)(deposited) )
+FC_REFLECT( freezone::protocol::shutdown_witness_operation, (owner) )
+FC_REFLECT( freezone::protocol::fill_order_operation, (current_owner)(current_orderid)(current_pays)(open_owner)(open_orderid)(open_pays) )
+FC_REFLECT( freezone::protocol::fill_transfer_from_savings_operation, (from)(to)(amount)(request_id)(memo) )
+FC_REFLECT( freezone::protocol::hardfork_operation, (hardfork_id) )
+FC_REFLECT( freezone::protocol::comment_payout_update_operation, (author)(permlink) )
+FC_REFLECT( freezone::protocol::return_vesting_delegation_operation, (account)(vesting_shares) )
+FC_REFLECT( freezone::protocol::comment_benefactor_reward_operation, (benefactor)(author)(permlink)(sbd_payout)(freezone_payout)(liquid_payout)(vesting_payout) )
+FC_REFLECT( freezone::protocol::producer_reward_operation, (producer)(vesting_shares) )
+FC_REFLECT( freezone::protocol::clear_null_account_balance_operation, (total_cleared) )
+FC_REFLECT( freezone::protocol::sps_fund_operation, (additional_funds) )

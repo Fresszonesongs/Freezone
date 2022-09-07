@@ -1,24 +1,24 @@
 
 #pragma once
 
-#include <steem/protocol/schema_types.hpp>
-#include <steem/chain/schema_types.hpp>
-#include <steem/schema/schema.hpp>
+#include <freezone/protocol/schema_types.hpp>
+#include <freezone/chain/schema_types.hpp>
+#include <freezone/schema/schema.hpp>
 
-#include <steem/protocol/steem_operations.hpp>
-#include <steem/protocol/operation_util_impl.hpp>
-#include <steem/protocol/types.hpp>
+#include <freezone/protocol/freezone_operations.hpp>
+#include <freezone/protocol/operation_util_impl.hpp>
+#include <freezone/protocol/types.hpp>
 
-#include <steem/chain/evaluator.hpp>
-#include <steem/chain/evaluator_registry.hpp>
-#include <steem/chain/custom_operation_interpreter.hpp>
+#include <freezone/chain/evaluator.hpp>
+#include <freezone/chain/evaluator_registry.hpp>
+#include <freezone/chain/custom_operation_interpreter.hpp>
 
 #include <fc/variant.hpp>
 
 #include <string>
 #include <vector>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 using protocol::operation;
 using protocol::authority;
@@ -254,9 +254,9 @@ class generic_custom_operation_interpreter
          FC_CAPTURE_AND_RETHROW( (outer_o) )
       }
 
-      virtual std::shared_ptr< steem::schema::abstract_schema > get_operation_schema() override
+      virtual std::shared_ptr< freezone::schema::abstract_schema > get_operation_schema() override
       {
-         return steem::schema::get_schema_for_type< CustomOperationType >();
+         return freezone::schema::get_schema_for_type< CustomOperationType >();
       }
 
       virtual custom_id_type get_custom_id() override

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <steem/plugins/json_rpc/utility.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
 
-#include <steem/plugins/database_api/database_api_args.hpp>
-#include <steem/plugins/database_api/database_api_objects.hpp>
+#include <freezone/plugins/database_api/database_api_args.hpp>
+#include <freezone/plugins/database_api/database_api_objects.hpp>
 
 #define DATABASE_API_SINGLE_QUERY_LIMIT 1000
 
-namespace steem { namespace plugins { namespace database_api {
+namespace freezone { namespace plugins { namespace database_api {
 
 class database_api_impl;
 
@@ -141,31 +141,31 @@ class database_api
 
          /*
           * This is a general purpose API that checks signatures against accounts for an arbitrary sha256 hash
-          * using the existing authority structures in Steem
+          * using the existing authority structures in freezone
           */
          (verify_signatures)
 
          /**
-         * @return array of Numeric Asset Identifier (NAI) available to be used for new SMT to be created.
+         * @return array of Numeric Asset Identifier (NAI) available to be used for new SST to be created.
          */
          (get_nai_pool)
 
-         (list_smt_contributions)
-         (find_smt_contributions)
+         (list_SST_contributions)
+         (find_SST_contributions)
 
-         (list_smt_tokens)
-         (find_smt_tokens)
+         (list_SST_tokens)
+         (find_SST_tokens)
 
-         (list_smt_token_emissions)
-         (find_smt_token_emissions)
+         (list_SST_token_emissions)
+         (find_SST_token_emissions)
 
-         (list_smt_token_balances)
-         (find_smt_token_balances)
+         (list_SST_token_balances)
+         (find_SST_token_balances)
       )
 
    private:
       std::unique_ptr< database_api_impl > my;
 };
 
-} } } //steem::plugins::database_api
+} } } //freezone::plugins::database_api
 

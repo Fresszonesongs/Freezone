@@ -1,14 +1,14 @@
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/index.hpp>
-#include <steem/plugins/chain/statefile/statefile.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/index.hpp>
+#include <freezone/plugins/chain/statefile/statefile.hpp>
 
 #include <iostream>
 #include <sstream>
 
-namespace steem { namespace plugins { namespace chain { namespace statefile {
+namespace freezone { namespace plugins { namespace chain { namespace statefile {
 
-using steem::chain::index_info;
+using freezone::chain::index_info;
 
 void init_genesis_from_state( database& db, const std::string& state_filename, const boost::filesystem::path& p, const boost::any& cfg )
 {
@@ -18,7 +18,7 @@ void init_genesis_from_state( database& db, const std::string& state_filename, c
       std::stringbuf top_header_buf;
       input_stream.get( top_header_buf );
       state_header top_header = fc::json::from_string( top_header_buf.str() ).as< state_header >();
-      steem_version_info expected_version = steem_version_info( db );
+      freezone_version_info expected_version = freezone_version_info( db );
 
       ilog( "Loading blockchain state from file. Head Block: ${n}", ("n", top_header.version.head_block_num) );
 
@@ -172,4 +172,4 @@ void init_genesis_from_state( database& db, const std::string& state_filename, c
    } FC_LOG_AND_RETHROW()
 }
 
-} } } } // steem::plugins::chain::statefile
+} } } } // freezone::plugins::chain::statefile

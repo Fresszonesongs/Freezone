@@ -1,10 +1,10 @@
 #pragma once
-#include <steem/protocol/base.hpp>
+#include <freezone/protocol/base.hpp>
 
-#include <steem/protocol/asset.hpp>
+#include <freezone/protocol/asset.hpp>
 
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 struct create_proposal_operation : public base_operation
 {
@@ -82,7 +82,7 @@ struct proposal_pay_operation : public virtual_operation
    uint16_t op_in_trx = 0;
 };
 
-} } // steem::protocol
+} } // freezone::protocol
 
 namespace fc {
 
@@ -127,9 +127,9 @@ namespace fc {
    
 }
 
-FC_REFLECT( steem::protocol::create_proposal_operation, (creator)(receiver)(start_date)(end_date)(daily_pay)(subject)(permlink)(extensions) )
-FC_REFLECT( steem::protocol::update_proposal_votes_operation, (voter)(proposal_ids)(approve)(extensions) )
-FC_REFLECT( steem::protocol::remove_proposal_operation, (proposal_owner)(proposal_ids)(extensions) )
+FC_REFLECT( freezone::protocol::create_proposal_operation, (creator)(receiver)(start_date)(end_date)(daily_pay)(subject)(permlink)(extensions) )
+FC_REFLECT( freezone::protocol::update_proposal_votes_operation, (voter)(proposal_ids)(approve)(extensions) )
+FC_REFLECT( freezone::protocol::remove_proposal_operation, (proposal_owner)(proposal_ids)(extensions) )
 
-FC_REFLECT(steem::protocol::proposal_pay_operation, (receiver)(payment)(trx_id)(op_in_trx))
+FC_REFLECT(freezone::protocol::proposal_pay_operation, (receiver)(payment)(trx_id)(op_in_trx))
 

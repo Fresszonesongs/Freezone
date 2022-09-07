@@ -1,6 +1,6 @@
 ## Delegation Pools
 
-Delegation pools are a solution primarily to the "push" approach of SP delegations. In order to "fund" new accounts, a surplus of SP must be delegated. This incentivizes abuse of faucets and ties up significant amounts of SP in delegations to accounts that may not be using it. This feature has a secondary benefit that allow users to pool RCs to fund actions for SMTs. SMTs are a unique entity in Steem in that actions are performed on behalf of an SMT (similarly to the implicit "blockchain" entity used for comment rewards, inflation, etc.) yet are still user created and thus need to be rate limited by some mechanism or else the blockchain would be open to DoS exploits/attacks.
+Delegation pools are a solution primarily to the "push" approach of SP delegations. In order to "fund" new accounts, a surplus of SP must be delegated. This incentivizes abuse of faucets and ties up significant amounts of SP in delegations to accounts that may not be using it. This feature has a secondary benefit that allow users to pool RCs to fund actions for SSTs. SSTs are a unique entity in freezone in that actions are performed on behalf of an SST (similarly to the implicit "blockchain" entity used for comment rewards, inflation, etc.) yet are still user created and thus need to be rate limited by some mechanism or else the blockchain would be open to DoS exploits/attacks.
 
 The basic structure looks like this:
 
@@ -79,9 +79,9 @@ Each pool is be managed using a simple oversubstription model. The sum of out de
 The above example shows how accounts A, B, and C can pool 20 RC together to provide service worth 30 RCs. So long as account's D, E, and F don't use more than their 10 RC individually and never use more than 20 RC combined, none of the accounts will see any interupption in their ability to transact.
 
 
-## SMT Delegation
+## SST Delegation
 
-Each SMT has a special case pool. To delegate to an SMT, users delegate to a pool whose name is the NAI string of the SMT. That pool is special in that there an single implicit out del that receives 100% of the pool. The model would looks like the following:
+Each SST has a special case pool. To delegate to an SST, users delegate to a pool whose name is the NAI string of the SST. That pool is special in that there an single implicit out del that receives 100% of the pool. The model would looks like the following:
 
 ```
 (10 RC)
@@ -90,7 +90,7 @@ Each SMT has a special case pool. To delegate to an SMT, users delegate to a poo
 -------------   \
 (5 RC)           \   (20 RC)         (20 RC)
 -------------     \  ========        -------------
-| Account B |  ----  | Pool |  ----  |    SMT    |
+| Account B |  ----  | Pool |  ----  |    SST    |
 -------------     /  ========        -------------
 (5 RC)           /
 -------------   /
@@ -98,7 +98,7 @@ Each SMT has a special case pool. To delegate to an SMT, users delegate to a poo
 -------------
 ```
 
-Delegations to SMTs are used to power SMT specific actions, such as token emissions. Without such delegations, these actions will not be included on chain and it is likely that the SMT will be considered "dead". The number of RCs required to support such behavior will likely be relatively low, but SMT creators and communities should be consious of this requirement and delegation their RCs to the SMTs that they regularly use.
+Delegations to SSTs are used to power SST specific actions, such as token emissions. Without such delegations, these actions will not be included on chain and it is likely that the SST will be considered "dead". The number of RCs required to support such behavior will likely be relatively low, but SST creators and communities should be consious of this requirement and delegation their RCs to the SSTs that they regularly use.
 
 ## Managing RC Delegation Pools
 

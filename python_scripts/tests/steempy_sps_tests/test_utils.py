@@ -2,15 +2,15 @@ from uuid import uuid4
 from time import sleep
 import logging
 import sys
-import steem_utils.steem_runner
-import steem_utils.steem_tools
+import freezone_utils.freezone_runner
+import freezone_utils.freezone_tools
 
 
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)-15s - %(name)s - %(levelname)s - %(message)s"
 MAIN_LOG_PATH = "./sps_tester_utils.log"
 
-MODULE_NAME = "SPS-Tester-via-steempy.SPS-Tester-Utils"
+MODULE_NAME = "SPS-Tester-via-freezonepy.SPS-Tester-Utils"
 logger = logging.getLogger(MODULE_NAME)
 logger.setLevel(LOG_LEVEL)
 
@@ -28,7 +28,7 @@ def create_accounts(node, creator, accounts):
             creator=creator,
             asset='TESTS'
         )
-    steem_utils.steem_tools.wait_for_blocks_produced(5, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, node.url)
 
 
 # transfer_to_vesting initminer pychol "310.000 TESTS" true
@@ -41,7 +41,7 @@ def transfer_to_vesting(node, from_account, accounts, amount, asset):
         node.commit.transfer_to_vesting(amount, to = acnt['name'], 
             account = from_account, asset = asset
         )
-    steem_utils.steem_tools.wait_for_blocks_produced(5, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, node.url)
 
 
 # transfer initminer pychol "399.000 TESTS" "initial transfer" true
@@ -54,7 +54,7 @@ def transfer_assets_to_accounts(node, from_account, accounts, amount, asset):
         node.commit.transfer(acnt['name'], amount, asset, 
             memo = "initial transfer", account = from_account
         )
-    steem_utils.steem_tools.wait_for_blocks_produced(5, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, node.url)
 
 
 def transfer_assets_to_treasury(node, from_account, treasury_account, amount, asset):
@@ -64,29 +64,29 @@ def transfer_assets_to_treasury(node, from_account, treasury_account, amount, as
     node.commit.transfer(treasury_account, amount, asset, 
         memo = "initial transfer", account = from_account
     )
-    steem_utils.steem_tools.wait_for_blocks_produced(2, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(2, node.url)
 
 
 def get_permlink(account):
-    return "steempy-proposal-title-{}".format(account)
+    return "freezonepy-proposal-title-{}".format(account)
 
 
 def create_posts(node, accounts):
     logger.info("Creating posts...")
     for acnt in accounts:
         logger.info("New post ==> ({},{},{},{},{})".format(
-            "Steempy proposal title [{}]".format(acnt['name']), 
-            "Steempy proposal body [{}]".format(acnt['name']), 
+            "freezonepy proposal title [{}]".format(acnt['name']), 
+            "freezonepy proposal body [{}]".format(acnt['name']), 
             acnt['name'], 
             get_permlink(acnt['name']), 
             "proposals"
         ))
-        node.commit.post("Steempy proposal title [{}]".format(acnt['name']), 
-            "Steempy proposal body [{}]".format(acnt['name']), 
+        node.commit.post("freezonepy proposal title [{}]".format(acnt['name']), 
+            "freezonepy proposal body [{}]".format(acnt['name']), 
             acnt['name'], 
             permlink = get_permlink(acnt['name']), 
             tags = "proposals")
-    steem_utils.steem_tools.wait_for_blocks_produced(5, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, node.url)
 
 
 def create_proposals(node, proposals):
@@ -110,7 +110,7 @@ def create_proposals(node, proposals):
             "Proposal from account {}".format(proposal['creator']),
             get_permlink(proposal['creator'])
         )
-    steem_utils.steem_tools.wait_for_blocks_produced(5, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, node.url)
 
 
 def vote_proposals(node, accounts):
@@ -119,7 +119,7 @@ def vote_proposals(node, accounts):
         proposal_set = [x for x in range(0, len(accounts))]
         logger.info("Account {} voted for proposals: {}".format(acnt["name"], ",".join(str(x) for x in proposal_set)))
         node.commit.update_proposal_votes(acnt["name"], proposal_set, True)
-    steem_utils.steem_tools.wait_for_blocks_produced(5, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, node.url)
 
 
 def list_proposals(node, start_date, status):

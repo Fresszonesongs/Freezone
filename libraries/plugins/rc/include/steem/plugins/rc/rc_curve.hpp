@@ -1,12 +1,12 @@
 
 #pragma once
-#include <steem/plugins/rc/rc_utility.hpp>
+#include <freezone/plugins/rc/rc_utility.hpp>
 
-#include <steem/protocol/types.hpp>
+#include <freezone/protocol/types.hpp>
 
 #include <fc/time.hpp>
 
-namespace steem { namespace plugins { namespace rc {
+namespace freezone { namespace plugins { namespace rc {
 
 struct rc_curve_gen_params
 {
@@ -26,9 +26,9 @@ void generate_rc_curve_params(
    const rc_curve_gen_params& curve_gen_params
    );
 
-} } } // steem::plugins::rc
+} } } // freezone::plugins::rc
 
-FC_REFLECT( steem::plugins::rc::rc_curve_gen_params,
+FC_REFLECT( freezone::plugins::rc::rc_curve_gen_params,
    (inelasticity_threshold_num)
    (inelasticity_threshold_denom)
    (a_point_num)

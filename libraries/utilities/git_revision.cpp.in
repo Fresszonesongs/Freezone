@@ -1,14 +1,14 @@
 #include <stdint.h>
-#include <steem/utilities/git_revision.hpp>
+#include <freezone/utilities/git_revision.hpp>
 
-#define STEEM_GIT_REVISION_SHA "@STEEM_GIT_REVISION_SHA@"
-#define STEEM_GIT_REVISION_UNIX_TIMESTAMP @STEEM_GIT_REVISION_UNIX_TIMESTAMP@
-#define STEEM_GIT_REVISION_DESCRIPTION "@STEEM_GIT_REVISION_DESCRIPTION@"
+#define freezone_GIT_REVISION_SHA "@freezone_GIT_REVISION_SHA@"
+#define freezone_GIT_REVISION_UNIX_TIMESTAMP @freezone_GIT_REVISION_UNIX_TIMESTAMP@
+#define freezone_GIT_REVISION_DESCRIPTION "@freezone_GIT_REVISION_DESCRIPTION@"
 
-namespace steem { namespace utilities {
+namespace freezone { namespace utilities {
 
-const char* const git_revision_sha = STEEM_GIT_REVISION_SHA;
-const uint32_t git_revision_unix_timestamp = STEEM_GIT_REVISION_UNIX_TIMESTAMP;
-const char* const git_revision_description = STEEM_GIT_REVISION_DESCRIPTION;
+const char* const git_revision_sha = freezone_GIT_REVISION_SHA;
+const uint32_t git_revision_unix_timestamp = freezone_GIT_REVISION_UNIX_TIMESTAMP;
+const char* const git_revision_description = freezone_GIT_REVISION_DESCRIPTION;
 
-} } // end namespace steem::utilities
+} } // end namespace freezone::utilities

@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <steem/app/plugin.hpp>
+#include <freezone/app/plugin.hpp>
 
-namespace steem { namespace plugin { namespace auth_util {
+namespace freezone { namespace plugin { namespace auth_util {
 
-using steem::app::application;
+using freezone::app::application;
 
-class auth_util_plugin : public steem::app::plugin
+class auth_util_plugin : public freezone::app::plugin
 {
    public:
       auth_util_plugin( application* app ) ;

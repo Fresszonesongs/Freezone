@@ -1,13 +1,13 @@
-#include <steem/protocol/authority.hpp>
+#include <freezone/protocol/authority.hpp>
 
-#include <steem/chain/util/impacted.hpp>
+#include <freezone/chain/util/impacted.hpp>
 
 #include <fc/utility.hpp>
 
-namespace steem { namespace app {
+namespace freezone { namespace app {
 
 using namespace fc;
-using namespace steem::protocol;
+using namespace freezone::protocol;
 
 // TODO:  Review all of these, especially no-ops
 struct get_impacted_account_visitor
@@ -255,7 +255,7 @@ struct get_impacted_account_visitor
    void operator()(const proposal_pay_operation& op)
    {
       _impacted.insert(op.receiver);
-      _impacted.insert(STEEM_TREASURY_ACCOUNT);
+      _impacted.insert(freezone_TREASURY_ACCOUNT);
    }
 
    void operator()( const create_proposal_operation& op )
@@ -276,12 +276,12 @@ struct get_impacted_account_visitor
 
    void operator()( const sps_fund_operation& op )
    {
-      _impacted.insert( STEEM_TREASURY_ACCOUNT );
+      _impacted.insert( freezone_TREASURY_ACCOUNT );
    }
 
    void operator()( const hardfork_operation& op )
    {
-      _impacted.insert( STEEM_INIT_MINER_NAME );
+      _impacted.insert( freezone_INIT_MINER_NAME );
    }
 
    //void operator()( const operation& op ){}

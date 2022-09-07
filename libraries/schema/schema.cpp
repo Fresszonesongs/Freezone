@@ -1,9 +1,9 @@
 
-#include <steem/schema/schema.hpp>
+#include <freezone/schema/schema.hpp>
 
 #include <set>
 
-namespace steem { namespace schema {
+namespace freezone { namespace schema {
 
 namespace detail {
 

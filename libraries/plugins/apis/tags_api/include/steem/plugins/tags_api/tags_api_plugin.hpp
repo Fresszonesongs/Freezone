@@ -1,15 +1,15 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/plugins/tags/tags_plugin.hpp>
-#include <steem/plugins/json_rpc/json_rpc_plugin.hpp>
+#include <freezone/plugins/tags/tags_plugin.hpp>
+#include <freezone/plugins/json_rpc/json_rpc_plugin.hpp>
 
 #include <appbase/application.hpp>
 
-#define STEEM_TAGS_API_PLUGIN_NAME "tags_api"
+#define freezone_TAGS_API_PLUGIN_NAME "tags_api"
 
 
-namespace steem { namespace plugins { namespace tags {
+namespace freezone { namespace plugins { namespace tags {
 
 using namespace appbase;
 
@@ -17,14 +17,14 @@ class tags_api_plugin : public appbase::plugin< tags_api_plugin >
 {
 public:
    APPBASE_PLUGIN_REQUIRES(
-      (steem::plugins::tags::tags_plugin)
-      (steem::plugins::json_rpc::json_rpc_plugin)
+      (freezone::plugins::tags::tags_plugin)
+      (freezone::plugins::json_rpc::json_rpc_plugin)
    )
 
    tags_api_plugin();
    virtual ~tags_api_plugin();
 
-   static const std::string& name() { static std::string name = STEEM_TAGS_API_PLUGIN_NAME; return name; }
+   static const std::string& name() { static std::string name = freezone_TAGS_API_PLUGIN_NAME; return name; }
 
    virtual void set_program_options( options_description& cli, options_description& cfg ) override;
 
@@ -35,4 +35,4 @@ public:
    std::shared_ptr< class tags_api > api;
 };
 
-} } } // steem::plugins::tags
+} } } // freezone::plugins::tags

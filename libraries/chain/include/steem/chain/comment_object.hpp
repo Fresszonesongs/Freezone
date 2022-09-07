@@ -1,14 +1,14 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/protocol/authority.hpp>
-#include <steem/protocol/steem_operations.hpp>
+#include <freezone/protocol/authority.hpp>
+#include <freezone/protocol/freezone_operations.hpp>
 
-#include <steem/chain/steem_object_types.hpp>
-#include <steem/chain/witness_objects.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
+#include <freezone/chain/witness_objects.hpp>
 
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
    using protocol::beneficiary_route_type;
    using chainbase::t_vector;
@@ -61,7 +61,7 @@ namespace steem { namespace chain {
 
    class comment_object : public object < comment_object_type, comment_object >
    {
-      STEEM_STD_ALLOCATOR_CONSTRUCTOR( comment_object )
+      freezone_STD_ALLOCATOR_CONSTRUCTOR( comment_object )
 
       public:
          template< typename Constructor, typename Allocator >
@@ -71,7 +71,7 @@ namespace steem { namespace chain {
             permlink( a ),
             beneficiaries( a ),
             allowed_vote_assets( a ),
-            smt_rshares( a )
+            SST_rshares( a )
          {
             c( *this );
          }
@@ -117,7 +117,7 @@ namespace steem { namespace chain {
          id_type           root_comment;
 
          asset             max_accepted_payout = asset( 1000000000, SBD_SYMBOL );       /// SBD value of the maximum payout this post will receive
-         uint16_t          percent_steem_dollars = STEEM_100_PERCENT; /// the percent of Steem Dollars to key, unkept amounts will be received as Steem Power
+         uint16_t          percent_freezone_dollars = freezone_100_PERCENT; /// the percent of freezone Dollars to key, unkept amounts will be received as freezone Power
          bool              allow_replies = true;      /// allows a post to disable replies.
          bool              allow_votes   = true;      /// allows a post to receive votes;
          bool              allow_curation_rewards = true;
@@ -128,13 +128,13 @@ namespace steem { namespace chain {
          using t_votable_assets = t_flat_map< asset_symbol_type, comment_votable_asset_options >;
          t_votable_assets  allowed_vote_assets;
 
-         using t_smt_rshares = t_flat_map< asset_symbol_type, rshare_context >;
-         t_smt_rshares     smt_rshares;
+         using t_SST_rshares = t_flat_map< asset_symbol_type, rshare_context >;
+         t_SST_rshares     SST_rshares;
    };
 
    class comment_content_object : public object< comment_content_object_type, comment_content_object >
    {
-      STEEM_STD_ALLOCATOR_CONSTRUCTOR( comment_content_object )
+      freezone_STD_ALLOCATOR_CONSTRUCTOR( comment_content_object )
 
       public:
          template< typename Constructor, typename Allocator >
@@ -153,13 +153,13 @@ namespace steem { namespace chain {
          shared_string     json_metadata;
    };
 
-   class comment_smt_beneficiaries_object : public object< comment_smt_beneficiaries_object_type, comment_smt_beneficiaries_object >
+   class comment_SST_beneficiaries_object : public object< comment_SST_beneficiaries_object_type, comment_SST_beneficiaries_object >
    {
-      STEEM_STD_ALLOCATOR_CONSTRUCTOR( comment_smt_beneficiaries_object )
+      freezone_STD_ALLOCATOR_CONSTRUCTOR( comment_SST_beneficiaries_object )
 
       public:
          template< typename Constructor, typename Allocator >
-         comment_smt_beneficiaries_object( Constructor&& c, allocator< Allocator > a ) :
+         comment_SST_beneficiaries_object( Constructor&& c, allocator< Allocator > a ) :
             beneficiaries( a )
          {
             c( *this );
@@ -168,7 +168,7 @@ namespace steem { namespace chain {
          id_type           id;
 
          comment_id_type   comment;
-         asset_symbol_type smt;
+         asset_symbol_type SST;
          t_vector< beneficiary_route_type > beneficiaries;
    };
 
@@ -178,7 +178,7 @@ namespace steem { namespace chain {
     */
    class comment_vote_object : public object< comment_vote_object_type, comment_vote_object>
    {
-      STEEM_STD_ALLOCATOR_CONSTRUCTOR( comment_vote_object )
+      freezone_STD_ALLOCATOR_CONSTRUCTOR( comment_vote_object )
 
       public:
          template< typename Constructor, typename Allocator >
@@ -193,11 +193,11 @@ namespace steem { namespace chain {
          comment_id_type   comment;
          uint64_t          weight = 0; ///< defines the score this vote receives, used by vote payout calc. 0 if a negative vote or changed votes.
          int64_t           rshares = 0; ///< The number of rshares this vote is responsible for
-         FC_TODO( "Remove vote_percent field after SMT hardfork" );
+         FC_TODO( "Remove vote_percent field after SST hardfork" );
          int16_t           vote_percent = 0; ///< The percent weight of the vote
          time_point_sec    last_update; ///< The time of the last update of the vote
          int8_t            num_changes = 0;
-         asset_symbol_type symbol = STEEM_SYMBOL;
+         asset_symbol_type symbol = freezone_SYMBOL;
    };
 
    struct by_comment_voter_symbol;
@@ -322,38 +322,38 @@ namespace steem { namespace chain {
    struct by_comment_symbol;
 
    typedef multi_index_container<
-      comment_smt_beneficiaries_object,
+      comment_SST_beneficiaries_object,
       indexed_by<
-         ordered_unique< tag< by_id >, member< comment_smt_beneficiaries_object, comment_smt_beneficiaries_id_type, &comment_smt_beneficiaries_object::id > >,
+         ordered_unique< tag< by_id >, member< comment_SST_beneficiaries_object, comment_SST_beneficiaries_id_type, &comment_SST_beneficiaries_object::id > >,
          ordered_unique< tag< by_comment_symbol >,
-            composite_key< comment_smt_beneficiaries_object,
-               member< comment_smt_beneficiaries_object, comment_id_type, &comment_smt_beneficiaries_object::comment >,
-               member< comment_smt_beneficiaries_object, asset_symbol_type, &comment_smt_beneficiaries_object::smt >
+            composite_key< comment_SST_beneficiaries_object,
+               member< comment_SST_beneficiaries_object, comment_id_type, &comment_SST_beneficiaries_object::comment >,
+               member< comment_SST_beneficiaries_object, asset_symbol_type, &comment_SST_beneficiaries_object::SST >
             >
          >
       >,
-      allocator< comment_smt_beneficiaries_object >
-   > comment_smt_beneficiaries_index;
+      allocator< comment_SST_beneficiaries_object >
+   > comment_SST_beneficiaries_index;
 
 
-} } // steem::chain
+} } // freezone::chain
 
 #ifdef ENABLE_MIRA
 namespace mira {
 
-template<> struct is_static_length< steem::chain::comment_vote_object > : public boost::true_type {};
+template<> struct is_static_length< freezone::chain::comment_vote_object > : public boost::true_type {};
 
 } // mira
 #endif
 
-FC_REFLECT( steem::chain::rshare_context,
+FC_REFLECT( freezone::chain::rshare_context,
             (net_rshares)(abs_rshares)(vote_rshares)(total_vote_weight)(net_votes)(author_rewards) )
 
-FC_REFLECT( steem::chain::comment_votable_asset_options,
+FC_REFLECT( freezone::chain::comment_votable_asset_options,
             (max_accepted_payout)(allow_curation_rewards)
           )
 
-FC_REFLECT( steem::chain::comment_object,
+FC_REFLECT( freezone::chain::comment_object,
              (id)(author)(permlink)
              (category)(parent_author)(parent_permlink)
              (last_update)(created)(active)(last_payout)
@@ -361,36 +361,36 @@ FC_REFLECT( steem::chain::comment_object,
              (net_rshares)(abs_rshares)(vote_rshares)
              (children_abs_rshares)(cashout_time)(max_cashout_time)
              (total_vote_weight)(reward_weight)(total_payout_value)(curator_payout_value)(beneficiary_payout_value)(author_rewards)(net_votes)(root_comment)
-             (max_accepted_payout)(percent_steem_dollars)(allow_replies)(allow_votes)(allow_curation_rewards)
+             (max_accepted_payout)(percent_freezone_dollars)(allow_replies)(allow_votes)(allow_curation_rewards)
              (beneficiaries)
-             (allowed_vote_assets)(smt_rshares)
+             (allowed_vote_assets)(SST_rshares)
           )
 
-CHAINBASE_SET_INDEX_TYPE( steem::chain::comment_object, steem::chain::comment_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::comment_object, freezone::chain::comment_index )
 
-FC_REFLECT( steem::chain::comment_content_object,
+FC_REFLECT( freezone::chain::comment_content_object,
             (id)(comment)(title)(body)(json_metadata) )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::comment_content_object, steem::chain::comment_content_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::comment_content_object, freezone::chain::comment_content_index )
 
-FC_REFLECT( steem::chain::comment_vote_object,
+FC_REFLECT( freezone::chain::comment_vote_object,
              (id)(voter)(comment)(weight)(rshares)(vote_percent)(last_update)(num_changes)(symbol)
           )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::comment_vote_object, steem::chain::comment_vote_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::comment_vote_object, freezone::chain::comment_vote_index )
 
-FC_REFLECT( steem::chain::comment_smt_beneficiaries_object, (id)(comment)(smt)(beneficiaries) )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::comment_smt_beneficiaries_object, steem::chain::comment_smt_beneficiaries_index )
+FC_REFLECT( freezone::chain::comment_SST_beneficiaries_object, (id)(comment)(SST)(beneficiaries) )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::comment_SST_beneficiaries_object, freezone::chain::comment_SST_beneficiaries_index )
 
 namespace helpers
 {
-   using steem::chain::shared_string;
+   using freezone::chain::shared_string;
 
    template <>
-   class index_statistic_provider<steem::chain::comment_index>
+   class index_statistic_provider<freezone::chain::comment_index>
    {
    public:
-      typedef steem::chain::comment_index IndexType;
-      typedef typename steem::chain::comment_object::t_beneficiaries t_beneficiaries;
-      typedef typename steem::chain::comment_object::t_votable_assets t_votable_assets;
+      typedef freezone::chain::comment_index IndexType;
+      typedef typename freezone::chain::comment_object::t_beneficiaries t_beneficiaries;
+      typedef typename freezone::chain::comment_object::t_votable_assets t_votable_assets;
       index_statistic_info gather_statistics(const IndexType& index, bool onlyStaticInfo) const
       {
          index_statistic_info info;
@@ -413,10 +413,10 @@ namespace helpers
    };
 
    template <>
-   class index_statistic_provider<steem::chain::comment_content_index>
+   class index_statistic_provider<freezone::chain::comment_content_index>
    {
    public:
-      typedef steem::chain::comment_content_index IndexType;
+      typedef freezone::chain::comment_content_index IndexType;
 
       index_statistic_info gather_statistics(const IndexType& index, bool onlyStaticInfo) const
       {

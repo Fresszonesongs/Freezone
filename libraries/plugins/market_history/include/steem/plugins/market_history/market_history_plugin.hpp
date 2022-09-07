@@ -1,8 +1,8 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
 //
 // Plugins should #define their SPACE_ID's so plugins with
@@ -14,24 +14,24 @@
 // various template automagic depends on them being known at compile
 // time.
 //
-#ifndef STEEM_MARKET_HISTORY_SPACE_ID
-#define STEEM_MARKET_HISTORY_SPACE_ID 7
+#ifndef freezone_MARKET_HISTORY_SPACE_ID
+#define freezone_MARKET_HISTORY_SPACE_ID 7
 #endif
 
-#ifndef STEEM_MARKET_HISTORY_PLUGIN_NAME
-#define STEEM_MARKET_HISTORY_PLUGIN_NAME "market_history"
+#ifndef freezone_MARKET_HISTORY_PLUGIN_NAME
+#define freezone_MARKET_HISTORY_PLUGIN_NAME "market_history"
 #endif
 
 
-namespace steem { namespace plugins { namespace market_history {
+namespace freezone { namespace plugins { namespace market_history {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 using namespace appbase;
 
 enum market_history_object_types
 {
-   bucket_object_type        = ( STEEM_MARKET_HISTORY_SPACE_ID << 8 ),
-   order_history_object_type = ( STEEM_MARKET_HISTORY_SPACE_ID << 8 ) + 1
+   bucket_object_type        = ( freezone_MARKET_HISTORY_SPACE_ID << 8 ),
+   order_history_object_type = ( freezone_MARKET_HISTORY_SPACE_ID << 8 ) + 1
 };
 
 namespace detail { class market_history_plugin_impl; }
@@ -42,9 +42,9 @@ class market_history_plugin : public plugin< market_history_plugin >
       market_history_plugin();
       virtual ~market_history_plugin();
 
-      APPBASE_PLUGIN_REQUIRES( (steem::plugins::chain::chain_plugin) )
+      APPBASE_PLUGIN_REQUIRES( (freezone::plugins::chain::chain_plugin) )
 
-      static const std::string& name() { static std::string name = STEEM_MARKET_HISTORY_PLUGIN_NAME; return name; }
+      static const std::string& name() { static std::string name = freezone_MARKET_HISTORY_PLUGIN_NAME; return name; }
 
       const vector< uint32_t >& get_tracked_buckets() const;
       uint32_t get_max_history_track_time() const;
@@ -96,13 +96,13 @@ struct bucket_object : public object< bucket_object_type, bucket_object >
    fc::time_point_sec   open;
    uint32_t             seconds = 0;
 
-   bucket_object_details steem;
-   bucket_object_details non_steem;
+   bucket_object_details freezone;
+   bucket_object_details non_freezone;
 
    asset_symbol_type symbol = SBD_SYMBOL;
 
-   price high()const { return asset( non_steem.high, symbol ) / asset( steem.high, STEEM_SYMBOL ); }
-   price low()const { return asset( non_steem.low, symbol ) / asset( steem.low, STEEM_SYMBOL ); }
+   price high()const { return asset( non_freezone.high, symbol ) / asset( freezone.high, freezone_SYMBOL ); }
+   price low()const { return asset( non_freezone.low, symbol ) / asset( freezone.low, freezone_SYMBOL ); }
 };
 
 typedef oid< bucket_object > bucket_id_type;
@@ -125,7 +125,7 @@ struct order_history_object : public object< order_history_object_type, order_hi
 
    asset_symbol_type                market() const
    {
-      return op.current_pays.symbol == STEEM_SYMBOL ?
+      return op.current_pays.symbol == freezone_SYMBOL ?
          op.open_pays.symbol : op.current_pays.symbol;
    }
 };
@@ -166,27 +166,27 @@ typedef multi_index_container<
    allocator< order_history_object >
 > order_history_index;
 
-} } } // steem::plugins::market_history
+} } } // freezone::plugins::market_history
 
-FC_REFLECT( steem::plugins::market_history::bucket_object_details,
+FC_REFLECT( freezone::plugins::market_history::bucket_object_details,
             (high)
             (low)
             (open)
             (close)
             (volume) )
 
-FC_REFLECT( steem::plugins::market_history::bucket_object,
+FC_REFLECT( freezone::plugins::market_history::bucket_object,
                      (id)
                      (open)(seconds)
-                     (steem)
+                     (freezone)
                      (symbol)
-                     (non_steem)
+                     (non_freezone)
          )
 
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::market_history::bucket_object, steem::plugins::market_history::bucket_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::market_history::bucket_object, freezone::plugins::market_history::bucket_index )
 
-FC_REFLECT( steem::plugins::market_history::order_history_object,
+FC_REFLECT( freezone::plugins::market_history::order_history_object,
                      (id)
                      (time)
                      (op) )
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::market_history::order_history_object, steem::plugins::market_history::order_history_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::market_history::order_history_object, freezone::plugins::market_history::order_history_index )

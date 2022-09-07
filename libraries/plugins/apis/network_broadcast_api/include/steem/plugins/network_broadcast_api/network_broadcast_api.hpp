@@ -1,9 +1,9 @@
 #pragma once
-#include <steem/protocol/block.hpp>
+#include <freezone/protocol/block.hpp>
 
-#include <steem/plugins/p2p/p2p_plugin.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
-#include <steem/plugins/json_rpc/utility.hpp>
+#include <freezone/plugins/p2p/p2p_plugin.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
 
 #include <fc/optional.hpp>
 #include <fc/variant.hpp>
@@ -11,16 +11,16 @@
 
 #include <boost/thread/mutex.hpp>
 
-namespace steem { namespace plugins { namespace network_broadcast_api {
+namespace freezone { namespace plugins { namespace network_broadcast_api {
 
 using std::vector;
 using fc::variant;
 using fc::optional;
-using steem::plugins::json_rpc::void_type;
+using freezone::plugins::json_rpc::void_type;
 
-using steem::protocol::signed_transaction;
-using steem::protocol::transaction_id_type;
-using steem::protocol::signed_block;
+using freezone::protocol::signed_transaction;
+using freezone::protocol::transaction_id_type;
+using freezone::protocol::signed_block;
 
 struct broadcast_transaction_args
 {
@@ -54,10 +54,10 @@ class network_broadcast_api
       std::unique_ptr< detail::network_broadcast_api_impl > my;
 };
 
-} } } // steem::plugins::network_broadcast_api
+} } } // freezone::plugins::network_broadcast_api
 
-FC_REFLECT( steem::plugins::network_broadcast_api::broadcast_transaction_args,
+FC_REFLECT( freezone::plugins::network_broadcast_api::broadcast_transaction_args,
    (trx)(max_block_age) )
 
-FC_REFLECT( steem::plugins::network_broadcast_api::broadcast_block_args,
+FC_REFLECT( freezone::plugins::network_broadcast_api::broadcast_block_args,
    (block) )

@@ -1,22 +1,22 @@
-#include <steem/chain/util/sps_processor.hpp>
+#include <freezone/chain/util/sps_processor.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-using steem::protocol::asset;
-using steem::protocol::operation;
+using freezone::protocol::asset;
+using freezone::protocol::operation;
 
-using steem::chain::proposal_object;
-using steem::chain::by_start_date;
-using steem::chain::by_end_date;
-using steem::chain::proposal_index;
-using steem::chain::proposal_id_type;
-using steem::chain::proposal_vote_index;
-using steem::chain::by_proposal_voter;
-using steem::chain::by_voter_proposal;
-using steem::protocol::proposal_pay_operation;
-using steem::chain::sps_helper;
-using steem::chain::dynamic_global_property_object;
-using steem::chain::block_notification;
+using freezone::chain::proposal_object;
+using freezone::chain::by_start_date;
+using freezone::chain::by_end_date;
+using freezone::chain::proposal_index;
+using freezone::chain::proposal_id_type;
+using freezone::chain::proposal_vote_index;
+using freezone::chain::by_proposal_voter;
+using freezone::chain::by_voter_proposal;
+using freezone::protocol::proposal_pay_operation;
+using freezone::chain::sps_helper;
+using freezone::chain::dynamic_global_property_object;
+using freezone::chain::block_notification;
 
 const std::string sps_processor::removing_name = "sps_processor_remove";
 const std::string sps_processor::calculating_name = "sps_processor_calculate";
@@ -71,7 +71,7 @@ uint64_t sps_processor::calculate_votes( const proposal_id_type& id )
       const auto& _voter = db.get_account( found->voter );
 
       //If _voter has set proxy, then his votes aren't taken into consideration
-      if( _voter.proxy == STEEM_PROXY_TO_SELF_ACCOUNT )
+      if( _voter.proxy == freezone_PROXY_TO_SELF_ACCOUNT )
       {
          auto sum = _voter.witness_vote_weight();
          ret += sum.value;
@@ -111,14 +111,14 @@ void sps_processor::sort_by_votes( t_proposals& proposals )
 
 asset sps_processor::get_treasury_fund()
 {
-   auto& treasury_account = db.get_account( STEEM_TREASURY_ACCOUNT );
+   auto& treasury_account = db.get_account( freezone_TREASURY_ACCOUNT );
 
    return treasury_account.sbd_balance;
 }
 
 asset sps_processor::get_daily_inflation()
 {
-   FC_TODO( "to invent how to get inflation needed for STEEM_TREASURY_ACCOUNT" )
+   FC_TODO( "to invent how to get inflation needed for freezone_TREASURY_ACCOUNT" )
    return asset( 0, SBD_SYMBOL );
 }
 
@@ -160,12 +160,12 @@ void sps_processor::transfer_daily_inflation_to_treasury( const asset& daily_inf
          in to the treasury account in database::process_funds or added to a temp fund in the dgpo
          that is then transferred in to the treasury account during maintenance.
    */
-   FC_TODO( "to choose how to transfer inflation into STEEM_TREASURY_ACCOUNT" )
+   FC_TODO( "to choose how to transfer inflation into freezone_TREASURY_ACCOUNT" )
    // Ifdeffing this out so that no inflation is accidentally created on main net.
 #ifdef IS_TEST_NET
    if( daily_inflation.amount.value > 0 )
    {
-      const auto& treasury_account = db.get_account( STEEM_TREASURY_ACCOUNT );
+      const auto& treasury_account = db.get_account( freezone_TREASURY_ACCOUNT );
       db.adjust_balance( treasury_account, daily_inflation );
    }
 #endif
@@ -176,10 +176,10 @@ void sps_processor::transfer_payments( const time_point_sec& head_time, asset& m
    if( maintenance_budget_limit.amount.value == 0 )
       return;
 
-   const auto& treasury_account = db.get_account(STEEM_TREASURY_ACCOUNT);
+   const auto& treasury_account = db.get_account(freezone_TREASURY_ACCOUNT);
 
    uint32_t passed_time_seconds = ( head_time - db.get_dynamic_global_properties().last_budget_time ).to_seconds();
-   uint128_t ratio = ( passed_time_seconds * STEEM_100_PERCENT ) / daily_seconds;
+   uint128_t ratio = ( passed_time_seconds * freezone_100_PERCENT ) / daily_seconds;
 
    auto processing = [this, &treasury_account]( const proposal_object& _item, const asset& payment )
    {
@@ -201,7 +201,7 @@ void sps_processor::transfer_payments( const time_point_sec& head_time, asset& m
       if( _item.total_votes == 0 )
          break;
 
-      asset period_pay = asset( ( ratio * _item.daily_pay.amount.value ).to_uint64() / STEEM_100_PERCENT, _item.daily_pay.symbol );
+      asset period_pay = asset( ( ratio * _item.daily_pay.amount.value ).to_uint64() / freezone_100_PERCENT, _item.daily_pay.symbol );
 
       if( period_pay >= maintenance_budget_limit )
       {
@@ -220,7 +220,7 @@ void sps_processor::update_settings( const time_point_sec& head_time )
 {
    db.modify( db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& _dgpo )
                                           {
-                                             _dgpo.next_maintenance_time = head_time + fc::seconds( STEEM_PROPOSAL_MAINTENANCE_PERIOD );
+                                             _dgpo.next_maintenance_time = head_time + fc::seconds( freezone_PROPOSAL_MAINTENANCE_PERIOD );
                                              _dgpo.last_budget_time = head_time;
                                           } );
 }
@@ -318,4 +318,4 @@ void sps_processor::record_funding( const block_notification& note )
    });
 }
 
-} } // namespace steem::chain
+} } // namespace freezone::chain

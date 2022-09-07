@@ -1,6 +1,6 @@
 #pragma once
 
-namespace steem { namespace plugins { namespace database_api { namespace util {
+namespace freezone { namespace plugins { namespace database_api { namespace util {
 
 template< typename ResultType >
 static ResultType on_push_default( const ResultType& r ) { return r; }
@@ -46,4 +46,4 @@ void iterate_results(
    }
 }
 
-} } } } // steem::plugins::database_api::util
+} } } } // freezone::plugins::database_api::util

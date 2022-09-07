@@ -1,23 +1,23 @@
-#include <steem/plugins/chain/statefile/statefile.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
+#include <freezone/plugins/chain/statefile/statefile.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/index.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/index.hpp>
 
 #include <appbase/application.hpp>
 
-namespace steem { namespace plugins { namespace chain { namespace statefile {
+namespace freezone { namespace plugins { namespace chain { namespace statefile {
 
-using steem::chain::index_info;
+using freezone::chain::index_info;
 
-// db_format_version : Must match STEEM_DB_FORMAT_VERSION
-// network_type      : Must match STEEM_NETWORK_TYPE
+// db_format_version : Must match freezone_DB_FORMAT_VERSION
+// network_type      : Must match freezone_NETWORK_TYPE
 // chain_id          : Must match requested chain ID and value of embedded GPO
 
-steem_version_info::steem_version_info( const database& db )
+freezone_version_info::freezone_version_info( const database& db )
 {
-   db_format_version = STEEM_DB_FORMAT_VERSION;
-   network_type = STEEM_NETWORK_TYPE;
+   db_format_version = freezone_DB_FORMAT_VERSION;
+   network_type = freezone_NETWORK_TYPE;
    db.for_each_index_extension< index_info >( [&]( std::shared_ptr< index_info > info )
    {
       std::shared_ptr< schema::abstract_schema > sch = info->get_schema();
@@ -46,4 +46,4 @@ void fill_plugin_options( fc::map< std::string, fc::string >& plugin_options )
    //});
 }
 
-} } } } // steem::plugins::chain::statefile
+} } } } // freezone::plugins::chain::statefile

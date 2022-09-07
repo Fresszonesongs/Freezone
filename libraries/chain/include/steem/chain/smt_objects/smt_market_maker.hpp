@@ -6,7 +6,7 @@
 
 #include <fc/reflect/reflect.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 struct rational_u64
 {
@@ -22,7 +22,7 @@ const std::vector< rational_u64 >& get_mm_ticks();
 
 } }
 
-FC_REFLECT( steem::chain::rational_u64,
+FC_REFLECT( freezone::chain::rational_u64,
    (numerator)
    (denominator)
    )

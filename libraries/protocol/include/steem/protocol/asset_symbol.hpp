@@ -1,72 +1,72 @@
 #pragma once
 
 #include <fc/io/raw.hpp>
-#include <steem/protocol/types_fwd.hpp>
+#include <freezone/protocol/types_fwd.hpp>
 
-#define STEEM_ASSET_SYMBOL_PRECISION_BITS    4
-#define STEEM_ASSET_CONTROL_BITS             1
-#define STEEM_NAI_SHIFT                      ( STEEM_ASSET_SYMBOL_PRECISION_BITS + STEEM_ASSET_CONTROL_BITS )
-#define SMT_MAX_NAI                          99999999
-#define SMT_MIN_NAI                          1
-#define SMT_MIN_NON_RESERVED_NAI             10000000
-#define STEEM_ASSET_SYMBOL_NAI_LENGTH        10
-#define STEEM_ASSET_SYMBOL_NAI_STRING_LENGTH ( STEEM_ASSET_SYMBOL_NAI_LENGTH + 2 )
-#define SMT_MAX_NAI_POOL_COUNT               10
-#define SMT_MAX_NAI_GENERATION_TRIES         100
+#define freezone_ASSET_SYMBOL_PRECISION_BITS    4
+#define freezone_ASSET_CONTROL_BITS             1
+#define freezone_NAI_SHIFT                      ( freezone_ASSET_SYMBOL_PRECISION_BITS + freezone_ASSET_CONTROL_BITS )
+#define SST_MAX_NAI                          99999999
+#define SST_MIN_NAI                          1
+#define SST_MIN_NON_RESERVED_NAI             10000000
+#define freezone_ASSET_SYMBOL_NAI_LENGTH        10
+#define freezone_ASSET_SYMBOL_NAI_STRING_LENGTH ( freezone_ASSET_SYMBOL_NAI_LENGTH + 2 )
+#define SST_MAX_NAI_POOL_COUNT               10
+#define SST_MAX_NAI_GENERATION_TRIES         100
 
-#define STEEM_PRECISION_SBD   (3)
-#define STEEM_PRECISION_STEEM (3)
-#define STEEM_PRECISION_VESTS (6)
+#define freezone_PRECISION_SBD   (3)
+#define freezone_PRECISION_freezone (3)
+#define freezone_PRECISION_VESTS (6)
 
 // One's place is used for check digit, which means NAI 0-9 all have NAI data of 0 which is invalid
 // This space is safe to use because it would alwasys result in failure to convert from NAI
-#define STEEM_NAI_SBD   (1)
-#define STEEM_NAI_STEEM (2)
-#define STEEM_NAI_VESTS (3)
+#define freezone_NAI_SBD   (1)
+#define freezone_NAI_freezone (2)
+#define freezone_NAI_VESTS (3)
 
-#define STEEM_ASSET_NUM_SBD \
-  (uint32_t(((SMT_MAX_NAI + STEEM_NAI_SBD)   << STEEM_NAI_SHIFT) | STEEM_PRECISION_SBD))
-#define STEEM_ASSET_NUM_STEEM \
-  (uint32_t(((SMT_MAX_NAI + STEEM_NAI_STEEM) << STEEM_NAI_SHIFT) | STEEM_PRECISION_STEEM))
-#define STEEM_ASSET_NUM_VESTS \
-  (uint32_t(((SMT_MAX_NAI + STEEM_NAI_VESTS) << STEEM_NAI_SHIFT) | STEEM_PRECISION_VESTS))
+#define freezone_ASSET_NUM_SBD \
+  (uint32_t(((SST_MAX_NAI + freezone_NAI_SBD)   << freezone_NAI_SHIFT) | freezone_PRECISION_SBD))
+#define freezone_ASSET_NUM_freezone \
+  (uint32_t(((SST_MAX_NAI + freezone_NAI_freezone) << freezone_NAI_SHIFT) | freezone_PRECISION_freezone))
+#define freezone_ASSET_NUM_VESTS \
+  (uint32_t(((SST_MAX_NAI + freezone_NAI_VESTS) << freezone_NAI_SHIFT) | freezone_PRECISION_VESTS))
 
 #ifdef IS_TEST_NET
 
 #define VESTS_SYMBOL_STR "VESTS"
-#define STEEM_SYMBOL_STR "TESTS"
+#define freezone_SYMBOL_STR "TESTS"
 #define SBD_SYMBOL_STR   "TBD"
 
 #define VESTS_SYMBOL_U64  (uint64_t('V') | (uint64_t('E') << 8) | (uint64_t('S') << 16) | (uint64_t('T') << 24) | (uint64_t('S') << 32))
-#define STEEM_SYMBOL_U64  (uint64_t('T') | (uint64_t('E') << 8) | (uint64_t('S') << 16) | (uint64_t('T') << 24) | (uint64_t('S') << 32))
+#define freezone_SYMBOL_U64  (uint64_t('T') | (uint64_t('E') << 8) | (uint64_t('S') << 16) | (uint64_t('T') << 24) | (uint64_t('S') << 32))
 #define SBD_SYMBOL_U64    (uint64_t('T') | (uint64_t('B') << 8) | (uint64_t('D') << 16))
 
 #else
 
 #define VESTS_SYMBOL_STR "VESTS"
-#define STEEM_SYMBOL_STR "STEEM"
+#define freezone_SYMBOL_STR "freezone"
 #define SBD_SYMBOL_STR   "SBD"
 
 #define VESTS_SYMBOL_U64  (uint64_t('V') | (uint64_t('E') << 8) | (uint64_t('S') << 16) | (uint64_t('T') << 24) | (uint64_t('S') << 32))
-#define STEEM_SYMBOL_U64  (uint64_t('S') | (uint64_t('T') << 8) | (uint64_t('E') << 16) | (uint64_t('E') << 24) | (uint64_t('M') << 32))
+#define freezone_SYMBOL_U64  (uint64_t('S') | (uint64_t('T') << 8) | (uint64_t('E') << 16) | (uint64_t('E') << 24) | (uint64_t('M') << 32))
 #define SBD_SYMBOL_U64    (uint64_t('S') | (uint64_t('B') << 8) | (uint64_t('D') << 16))
 
 #endif
 
 #define VESTS_SYMBOL_SER  (uint64_t(6) | (VESTS_SYMBOL_U64 << 8)) ///< VESTS|VESTS with 6 digits of precision
-#define STEEM_SYMBOL_SER  (uint64_t(3) | (STEEM_SYMBOL_U64 << 8)) ///< STEEM|TESTS with 3 digits of precision
+#define freezone_SYMBOL_SER  (uint64_t(3) | (freezone_SYMBOL_U64 << 8)) ///< freezone|TESTS with 3 digits of precision
 #define SBD_SYMBOL_SER    (uint64_t(3) |   (SBD_SYMBOL_U64 << 8)) ///< SBD|TBD with 3 digits of precision
 
-#define STEEM_ASSET_MAX_DECIMALS 12
+#define freezone_ASSET_MAX_DECIMALS 12
 
-#define SMT_ASSET_NUM_PRECISION_MASK   0xF
-#define SMT_ASSET_NUM_CONTROL_MASK     0x10
-#define SMT_ASSET_NUM_VESTING_MASK     0x20
+#define SST_ASSET_NUM_PRECISION_MASK   0xF
+#define SST_ASSET_NUM_CONTROL_MASK     0x10
+#define SST_ASSET_NUM_VESTING_MASK     0x20
 
 #define ASSET_SYMBOL_NAI_KEY      "nai"
 #define ASSET_SYMBOL_DECIMALS_KEY "precision"
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 class asset_symbol_type
 {
@@ -74,12 +74,12 @@ class asset_symbol_type
       enum asset_symbol_space
       {
          legacy_space = 1,
-         smt_nai_space = 2
+         SST_nai_space = 2
       };
 
       explicit operator uint32_t() { return to_nai(); }
 
-      // buf must have space for STEEM_ASSET_SYMBOL_MAX_LENGTH+1
+      // buf must have space for freezone_ASSET_SYMBOL_MAX_LENGTH+1
       static asset_symbol_type from_string( const std::string& str );
       static asset_symbol_type from_nai_string( const char* buf, uint8_t decimal_places );
       static asset_symbol_type from_asset_num( uint32_t asset_num )
@@ -94,7 +94,7 @@ class asset_symbol_type
       void to_nai_string( char* buf )const;
       std::string to_nai_string()const
       {
-         char buf[ STEEM_ASSET_SYMBOL_NAI_STRING_LENGTH ];
+         char buf[ freezone_ASSET_SYMBOL_NAI_STRING_LENGTH ];
          to_nai_string( buf );
          return std::string( buf );
       }
@@ -119,16 +119,16 @@ class asset_symbol_type
 
       /**
        * Returns asset_num stripped of precision holding bits.
-       * \warning checking that it's SMT symbol is caller responsibility.
+       * \warning checking that it's SST symbol is caller responsibility.
        */
-      uint32_t get_stripped_precision_smt_num() const
+      uint32_t get_stripped_precision_SST_num() const
       {
-         return asset_num & ~( SMT_ASSET_NUM_PRECISION_MASK );
+         return asset_num & ~( SST_ASSET_NUM_PRECISION_MASK );
       }
 
       asset_symbol_space space()const;
       uint8_t decimals()const
-      {  return uint8_t( asset_num & SMT_ASSET_NUM_PRECISION_MASK );    }
+      {  return uint8_t( asset_num & SST_ASSET_NUM_PRECISION_MASK );    }
       void validate()const;
 
       friend bool operator == ( const asset_symbol_type& a, const asset_symbol_type& b )
@@ -147,9 +147,9 @@ class asset_symbol_type
       uint32_t asset_num = 0;
 };
 
-} } // steem::protocol
+} } // freezone::protocol
 
-FC_REFLECT(steem::protocol::asset_symbol_type, (asset_num))
+FC_REFLECT(freezone::protocol::asset_symbol_type, (asset_num))
 
 namespace fc { namespace raw {
 
@@ -164,22 +164,22 @@ namespace fc { namespace raw {
 // NAI internal storage of legacy assets
 
 template< typename Stream >
-inline void pack( Stream& s, const steem::protocol::asset_symbol_type& sym )
+inline void pack( Stream& s, const freezone::protocol::asset_symbol_type& sym )
 {
    switch( sym.space() )
    {
-      case steem::protocol::asset_symbol_type::legacy_space:
+      case freezone::protocol::asset_symbol_type::legacy_space:
       {
          uint64_t ser = 0;
          switch( sym.asset_num )
          {
-            case STEEM_ASSET_NUM_STEEM:
-               ser = STEEM_SYMBOL_SER;
+            case freezone_ASSET_NUM_freezone:
+               ser = freezone_SYMBOL_SER;
                break;
-            case STEEM_ASSET_NUM_SBD:
+            case freezone_ASSET_NUM_SBD:
                ser = SBD_SYMBOL_SER;
                break;
-            case STEEM_ASSET_NUM_VESTS:
+            case freezone_ASSET_NUM_VESTS:
                ser = VESTS_SYMBOL_SER;
                break;
             default:
@@ -188,7 +188,7 @@ inline void pack( Stream& s, const steem::protocol::asset_symbol_type& sym )
          pack( s, ser );
          break;
       }
-      case steem::protocol::asset_symbol_type::smt_nai_space:
+      case freezone::protocol::asset_symbol_type::SST_nai_space:
          pack( s, sym.asset_num );
          break;
       default:
@@ -197,27 +197,27 @@ inline void pack( Stream& s, const steem::protocol::asset_symbol_type& sym )
 }
 
 template< typename Stream >
-inline void unpack( Stream& s, steem::protocol::asset_symbol_type& sym, uint32_t )
+inline void unpack( Stream& s, freezone::protocol::asset_symbol_type& sym, uint32_t )
 {
    uint64_t ser = 0;
    s.read( (char*) &ser, 4 );
 
    switch( ser )
    {
-      case STEEM_SYMBOL_SER & 0xFFFFFFFF:
+      case freezone_SYMBOL_SER & 0xFFFFFFFF:
          s.read( ((char*) &ser)+4, 4 );
-         FC_ASSERT( ser == STEEM_SYMBOL_SER, "invalid asset bits" );
-         sym.asset_num = STEEM_ASSET_NUM_STEEM;
+         FC_ASSERT( ser == freezone_SYMBOL_SER, "invalid asset bits" );
+         sym.asset_num = freezone_ASSET_NUM_freezone;
          break;
       case SBD_SYMBOL_SER & 0xFFFFFFFF:
          s.read( ((char*) &ser)+4, 4 );
          FC_ASSERT( ser == SBD_SYMBOL_SER, "invalid asset bits" );
-         sym.asset_num = STEEM_ASSET_NUM_SBD;
+         sym.asset_num = freezone_ASSET_NUM_SBD;
          break;
       case VESTS_SYMBOL_SER & 0xFFFFFFFF:
          s.read( ((char*) &ser)+4, 4 );
          FC_ASSERT( ser == VESTS_SYMBOL_SER, "invalid asset bits" );
-         sym.asset_num = STEEM_ASSET_NUM_VESTS;
+         sym.asset_num = freezone_ASSET_NUM_VESTS;
          break;
       default:
          sym.asset_num = uint32_t( ser );
@@ -227,7 +227,7 @@ inline void unpack( Stream& s, steem::protocol::asset_symbol_type& sym, uint32_t
 
 } // fc::raw
 
-inline void to_variant( const steem::protocol::asset_symbol_type& sym, fc::variant& var )
+inline void to_variant( const freezone::protocol::asset_symbol_type& sym, fc::variant& var )
 {
    try
    {
@@ -238,9 +238,9 @@ inline void to_variant( const steem::protocol::asset_symbol_type& sym, fc::varia
    } FC_CAPTURE_AND_RETHROW()
 }
 
-inline void from_variant( const fc::variant& var, steem::protocol::asset_symbol_type& sym )
+inline void from_variant( const fc::variant& var, freezone::protocol::asset_symbol_type& sym )
 {
-   using steem::protocol::asset_symbol_type;
+   using freezone::protocol::asset_symbol_type;
 
    try
    {
@@ -257,8 +257,8 @@ inline void from_variant( const fc::variant& var, steem::protocol::asset_symbol_
       if( decimals != o.end() )
       {
          FC_ASSERT( decimals->value().is_uint64(), "Expected an unsigned integer type for value '${key}'.", ("key", ASSET_SYMBOL_DECIMALS_KEY) );
-         FC_ASSERT( decimals->value().as_uint64() <= STEEM_ASSET_MAX_DECIMALS,
-            "Expected decimals to be less than or equal to ${num}", ("num", STEEM_ASSET_MAX_DECIMALS) );
+         FC_ASSERT( decimals->value().as_uint64() <= freezone_ASSET_MAX_DECIMALS,
+            "Expected decimals to be less than or equal to ${num}", ("num", freezone_ASSET_MAX_DECIMALS) );
 
          precision = decimals->value().as< uint8_t >();
       }

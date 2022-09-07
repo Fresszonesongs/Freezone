@@ -1,8 +1,8 @@
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/chain/steem_objects.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/chain/freezone_objects.hpp>
 
 #include <fc/uint128.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-} } // steem::chain
+} } // freezone::chain

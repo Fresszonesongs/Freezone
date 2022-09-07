@@ -1,14 +1,14 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/protocol/operations.hpp>
-#include <steem/protocol/sps_operations.hpp>
+#include <freezone/protocol/operations.hpp>
+#include <freezone/protocol/sps_operations.hpp>
 
-#include <steem/chain/witness_objects.hpp>
+#include <freezone/chain/witness_objects.hpp>
 
-#include <steem/plugins/condenser_api/condenser_api_legacy_asset.hpp>
+#include <freezone/plugins/condenser_api/condenser_api_legacy_asset.hpp>
 
-namespace steem { namespace plugins { namespace condenser_api {
+namespace freezone { namespace plugins { namespace condenser_api {
 
    template< typename T >
    struct convert_to_legacy_static_variant
@@ -40,21 +40,21 @@ namespace steem { namespace plugins { namespace condenser_api {
          > legacy_pow2_work;
 
    typedef static_variant<
-      protocol::smt_capped_generation_policy
-   > legacy_smt_generation_policy;
+      protocol::SST_capped_generation_policy
+   > legacy_SST_generation_policy;
 
    typedef static_variant<
-      protocol::smt_param_allow_voting
-   > legacy_smt_setup_parameter;
+      protocol::SST_param_allow_voting
+   > legacy_SST_setup_parameter;
 
    typedef static_variant<
-      protocol::smt_param_windows_v1,
-      protocol::smt_param_vote_regeneration_period_seconds_v1,
-      protocol::smt_param_rewards_v1,
-      protocol::smt_param_allow_downvotes
-   > legacy_smt_runtime_parameter;
+      protocol::SST_param_windows_v1,
+      protocol::SST_param_vote_regeneration_period_seconds_v1,
+      protocol::SST_param_rewards_v1,
+      protocol::SST_param_allow_downvotes
+   > legacy_SST_runtime_parameter;
 
-   using namespace steem::protocol;
+   using namespace freezone::protocol;
 
    typedef account_update_operation               legacy_account_update_operation;
    typedef account_update2_operation              legacy_account_update2_operation;
@@ -88,9 +88,9 @@ namespace steem { namespace plugins { namespace condenser_api {
    typedef remove_proposal_operation              legacy_remove_proposal_operation;
    typedef claim_reward_balance2_operation        legacy_claim_reward_balance2_operation;
    typedef vote2_operation                        legacy_vote2_operation;
-   typedef smt_setup_emissions_operation          legacy_smt_setup_emissions_operation;
-   typedef smt_create_operation                   legacy_smt_create_operation;
-   typedef smt_contribute_operation               legacy_smt_contribute_operation;
+   typedef SST_setup_emissions_operation          legacy_SST_setup_emissions_operation;
+   typedef SST_create_operation                   legacy_SST_create_operation;
+   typedef SST_contribute_operation               legacy_SST_contribute_operation;
    typedef clear_null_account_balance_operation   legacy_clear_null_account_balance_operation;
 
    struct legacy_price
@@ -121,17 +121,17 @@ namespace steem { namespace plugins { namespace condenser_api {
       operator legacy_chain_properties() const
       {
          legacy_chain_properties props;
-         props.account_creation_fee = legacy_steem_asset::from_asset( asset( account_creation_fee ) );
+         props.account_creation_fee = legacy_freezone_asset::from_asset( asset( account_creation_fee ) );
          props.maximum_block_size = maximum_block_size;
          props.sbd_interest_rate = sbd_interest_rate;
          return props;
       }
 
       legacy_asset   account_creation_fee;
-      uint32_t       maximum_block_size = STEEM_MIN_BLOCK_SIZE_LIMIT * 2;
-      uint16_t       sbd_interest_rate = STEEM_DEFAULT_SBD_INTEREST_RATE;
-      int32_t        account_subsidy_budget = STEEM_DEFAULT_ACCOUNT_SUBSIDY_BUDGET;
-      uint32_t       account_subsidy_decay = STEEM_DEFAULT_ACCOUNT_SUBSIDY_DECAY;
+      uint32_t       maximum_block_size = freezone_MIN_BLOCK_SIZE_LIMIT * 2;
+      uint16_t       sbd_interest_rate = freezone_DEFAULT_SBD_INTEREST_RATE;
+      int32_t        account_subsidy_budget = freezone_DEFAULT_ACCOUNT_SUBSIDY_BUDGET;
+      uint32_t       account_subsidy_decay = freezone_DEFAULT_ACCOUNT_SUBSIDY_DECAY;
    };
 
    struct legacy_account_create_operation
@@ -225,7 +225,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          author( op.author ),
          permlink( op.permlink ),
          max_accepted_payout( legacy_asset::from_asset( op.max_accepted_payout ) ),
-         percent_steem_dollars( op.percent_steem_dollars ),
+         percent_freezone_dollars( op.percent_freezone_dollars ),
          allow_votes( op.allow_votes ),
          allow_curation_rewards( op.allow_curation_rewards )
       {
@@ -243,7 +243,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          op.author = author;
          op.permlink = permlink;
          op.max_accepted_payout = max_accepted_payout;
-         op.percent_steem_dollars = percent_steem_dollars;
+         op.percent_freezone_dollars = percent_freezone_dollars;
          op.allow_curation_rewards = allow_curation_rewards;
          op.extensions.insert( extensions.begin(), extensions.end() );
          return op;
@@ -253,7 +253,7 @@ namespace steem { namespace plugins { namespace condenser_api {
       string            permlink;
 
       legacy_asset      max_accepted_payout;
-      uint16_t          percent_steem_dollars;
+      uint16_t          percent_freezone_dollars;
       bool              allow_votes;
       bool              allow_curation_rewards;
       legacy_comment_options_extensions_type extensions;
@@ -295,7 +295,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          agent( op.agent ),
          escrow_id( op.escrow_id ),
          sbd_amount( legacy_asset::from_asset( op.sbd_amount ) ),
-         steem_amount( legacy_asset::from_asset( op.steem_amount ) ),
+         freezone_amount( legacy_asset::from_asset( op.freezone_amount ) ),
          fee( legacy_asset::from_asset( op.fee ) ),
          ratification_deadline( op.ratification_deadline ),
          escrow_expiration( op.escrow_expiration ),
@@ -310,7 +310,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          op.agent = agent;
          op.escrow_id = escrow_id;
          op.sbd_amount = sbd_amount;
-         op.steem_amount = steem_amount;
+         op.freezone_amount = freezone_amount;
          op.fee = fee;
          op.ratification_deadline = ratification_deadline;
          op.escrow_expiration = escrow_expiration;
@@ -324,7 +324,7 @@ namespace steem { namespace plugins { namespace condenser_api {
       uint32_t          escrow_id;
 
       legacy_asset      sbd_amount;
-      legacy_asset      steem_amount;
+      legacy_asset      freezone_amount;
       legacy_asset      fee;
 
       time_point_sec    ratification_deadline;
@@ -344,7 +344,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          receiver( op.receiver ),
          escrow_id( op.escrow_id ),
          sbd_amount( legacy_asset::from_asset( op.sbd_amount ) ),
-         steem_amount( legacy_asset::from_asset( op.steem_amount ) )
+         freezone_amount( legacy_asset::from_asset( op.freezone_amount ) )
       {}
 
       operator escrow_release_operation()const
@@ -357,7 +357,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          op.receiver = receiver;
          op.escrow_id = escrow_id;
          op.sbd_amount = sbd_amount;
-         op.steem_amount = steem_amount;
+         op.freezone_amount = freezone_amount;
          return op;
       }
 
@@ -369,7 +369,7 @@ namespace steem { namespace plugins { namespace condenser_api {
 
       uint32_t          escrow_id;
       legacy_asset      sbd_amount;
-      legacy_asset      steem_amount;
+      legacy_asset      freezone_amount;
    };
 
    struct legacy_pow2_operation
@@ -389,7 +389,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          pow2_operation op;
          work.visit( convert_to_legacy_static_variant< pow2_work >( op.work ) );
          op.new_owner_key = new_owner_key;
-         op.props.account_creation_fee = legacy_steem_asset::from_asset( asset( props.account_creation_fee ) );
+         op.props.account_creation_fee = legacy_freezone_asset::from_asset( asset( props.account_creation_fee ) );
          op.props.maximum_block_size = props.maximum_block_size;
          op.props.sbd_interest_rate = props.sbd_interest_rate;
          return op;
@@ -498,7 +498,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          op.owner = owner;
          op.url = url;
          op.block_signing_key = block_signing_key;
-         op.props.account_creation_fee = legacy_steem_asset::from_asset( asset( props.account_creation_fee ) );
+         op.props.account_creation_fee = legacy_freezone_asset::from_asset( asset( props.account_creation_fee ) );
          op.props.maximum_block_size = props.maximum_block_size;
          op.props.sbd_interest_rate = props.sbd_interest_rate;
          op.fee = fee;
@@ -679,7 +679,7 @@ namespace steem { namespace plugins { namespace condenser_api {
       legacy_claim_reward_balance_operation() {}
       legacy_claim_reward_balance_operation( const claim_reward_balance_operation& op ) :
          account( op.account ),
-         reward_steem( legacy_asset::from_asset( op.reward_steem ) ),
+         reward_freezone( legacy_asset::from_asset( op.reward_freezone ) ),
          reward_sbd( legacy_asset::from_asset( op.reward_sbd ) ),
          reward_vests( legacy_asset::from_asset( op.reward_vests ) )
       {}
@@ -688,14 +688,14 @@ namespace steem { namespace plugins { namespace condenser_api {
       {
          claim_reward_balance_operation op;
          op.account = account;
-         op.reward_steem = reward_steem;
+         op.reward_freezone = reward_freezone;
          op.reward_sbd = reward_sbd;
          op.reward_vests = reward_vests;
          return op;
       }
 
       account_name_type account;
-      legacy_asset      reward_steem;
+      legacy_asset      reward_freezone;
       legacy_asset      reward_sbd;
       legacy_asset      reward_vests;
    };
@@ -723,32 +723,32 @@ namespace steem { namespace plugins { namespace condenser_api {
       legacy_asset      vesting_shares;
    };
 
-   struct legacy_smt_setup_operation
+   struct legacy_SST_setup_operation
    {
-      legacy_smt_setup_operation() {}
-      legacy_smt_setup_operation( const smt_setup_operation& op ) :
+      legacy_SST_setup_operation() {}
+      legacy_SST_setup_operation( const SST_setup_operation& op ) :
          control_account( op.control_account ),
          symbol( op.symbol ),
          max_supply( op.max_supply ),
          contribution_begin_time( op.contribution_begin_time ),
          contribution_end_time( op.contribution_end_time ),
          launch_time( op.launch_time ),
-         steem_satoshi_min( op.steem_satoshi_min ),
+         freezone_satoshi_min( op.freezone_satoshi_min ),
          min_unit_ratio( op.min_unit_ratio ),
          max_unit_ratio( op.max_unit_ratio )
       {
       }
 
-      operator smt_setup_operation()const
+      operator SST_setup_operation()const
       {
-         smt_setup_operation op;
+         SST_setup_operation op;
          op.control_account = control_account;
          op.symbol = symbol;
          op.max_supply = max_supply;
          op.contribution_begin_time = contribution_begin_time;
          op.contribution_end_time = contribution_end_time;
          op.launch_time = launch_time;
-         op.steem_satoshi_min = steem_satoshi_min;
+         op.freezone_satoshi_min = freezone_satoshi_min;
          op.min_unit_ratio = min_unit_ratio;
          op.max_unit_ratio = max_unit_ratio;
 
@@ -758,37 +758,37 @@ namespace steem { namespace plugins { namespace condenser_api {
       account_name_type             control_account;
       asset_symbol_type             symbol;
 
-      int64_t                       max_supply = STEEM_MAX_SHARE_SUPPLY;
+      int64_t                       max_supply = freezone_MAX_SHARE_SUPPLY;
 
       time_point_sec                contribution_begin_time;
       time_point_sec                contribution_end_time;
       time_point_sec                launch_time;
 
-      share_type                    steem_satoshi_min;
+      share_type                    freezone_satoshi_min;
       uint32_t                      min_unit_ratio = 0;
       uint32_t                      max_unit_ratio = 0;
 
       extensions_type               extensions;
    };
 
-   struct legacy_smt_setup_ico_tier_operation
+   struct legacy_SST_setup_ico_tier_operation
    {
-      legacy_smt_setup_ico_tier_operation() {}
-      legacy_smt_setup_ico_tier_operation( const smt_setup_ico_tier_operation& op ) :
+      legacy_SST_setup_ico_tier_operation() {}
+      legacy_SST_setup_ico_tier_operation( const SST_setup_ico_tier_operation& op ) :
          control_account( op.control_account ),
          symbol( op.symbol ),
-         steem_satoshi_cap( op.steem_satoshi_cap ),
+         freezone_satoshi_cap( op.freezone_satoshi_cap ),
          remove( op.remove )
       {
-         op.generation_policy.visit( convert_to_legacy_static_variant< legacy_smt_generation_policy >( generation_policy ) );
+         op.generation_policy.visit( convert_to_legacy_static_variant< legacy_SST_generation_policy >( generation_policy ) );
       }
 
-      operator smt_setup_ico_tier_operation()const
+      operator SST_setup_ico_tier_operation()const
       {
-         smt_setup_ico_tier_operation op;
+         SST_setup_ico_tier_operation op;
          op.control_account = control_account;
          op.symbol = symbol;
-         op.steem_satoshi_cap = steem_satoshi_cap;
+         op.freezone_satoshi_cap = freezone_satoshi_cap;
          op.generation_policy = generation_policy;
          op.remove = remove;
 
@@ -798,30 +798,30 @@ namespace steem { namespace plugins { namespace condenser_api {
       account_name_type            control_account;
       asset_symbol_type            symbol;
 
-      share_type                   steem_satoshi_cap;
-      legacy_smt_generation_policy generation_policy;
+      share_type                   freezone_satoshi_cap;
+      legacy_SST_generation_policy generation_policy;
       bool                         remove = false;
       extensions_type              extensions;
    };
 
-   struct legacy_smt_set_setup_parameters_operation
+   struct legacy_SST_set_setup_parameters_operation
    {
-      legacy_smt_set_setup_parameters_operation() {}
-      legacy_smt_set_setup_parameters_operation( const smt_set_setup_parameters_operation& op ) :
+      legacy_SST_set_setup_parameters_operation() {}
+      legacy_SST_set_setup_parameters_operation( const SST_set_setup_parameters_operation& op ) :
          control_account( op.control_account ),
          symbol( op.symbol )
       {
          for( const auto& p : op.setup_parameters )
          {
-            legacy_smt_setup_parameter param;
-            p.visit( convert_to_legacy_static_variant< legacy_smt_setup_parameter >( param ) );
+            legacy_SST_setup_parameter param;
+            p.visit( convert_to_legacy_static_variant< legacy_SST_setup_parameter >( param ) );
             setup_parameters.push_back( param );
          }
       }
 
-      operator smt_set_setup_parameters_operation() const
+      operator SST_set_setup_parameters_operation() const
       {
-         smt_set_setup_parameters_operation op;
+         SST_set_setup_parameters_operation op;
          op.control_account = control_account;
          op.symbol = symbol;
          op.setup_parameters.insert( setup_parameters.begin(), setup_parameters.end() );
@@ -831,28 +831,28 @@ namespace steem { namespace plugins { namespace condenser_api {
 
       account_name_type                      control_account;
       asset_symbol_type                      symbol;
-      vector< legacy_smt_setup_parameter >   setup_parameters;
+      vector< legacy_SST_setup_parameter >   setup_parameters;
       extensions_type                        extensions;
    };
 
-   struct legacy_smt_set_runtime_parameters_operation
+   struct legacy_SST_set_runtime_parameters_operation
    {
-      legacy_smt_set_runtime_parameters_operation() {}
-      legacy_smt_set_runtime_parameters_operation( const smt_set_runtime_parameters_operation& op ) :
+      legacy_SST_set_runtime_parameters_operation() {}
+      legacy_SST_set_runtime_parameters_operation( const SST_set_runtime_parameters_operation& op ) :
          control_account( op.control_account ),
          symbol( op.symbol )
       {
          for( const auto& p : op.runtime_parameters )
          {
-            legacy_smt_runtime_parameter param;
-            p.visit( convert_to_legacy_static_variant< legacy_smt_runtime_parameter >( param ) );
+            legacy_SST_runtime_parameter param;
+            p.visit( convert_to_legacy_static_variant< legacy_SST_runtime_parameter >( param ) );
             runtime_parameters.push_back( param );
          }
       }
 
-      operator smt_set_runtime_parameters_operation() const
+      operator SST_set_runtime_parameters_operation() const
       {
-         smt_set_runtime_parameters_operation op;
+         SST_set_runtime_parameters_operation op;
          op.control_account = control_account;
          op.symbol = symbol;
          op.runtime_parameters.insert( runtime_parameters.begin(), runtime_parameters.end() );
@@ -862,7 +862,7 @@ namespace steem { namespace plugins { namespace condenser_api {
 
       account_name_type                         control_account;
       asset_symbol_type                         symbol;
-      vector< legacy_smt_runtime_parameter >  runtime_parameters;
+      vector< legacy_SST_runtime_parameter >  runtime_parameters;
       extensions_type                           extensions;
    };
 
@@ -873,7 +873,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          author( op.author ),
          permlink( op.permlink ),
          sbd_payout( legacy_asset::from_asset( op.sbd_payout ) ),
-         steem_payout( legacy_asset::from_asset( op.steem_payout ) ),
+         freezone_payout( legacy_asset::from_asset( op.freezone_payout ) ),
          vesting_payout( legacy_asset::from_asset( op.vesting_payout ) )
       {}
 
@@ -883,7 +883,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          op.author = author;
          op.permlink = permlink;
          op.sbd_payout = sbd_payout;
-         op.steem_payout = steem_payout;
+         op.freezone_payout = freezone_payout;
          op.vesting_payout = vesting_payout;
          return op;
       }
@@ -891,7 +891,7 @@ namespace steem { namespace plugins { namespace condenser_api {
       account_name_type author;
       string            permlink;
       legacy_asset      sbd_payout;
-      legacy_asset      steem_payout;
+      legacy_asset      freezone_payout;
       legacy_asset      vesting_payout;
    };
 
@@ -1125,7 +1125,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          author( op.author ),
          permlink( op.permlink ),
          sbd_payout( legacy_asset::from_asset( op.sbd_payout ) ),
-         steem_payout( legacy_asset::from_asset( op.steem_payout ) ),
+         freezone_payout( legacy_asset::from_asset( op.freezone_payout ) ),
          vesting_payout( legacy_asset::from_asset( op.vesting_payout ) )
       {}
 
@@ -1136,7 +1136,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          op.author = author;
          op.permlink = permlink;
          op.sbd_payout = sbd_payout;
-         op.steem_payout = steem_payout;
+         op.freezone_payout = freezone_payout;
          op.vesting_payout = vesting_payout;
          return op;
       }
@@ -1145,7 +1145,7 @@ namespace steem { namespace plugins { namespace condenser_api {
       account_name_type author;
       string            permlink;
       legacy_asset      sbd_payout;
-      legacy_asset      steem_payout;
+      legacy_asset      freezone_payout;
       legacy_asset      vesting_payout;
    };
 
@@ -1286,13 +1286,13 @@ namespace steem { namespace plugins { namespace condenser_api {
             legacy_remove_proposal_operation,
             legacy_claim_reward_balance2_operation,
             legacy_vote2_operation,
-            legacy_smt_setup_operation,
-            legacy_smt_setup_emissions_operation,
-            legacy_smt_setup_ico_tier_operation,
-            legacy_smt_set_setup_parameters_operation,
-            legacy_smt_set_runtime_parameters_operation,
-            legacy_smt_create_operation,
-            legacy_smt_contribute_operation,
+            legacy_SST_setup_operation,
+            legacy_SST_setup_emissions_operation,
+            legacy_SST_setup_ico_tier_operation,
+            legacy_SST_set_setup_parameters_operation,
+            legacy_SST_set_runtime_parameters_operation,
+            legacy_SST_create_operation,
+            legacy_SST_contribute_operation,
             legacy_fill_convert_request_operation,
             legacy_author_reward_operation,
             legacy_curation_reward_operation,
@@ -1353,9 +1353,9 @@ namespace steem { namespace plugins { namespace condenser_api {
       bool operator()( const remove_proposal_operation& op )const                { l_op = op; return true; }
       bool operator()( const claim_reward_balance2_operation& op ) const         { l_op = op; return true; }
       bool operator()( const vote2_operation& op ) const                         { l_op = op; return true; }
-      bool operator()( const smt_setup_emissions_operation& op ) const           { l_op = op; return true; }
-      bool operator()( const smt_create_operation& op ) const                    { l_op = op; return true; }
-      bool operator()( const smt_contribute_operation& op ) const                { l_op = op; return true; }
+      bool operator()( const SST_setup_emissions_operation& op ) const           { l_op = op; return true; }
+      bool operator()( const SST_create_operation& op ) const                    { l_op = op; return true; }
+      bool operator()( const SST_contribute_operation& op ) const                { l_op = op; return true; }
       bool operator()( const clear_null_account_balance_operation& op )const     { l_op = op; return true; }
 
       bool operator()( const transfer_operation& op )const
@@ -1466,27 +1466,27 @@ namespace steem { namespace plugins { namespace condenser_api {
          return true;
       }
 
-      bool operator()( const smt_setup_operation& op )const
+      bool operator()( const SST_setup_operation& op )const
       {
-         l_op = legacy_smt_setup_operation( op );
+         l_op = legacy_SST_setup_operation( op );
          return true;
       }
 
-      bool operator()( const smt_setup_ico_tier_operation& op )const
+      bool operator()( const SST_setup_ico_tier_operation& op )const
       {
-         l_op = legacy_smt_setup_ico_tier_operation( op );
+         l_op = legacy_SST_setup_ico_tier_operation( op );
          return true;
       }
 
-      bool operator()( const smt_set_setup_parameters_operation& op )const
+      bool operator()( const SST_set_setup_parameters_operation& op )const
       {
-         l_op = legacy_smt_set_setup_parameters_operation( op );
+         l_op = legacy_SST_set_setup_parameters_operation( op );
          return true;
       }
 
-      bool operator()( const smt_set_runtime_parameters_operation& op )const
+      bool operator()( const SST_set_runtime_parameters_operation& op )const
       {
-         l_op = legacy_smt_set_runtime_parameters_operation( op );
+         l_op = legacy_SST_set_runtime_parameters_operation( op );
          return true;
       }
 
@@ -1586,7 +1586,7 @@ namespace steem { namespace plugins { namespace condenser_api {
          return true;
       }
 
-      // Should only be SMT ops
+      // Should only be SST ops
       template< typename T >
       bool operator()( const T& )const { return false; }
 };
@@ -1687,24 +1687,24 @@ struct convert_from_legacy_operation_visitor
       return operation( account_create_with_delegation_operation( op ) );
    }
 
-   operation operator()( const legacy_smt_setup_operation& op )const
+   operation operator()( const legacy_SST_setup_operation& op )const
    {
-      return operation( smt_setup_operation( op ) );
+      return operation( SST_setup_operation( op ) );
    }
 
-   operation operator()( const legacy_smt_setup_ico_tier_operation& op )const
+   operation operator()( const legacy_SST_setup_ico_tier_operation& op )const
    {
-      return operation( smt_setup_ico_tier_operation( op ) );
+      return operation( SST_setup_ico_tier_operation( op ) );
    }
 
-   operation operator()( const legacy_smt_set_setup_parameters_operation& op )const
+   operation operator()( const legacy_SST_set_setup_parameters_operation& op )const
    {
-      return operation( smt_set_setup_parameters_operation( op ) );
+      return operation( SST_set_setup_parameters_operation( op ) );
    }
 
-   operation operator()( const legacy_smt_set_runtime_parameters_operation& op )const
+   operation operator()( const legacy_SST_set_runtime_parameters_operation& op )const
    {
-      return operation( smt_set_runtime_parameters_operation( op ) );
+      return operation( SST_set_runtime_parameters_operation( op ) );
    }
 
    operation operator()( const legacy_fill_convert_request_operation& op )const
@@ -1794,27 +1794,27 @@ struct convert_from_legacy_operation_visitor
    }
 };
 
-} } } // steem::plugins::condenser_api
+} } } // freezone::plugins::condenser_api
 
 namespace fc {
 
-void to_variant( const steem::plugins::condenser_api::legacy_operation&, fc::variant& );
-void from_variant( const fc::variant&, steem::plugins::condenser_api::legacy_operation& );
+void to_variant( const freezone::plugins::condenser_api::legacy_operation&, fc::variant& );
+void from_variant( const fc::variant&, freezone::plugins::condenser_api::legacy_operation& );
 
-void to_variant( const steem::plugins::condenser_api::legacy_comment_options_extensions&, fc::variant& );
-void from_variant( const fc::variant&, steem::plugins::condenser_api::legacy_comment_options_extensions& );
+void to_variant( const freezone::plugins::condenser_api::legacy_comment_options_extensions&, fc::variant& );
+void from_variant( const fc::variant&, freezone::plugins::condenser_api::legacy_comment_options_extensions& );
 
-void to_variant( const steem::plugins::condenser_api::legacy_pow2_work&, fc::variant& );
-void from_variant( const fc::variant&, steem::plugins::condenser_api::legacy_pow2_work& );
+void to_variant( const freezone::plugins::condenser_api::legacy_pow2_work&, fc::variant& );
+void from_variant( const fc::variant&, freezone::plugins::condenser_api::legacy_pow2_work& );
 
-void to_variant( const steem::plugins::condenser_api::legacy_smt_generation_policy&, fc::variant& );
-void from_variant( const fc::variant&, steem::plugins::condenser_api::legacy_smt_generation_policy& );
+void to_variant( const freezone::plugins::condenser_api::legacy_SST_generation_policy&, fc::variant& );
+void from_variant( const fc::variant&, freezone::plugins::condenser_api::legacy_SST_generation_policy& );
 
-void to_variant( const steem::plugins::condenser_api::legacy_smt_setup_parameter&, fc::variant& );
-void from_variant( const fc::variant&, steem::plugins::condenser_api::legacy_smt_setup_parameter& );
+void to_variant( const freezone::plugins::condenser_api::legacy_SST_setup_parameter&, fc::variant& );
+void from_variant( const fc::variant&, freezone::plugins::condenser_api::legacy_SST_setup_parameter& );
 
-void to_variant( const steem::plugins::condenser_api::legacy_smt_runtime_parameter&, fc::variant& );
-void from_variant( const fc::variant&, steem::plugins::condenser_api::legacy_smt_runtime_parameter& );
+void to_variant( const freezone::plugins::condenser_api::legacy_SST_runtime_parameter&, fc::variant& );
+void from_variant( const fc::variant&, freezone::plugins::condenser_api::legacy_SST_runtime_parameter& );
 
 struct from_old_static_variant
 {
@@ -1861,17 +1861,17 @@ void old_sv_from_variant( const fc::variant& v, T& sv )
 
 }
 
-FC_REFLECT( steem::plugins::condenser_api::api_chain_properties,
+FC_REFLECT( freezone::plugins::condenser_api::api_chain_properties,
             (account_creation_fee)(maximum_block_size)(sbd_interest_rate)(account_subsidy_budget)(account_subsidy_decay)
           )
 
-FC_REFLECT( steem::plugins::condenser_api::legacy_price, (base)(quote) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_transfer_to_savings_operation, (from)(to)(amount)(memo) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_transfer_from_savings_operation, (from)(request_id)(to)(amount)(memo) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_convert_operation, (owner)(requestid)(amount) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_feed_publish_operation, (publisher)(exchange_rate) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_price, (base)(quote) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_transfer_to_savings_operation, (from)(to)(amount)(memo) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_transfer_from_savings_operation, (from)(request_id)(to)(amount)(memo) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_convert_operation, (owner)(requestid)(amount) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_feed_publish_operation, (publisher)(exchange_rate) )
 
-FC_REFLECT( steem::plugins::condenser_api::legacy_account_create_operation,
+FC_REFLECT( freezone::plugins::condenser_api::legacy_account_create_operation,
             (fee)
             (creator)
             (new_account_name)
@@ -1881,7 +1881,7 @@ FC_REFLECT( steem::plugins::condenser_api::legacy_account_create_operation,
             (memo_key)
             (json_metadata) )
 
-FC_REFLECT( steem::plugins::condenser_api::legacy_account_create_with_delegation_operation,
+FC_REFLECT( freezone::plugins::condenser_api::legacy_account_create_with_delegation_operation,
             (fee)
             (delegation)
             (creator)
@@ -1893,37 +1893,37 @@ FC_REFLECT( steem::plugins::condenser_api::legacy_account_create_with_delegation
             (json_metadata)
             (extensions) )
 
-FC_REFLECT( steem::plugins::condenser_api::legacy_transfer_operation, (from)(to)(amount)(memo) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_transfer_to_vesting_operation, (from)(to)(amount) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_withdraw_vesting_operation, (account)(vesting_shares) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_limit_order_create_operation, (owner)(orderid)(amount_to_sell)(min_to_receive)(fill_or_kill)(expiration) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_limit_order_create2_operation, (owner)(orderid)(amount_to_sell)(exchange_rate)(fill_or_kill)(expiration) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_comment_options_operation, (author)(permlink)(max_accepted_payout)(percent_steem_dollars)(allow_votes)(allow_curation_rewards)(extensions) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_escrow_transfer_operation, (from)(to)(sbd_amount)(steem_amount)(escrow_id)(agent)(fee)(json_meta)(ratification_deadline)(escrow_expiration) );
-FC_REFLECT( steem::plugins::condenser_api::legacy_escrow_release_operation, (from)(to)(agent)(who)(receiver)(escrow_id)(sbd_amount)(steem_amount) );
-FC_REFLECT( steem::plugins::condenser_api::legacy_pow2_operation, (work)(new_owner_key)(props) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
-FC_REFLECT( steem::plugins::condenser_api::legacy_author_reward_operation, (author)(permlink)(sbd_payout)(steem_payout)(vesting_payout) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_curation_reward_operation, (curator)(reward)(comment_author)(comment_permlink) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_comment_reward_operation, (author)(permlink)(payout) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_smt_setup_operation, (control_account)(symbol)(max_supply)(contribution_begin_time)(contribution_end_time)(launch_time)(steem_satoshi_min)(min_unit_ratio)(max_unit_ratio)(extensions) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_smt_set_setup_parameters_operation, (control_account)(symbol)(setup_parameters)(extensions) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_smt_setup_ico_tier_operation, (control_account)(symbol)(steem_satoshi_cap)(generation_policy)(remove)(extensions) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_smt_set_runtime_parameters_operation, (control_account)(symbol)(runtime_parameters)(extensions))
-FC_REFLECT( steem::plugins::condenser_api::legacy_fill_convert_request_operation, (owner)(requestid)(amount_in)(amount_out) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_liquidity_reward_operation, (owner)(payout) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_interest_operation, (owner)(interest) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_fill_vesting_withdraw_operation, (from_account)(to_account)(withdrawn)(deposited) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_fill_order_operation, (current_owner)(current_orderid)(current_pays)(open_owner)(open_orderid)(open_pays) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_fill_transfer_from_savings_operation, (from)(to)(amount)(request_id)(memo) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_return_vesting_delegation_operation, (account)(vesting_shares) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_comment_benefactor_reward_operation, (benefactor)(author)(permlink)(sbd_payout)(steem_payout)(vesting_payout) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_producer_reward_operation, (producer)(vesting_shares) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_claim_account_operation, (creator)(fee)(extensions) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_proposal_pay_operation, (receiver)(payment)(trx_id)(op_in_trx) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_sps_fund_operation, (additional_funds) )
-FC_REFLECT( steem::plugins::condenser_api::legacy_create_proposal_operation, (creator)(receiver)(start_date)(end_date)(daily_pay)(subject)(permlink) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_transfer_operation, (from)(to)(amount)(memo) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_transfer_to_vesting_operation, (from)(to)(amount) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_withdraw_vesting_operation, (account)(vesting_shares) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_limit_order_create_operation, (owner)(orderid)(amount_to_sell)(min_to_receive)(fill_or_kill)(expiration) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_limit_order_create2_operation, (owner)(orderid)(amount_to_sell)(exchange_rate)(fill_or_kill)(expiration) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_comment_options_operation, (author)(permlink)(max_accepted_payout)(percent_freezone_dollars)(allow_votes)(allow_curation_rewards)(extensions) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_escrow_transfer_operation, (from)(to)(sbd_amount)(freezone_amount)(escrow_id)(agent)(fee)(json_meta)(ratification_deadline)(escrow_expiration) );
+FC_REFLECT( freezone::plugins::condenser_api::legacy_escrow_release_operation, (from)(to)(agent)(who)(receiver)(escrow_id)(sbd_amount)(freezone_amount) );
+FC_REFLECT( freezone::plugins::condenser_api::legacy_pow2_operation, (work)(new_owner_key)(props) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_claim_reward_balance_operation, (account)(reward_freezone)(reward_sbd)(reward_vests) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
+FC_REFLECT( freezone::plugins::condenser_api::legacy_author_reward_operation, (author)(permlink)(sbd_payout)(freezone_payout)(vesting_payout) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_curation_reward_operation, (curator)(reward)(comment_author)(comment_permlink) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_comment_reward_operation, (author)(permlink)(payout) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_SST_setup_operation, (control_account)(symbol)(max_supply)(contribution_begin_time)(contribution_end_time)(launch_time)(freezone_satoshi_min)(min_unit_ratio)(max_unit_ratio)(extensions) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_SST_set_setup_parameters_operation, (control_account)(symbol)(setup_parameters)(extensions) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_SST_setup_ico_tier_operation, (control_account)(symbol)(freezone_satoshi_cap)(generation_policy)(remove)(extensions) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_SST_set_runtime_parameters_operation, (control_account)(symbol)(runtime_parameters)(extensions))
+FC_REFLECT( freezone::plugins::condenser_api::legacy_fill_convert_request_operation, (owner)(requestid)(amount_in)(amount_out) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_liquidity_reward_operation, (owner)(payout) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_interest_operation, (owner)(interest) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_fill_vesting_withdraw_operation, (from_account)(to_account)(withdrawn)(deposited) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_fill_order_operation, (current_owner)(current_orderid)(current_pays)(open_owner)(open_orderid)(open_pays) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_fill_transfer_from_savings_operation, (from)(to)(amount)(request_id)(memo) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_return_vesting_delegation_operation, (account)(vesting_shares) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_comment_benefactor_reward_operation, (benefactor)(author)(permlink)(sbd_payout)(freezone_payout)(vesting_payout) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_producer_reward_operation, (producer)(vesting_shares) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_claim_account_operation, (creator)(fee)(extensions) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_proposal_pay_operation, (receiver)(payment)(trx_id)(op_in_trx) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_sps_fund_operation, (additional_funds) )
+FC_REFLECT( freezone::plugins::condenser_api::legacy_create_proposal_operation, (creator)(receiver)(start_date)(end_date)(daily_pay)(subject)(permlink) )
 
-FC_REFLECT_TYPENAME( steem::plugins::condenser_api::legacy_operation )
+FC_REFLECT_TYPENAME( freezone::plugins::condenser_api::legacy_operation )

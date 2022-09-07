@@ -1,17 +1,17 @@
 #pragma once
 
-#include <steem/protocol/steem_optional_actions.hpp>
+#include <freezone/protocol/freezone_optional_actions.hpp>
 
-#include <steem/chain/evaluator.hpp>
+#include <freezone/chain/evaluator.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-using namespace steem::protocol;
+using namespace freezone::protocol;
 
 #ifdef IS_TEST_NET
-STEEM_DEFINE_ACTION_EVALUATOR( example_optional, optional_automated_action )
+freezone_DEFINE_ACTION_EVALUATOR( example_optional, optional_automated_action )
 #endif
 
-STEEM_DEFINE_ACTION_EVALUATOR( smt_token_emission, optional_automated_action )
+freezone_DEFINE_ACTION_EVALUATOR( SST_token_emission, optional_automated_action )
 
-} } //steem::chain
+} } //freezone::chain

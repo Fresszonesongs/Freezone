@@ -1,25 +1,25 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/plugins/json_rpc/json_rpc_plugin.hpp>
-#include <steem/plugins/database_api/database_api_plugin.hpp>
-#include <steem/plugins/block_api/block_api_plugin.hpp>
+#include <freezone/plugins/json_rpc/json_rpc_plugin.hpp>
+#include <freezone/plugins/database_api/database_api_plugin.hpp>
+#include <freezone/plugins/block_api/block_api_plugin.hpp>
 
-#define STEEM_CONDENSER_API_PLUGIN_NAME "condenser_api"
+#define freezone_CONDENSER_API_PLUGIN_NAME "condenser_api"
 
-namespace steem { namespace plugins { namespace condenser_api {
+namespace freezone { namespace plugins { namespace condenser_api {
 
 using namespace appbase;
 
 class condenser_api_plugin : public appbase::plugin< condenser_api_plugin >
 {
 public:
-   APPBASE_PLUGIN_REQUIRES( (steem::plugins::json_rpc::json_rpc_plugin)(steem::plugins::database_api::database_api_plugin) )
+   APPBASE_PLUGIN_REQUIRES( (freezone::plugins::json_rpc::json_rpc_plugin)(freezone::plugins::database_api::database_api_plugin) )
 
    condenser_api_plugin();
    virtual ~condenser_api_plugin();
 
-   static const std::string& name() { static std::string name = STEEM_CONDENSER_API_PLUGIN_NAME; return name; }
+   static const std::string& name() { static std::string name = freezone_CONDENSER_API_PLUGIN_NAME; return name; }
 
    virtual void set_program_options( options_description& cli, options_description& cfg ) override;
 
@@ -30,4 +30,4 @@ public:
    std::shared_ptr< class condenser_api > api;
 };
 
-} } } // steem::plugins::condenser_api
+} } } // freezone::plugins::condenser_api

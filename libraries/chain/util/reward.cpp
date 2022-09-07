@@ -1,8 +1,8 @@
 
-#include <steem/chain/util/reward.hpp>
-#include <steem/chain/util/uint256.hpp>
+#include <freezone/chain/util/reward.hpp>
+#include <freezone/chain/util/uint256.hpp>
 
-namespace steem { namespace chain { namespace util {
+namespace freezone { namespace chain { namespace util {
 
 uint8_t find_msb( const uint128_t& u )
 {
@@ -48,7 +48,7 @@ uint64_t get_rshare_reward( const comment_reward_context& ctx )
    //idump( (ctx) );
 
    u256 claim = to256( evaluate_reward_curve( ctx.rshares.value, ctx.reward_curve, ctx.content_constant ) );
-   claim = ( claim * ctx.reward_weight ) / STEEM_100_PERCENT;
+   claim = ( claim * ctx.reward_weight ) / freezone_100_PERCENT;
 
    u256 payout_u256 = ( rf * claim ) / total_claims;
    FC_ASSERT( payout_u256 <= u256( uint64_t( std::numeric_limits<int64_t>::max() ) ) );
@@ -101,4 +101,4 @@ uint128_t evaluate_reward_curve( const uint128_t& rshares, const protocol::curve
    return result;
 }
 
-} } } // steem::chain::util
+} } } // freezone::chain::util

@@ -1,9 +1,9 @@
 #pragma once
-#include <steem/protocol/types.hpp>
-#include <steem/protocol/config.hpp>
-#include <steem/protocol/asset_symbol.hpp>
+#include <freezone/protocol/types.hpp>
+#include <freezone/protocol/config.hpp>
+#include <freezone/protocol/asset_symbol.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
    struct asset
    {
@@ -14,7 +14,7 @@ namespace steem { namespace protocol {
          :amount(a),symbol(id){}
 
       asset()
-         :amount(0),symbol(STEEM_SYMBOL){}
+         :amount(0),symbol(freezone_SYMBOL){}
 
       share_type        amount;
       asset_symbol_type symbol;
@@ -151,12 +151,12 @@ namespace steem { namespace protocol {
    bool  operator != ( const price& a, const price& b );
    asset operator *  ( const asset& a, const price& b );
 
-} } // steem::protocol
+} } // freezone::protocol
 
 namespace fc {
-    void to_variant( const steem::protocol::asset& var,  fc::variant& vo );
-    void from_variant( const fc::variant& var,  steem::protocol::asset& vo );
+    void to_variant( const freezone::protocol::asset& var,  fc::variant& vo );
+    void from_variant( const fc::variant& var,  freezone::protocol::asset& vo );
 }
 
-FC_REFLECT( steem::protocol::asset, (amount)(symbol) )
-FC_REFLECT( steem::protocol::price, (base)(quote) )
+FC_REFLECT( freezone::protocol::asset, (amount)(symbol) )
+FC_REFLECT( freezone::protocol::price, (base)(quote) )

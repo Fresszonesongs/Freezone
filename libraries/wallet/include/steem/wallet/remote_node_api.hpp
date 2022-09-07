@@ -1,7 +1,7 @@
 #pragma once
-#include <steem/plugins/condenser_api/condenser_api.hpp>
+#include <freezone/plugins/condenser_api/condenser_api.hpp>
 
-namespace steem { namespace wallet {
+namespace freezone { namespace wallet {
 
 using std::vector;
 using fc::variant;
@@ -110,12 +110,12 @@ struct remote_node_api
    vector< condenser_api::api_proposal_object > find_proposals( vector< int64_t > );
    vector< database_api::api_proposal_vote_object > list_proposal_votes( fc::variant, uint32_t, database_api::sort_order_type, database_api::order_direction_type, database_api::proposal_status );
    vector< asset_symbol_type > get_nai_pool(void);
-   vector< database_api::api_smt_account_balance_object > get_smt_balances( vector< std::pair < string, string > > );
+   vector< database_api::api_SST_account_balance_object > get_SST_balances( vector< std::pair < string, string > > );
 };
 
 } }
 
-FC_API( steem::wallet::remote_node_api,
+FC_API( freezone::wallet::remote_node_api,
         (get_version)
         (get_trending_tags)
         (get_state)
@@ -205,5 +205,5 @@ FC_API( steem::wallet::remote_node_api,
         (find_proposals)
         (list_proposal_votes)
         (get_nai_pool)
-        (get_smt_balances)
+        (get_SST_balances)
       )

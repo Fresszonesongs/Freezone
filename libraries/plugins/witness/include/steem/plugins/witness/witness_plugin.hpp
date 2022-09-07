@@ -1,21 +1,21 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
-#include <steem/plugins/p2p/p2p_plugin.hpp>
-#include <steem/plugins/rc/rc_plugin.hpp>
-#include <steem/plugins/token_emissions/token_emissions_plugin.hpp>
-#include <steem/plugins/witness/block_producer.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
+#include <freezone/plugins/p2p/p2p_plugin.hpp>
+#include <freezone/plugins/rc/rc_plugin.hpp>
+#include <freezone/plugins/token_emissions/token_emissions_plugin.hpp>
+#include <freezone/plugins/witness/block_producer.hpp>
 
 #include <appbase/application.hpp>
 
-#define STEEM_WITNESS_PLUGIN_NAME "witness"
+#define freezone_WITNESS_PLUGIN_NAME "witness"
 
 #define RESERVE_RATIO_PRECISION ((int64_t)10000)
 #define RESERVE_RATIO_MIN_INCREMENT ((int64_t)5000)
 
 #define WITNESS_CUSTOM_OP_BLOCK_LIMIT 5
 
-namespace steem { namespace plugins { namespace witness {
+namespace freezone { namespace plugins { namespace witness {
 
 namespace detail { class witness_plugin_impl; }
 
@@ -40,16 +40,16 @@ class witness_plugin : public appbase::plugin< witness_plugin >
 {
 public:
    APPBASE_PLUGIN_REQUIRES(
-      (steem::plugins::chain::chain_plugin)
-      (steem::plugins::p2p::p2p_plugin)
-      (steem::plugins::rc::rc_plugin)
-      (steem::plugins::token_emissions::token_emissions_plugin)
+      (freezone::plugins::chain::chain_plugin)
+      (freezone::plugins::p2p::p2p_plugin)
+      (freezone::plugins::rc::rc_plugin)
+      (freezone::plugins::token_emissions::token_emissions_plugin)
    )
 
    witness_plugin();
    virtual ~witness_plugin();
 
-   static const std::string& name() { static std::string name = STEEM_WITNESS_PLUGIN_NAME; return name; }
+   static const std::string& name() { static std::string name = freezone_WITNESS_PLUGIN_NAME; return name; }
 
    virtual void set_program_options(
       boost::program_options::options_description &command_line_options,
@@ -64,4 +64,4 @@ private:
    std::unique_ptr< detail::witness_plugin_impl > my;
 };
 
-} } } // steem::plugins::witness
+} } } // freezone::plugins::witness

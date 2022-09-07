@@ -1,17 +1,17 @@
 #pragma once
 
 #include <appbase/application.hpp>
-#include <steem/chain/database.hpp>
+#include <freezone/chain/database.hpp>
 #include <fc/io/json.hpp>
 #include <fc/smart_ref_impl.hpp>
 
-#include <steem/plugins/debug_node/debug_node_plugin.hpp>
+#include <freezone/plugins/debug_node/debug_node_plugin.hpp>
 
-#include <steem/utilities/key_conversion.hpp>
+#include <freezone/utilities/key_conversion.hpp>
 
-#include <steem/plugins/block_api/block_api_plugin.hpp>
-#include <steem/plugins/condenser_api/condenser_api_legacy_asset.hpp>
-#include <steem/plugins/database_api/database_api_plugin.hpp>
+#include <freezone/plugins/block_api/block_api_plugin.hpp>
+#include <freezone/plugins/condenser_api/condenser_api_legacy_asset.hpp>
+#include <freezone/plugins/database_api/database_api_plugin.hpp>
 
 #include <fc/network/http/connection.hpp>
 #include <fc/network/ip.hpp>
@@ -22,13 +22,13 @@
 #define INITIAL_TEST_SUPPLY (10000000000ll)
 #define SBD_INITIAL_TEST_SUPPLY (300000000ll)
 
-extern uint32_t STEEM_TESTING_GENESIS_TIMESTAMP;
+extern uint32_t freezone_TESTING_GENESIS_TIMESTAMP;
 
 #define PUSH_TX \
-   steem::chain::test::_push_transaction
+   freezone::chain::test::_push_transaction
 
 #define PUSH_BLOCK \
-   steem::chain::test::_push_block
+   freezone::chain::test::_push_block
 
 // See below
 #define REQUIRE_OP_VALIDATION_SUCCESS( op, field, value ) \
@@ -47,7 +47,7 @@ extern uint32_t STEEM_TESTING_GENESIS_TIMESTAMP;
    db.push_transaction( trx, ~0 ); \
 }
 
-/*#define STEEM_REQUIRE_THROW( expr, exc_type )          \
+/*#define freezone_REQUIRE_THROW( expr, exc_type )          \
 {                                                         \
    std::string req_throw_info = fc::json::to_string(      \
       fc::mutable_variant_object()                        \
@@ -57,18 +57,18 @@ extern uint32_t STEEM_TESTING_GENESIS_TIMESTAMP;
       ("exc_type", #exc_type)                             \
       );                                                  \
    if( fc::enable_record_assert_trip )                    \
-      std::cout << "STEEM_REQUIRE_THROW begin "        \
+      std::cout << "freezone_REQUIRE_THROW begin "        \
          << req_throw_info << std::endl;                  \
    BOOST_REQUIRE_THROW( expr, exc_type );                 \
    if( fc::enable_record_assert_trip )                    \
-      std::cout << "STEEM_REQUIRE_THROW end "          \
+      std::cout << "freezone_REQUIRE_THROW end "          \
          << req_throw_info << std::endl;                  \
 }*/
 
-#define STEEM_REQUIRE_THROW( expr, exc_type )          \
+#define freezone_REQUIRE_THROW( expr, exc_type )          \
    BOOST_REQUIRE_THROW( expr, exc_type );
 
-#define STEEM_CHECK_THROW( expr, exc_type )            \
+#define freezone_CHECK_THROW( expr, exc_type )            \
 {                                                         \
    std::string req_throw_info = fc::json::to_string(      \
       fc::mutable_variant_object()                        \
@@ -78,11 +78,11 @@ extern uint32_t STEEM_TESTING_GENESIS_TIMESTAMP;
       ("exc_type", #exc_type)                             \
       );                                                  \
    if( fc::enable_record_assert_trip )                    \
-      std::cout << "STEEM_CHECK_THROW begin "          \
+      std::cout << "freezone_CHECK_THROW begin "          \
          << req_throw_info << std::endl;                  \
    BOOST_CHECK_THROW( expr, exc_type );                   \
    if( fc::enable_record_assert_trip )                    \
-      std::cout << "STEEM_CHECK_THROW end "            \
+      std::cout << "freezone_CHECK_THROW end "            \
          << req_throw_info << std::endl;                  \
 }
 
@@ -90,7 +90,7 @@ extern uint32_t STEEM_TESTING_GENESIS_TIMESTAMP;
 { \
    const auto temp = op.field; \
    op.field = value; \
-   STEEM_REQUIRE_THROW( op.validate(), exc_type ); \
+   freezone_REQUIRE_THROW( op.validate(), exc_type ); \
    op.field = temp; \
 }
 #define REQUIRE_OP_VALIDATION_FAILURE( op, field, value ) \
@@ -102,7 +102,7 @@ extern uint32_t STEEM_TESTING_GENESIS_TIMESTAMP;
    op.field = value; \
    trx.operations.back() = op; \
    op.field = bak; \
-   STEEM_REQUIRE_THROW(db.push_transaction(trx, ~0), exc_type); \
+   freezone_REQUIRE_THROW(db.push_transaction(trx, ~0), exc_type); \
 }
 
 #define REQUIRE_THROW_WITH_VALUE( op, field, value ) \
@@ -135,26 +135,26 @@ extern uint32_t STEEM_TESTING_GENESIS_TIMESTAMP;
 #define ACTORS(names) BOOST_PP_SEQ_FOR_EACH(ACTORS_IMPL, ~, names) \
    validate_database();
 
-#define SMT_SYMBOL( name, decimal_places, db ) \
-   asset_symbol_type name ## _symbol = get_new_smt_symbol( decimal_places, db );
+#define SST_SYMBOL( name, decimal_places, db ) \
+   asset_symbol_type name ## _symbol = get_new_SST_symbol( decimal_places, db );
 
 #define ASSET( s ) \
-   steem::plugins::condenser_api::legacy_asset::from_string( s ).to_asset()
+   freezone::plugins::condenser_api::legacy_asset::from_string( s ).to_asset()
 
 #define FUND( account_name, amount ) \
    fund( account_name, amount ); \
    generate_block();
 
 // To be incorporated into fund() method if deemed appropriate.
-// 'SMT' would be dropped from the name then.
-#define FUND_SMT_REWARDS( account_name, amount ) \
+// 'SST' would be dropped from the name then.
+#define FUND_SST_REWARDS( account_name, amount ) \
    db->adjust_reward_balance( account_name, amount ); \
    db->adjust_supply( amount ); \
    generate_block();
 
 #define OP2TX(OP,TX,KEY) \
 TX.operations.push_back( OP ); \
-TX.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION ); \
+TX.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION ); \
 TX.sign( KEY, db->get_chain_id(), fc::ecc::bip_0062 );
 
 #define PUSH_OP(OP,KEY) \
@@ -176,12 +176,12 @@ TX.sign( KEY, db->get_chain_id(), fc::ecc::bip_0062 );
 { \
    signed_transaction tx; \
    OP2TX(OP,tx,KEY) \
-   STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), EXCEPTION ); \
+   freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), EXCEPTION ); \
 }
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-using namespace steem::protocol;
+using namespace freezone::protocol;
 
 struct database_fixture {
    // the reason we use an app is to exercise the indexes of built-in
@@ -192,7 +192,7 @@ struct database_fixture {
    account_id_type committee_account;
    fc::ecc::private_key private_key = fc::ecc::private_key::generate();
    fc::ecc::private_key init_account_priv_key = fc::ecc::private_key::regenerate( fc::sha256::hash( string( "init_key" ) ) );
-   string debug_key = steem::utilities::key_to_wif( init_account_priv_key );
+   string debug_key = freezone::utilities::key_to_wif( init_account_priv_key );
    public_key_type init_account_pub_key = init_account_priv_key.get_public_key();
    uint32_t default_skip = 0 | database::skip_undo_history_check | database::skip_authority_check;
    fc::ecc::canonical_signature_type default_sig_canon = fc::ecc::fc_canonical;
@@ -208,7 +208,7 @@ struct database_fixture {
    using units = flat_map< unit_target_type, uint16_t >;
 
    static fc::ecc::private_key generate_private_key( string seed = "init_key" );
-   static asset_symbol_type get_new_smt_symbol( uint8_t token_decimal_places, chain::database* db );
+   static asset_symbol_type get_new_SST_symbol( uint8_t token_decimal_places, chain::database* db );
    void open_database( uint16_t shared_file_size_in_mb = 8 );
    void generate_block(uint32_t skip = 0,
                                const fc::ecc::private_key& key = generate_private_key("init_key"),
@@ -270,22 +270,22 @@ struct database_fixture {
 
    vector< operation > get_last_operations( uint32_t ops );
 
-   asset_symbol_type create_smt( const string& account_name, const fc::ecc::private_key& key, uint8_t token_decimal_places );
-   asset_symbol_type create_smt_with_nai( const string& account_name, const fc::ecc::private_key& key, uint32_t nai, uint8_t token_decimal_places );
+   asset_symbol_type create_SST( const string& account_name, const fc::ecc::private_key& key, uint8_t token_decimal_places );
+   asset_symbol_type create_SST_with_nai( const string& account_name, const fc::ecc::private_key& key, uint32_t nai, uint8_t token_decimal_places );
 
-   /// Creates 3 different SMTs for provided control account, one with 0 precision, the other two with the same non-zero precision.
-   std::array<asset_symbol_type, 3> create_smt_3(const char* control_account_name, const fc::ecc::private_key& key);
-   /// Tries to create SMTs with too big precision or invalid name.
-   void create_invalid_smt( const char* control_account_name, const fc::ecc::private_key& key );
-   /// Tries to create SMTs matching existing one. First attempt with matching precision, second one with different (but valid) precision.
-   void create_conflicting_smt( const asset_symbol_type existing_smt, const char* control_account_name, const fc::ecc::private_key& key );
+   /// Creates 3 different SSTs for provided control account, one with 0 precision, the other two with the same non-zero precision.
+   std::array<asset_symbol_type, 3> create_SST_3(const char* control_account_name, const fc::ecc::private_key& key);
+   /// Tries to create SSTs with too big precision or invalid name.
+   void create_invalid_SST( const char* control_account_name, const fc::ecc::private_key& key );
+   /// Tries to create SSTs matching existing one. First attempt with matching precision, second one with different (but valid) precision.
+   void create_conflicting_SST( const asset_symbol_type existing_SST, const char* control_account_name, const fc::ecc::private_key& key );
 
-   //smt_setup_operation
-   smt_generation_unit get_generation_unit ( const units& steem_unit = units(), const units& token_unit = units() );
-   smt_capped_generation_policy get_capped_generation_policy
+   //SST_setup_operation
+   SST_generation_unit get_generation_unit ( const units& freezone_unit = units(), const units& token_unit = units() );
+   SST_capped_generation_policy get_capped_generation_policy
    (
-      const smt_generation_unit& pre_soft_cap_unit = smt_generation_unit(),
-      const smt_generation_unit& post_soft_cap_unit = smt_generation_unit(),
+      const SST_generation_unit& pre_soft_cap_unit = SST_generation_unit(),
+      const SST_generation_unit& post_soft_cap_unit = SST_generation_unit(),
       uint32_t min_unit_ratio = 0,
       uint32_t max_unit_ratio = 0
    );
@@ -349,7 +349,7 @@ struct sps_proposal_database_fixture_performance : public sps_proposal_database_
 struct json_rpc_database_fixture : public database_fixture
 {
    private:
-      steem::plugins::json_rpc::json_rpc_plugin* rpc_plugin;
+      freezone::plugins::json_rpc::json_rpc_plugin* rpc_plugin;
 
       fc::variant get_answer( std::string& request );
       void review_answer( fc::variant& answer, int64_t code, bool is_warning, bool is_fail, fc::optional< fc::variant > id );

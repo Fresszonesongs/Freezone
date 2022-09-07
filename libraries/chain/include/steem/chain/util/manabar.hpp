@@ -8,7 +8,7 @@
 #include <fc/exception/exception.hpp>
 #include <fc/reflect/reflect.hpp>
 
-namespace steem { namespace chain { namespace util {
+namespace freezone { namespace chain { namespace util {
 
 struct manabar_params
 {
@@ -133,16 +133,16 @@ void update_manabar( const PropType& gpo, AccountType& account, int32_t mana_reg
       {
          manabar_params params;
          params.regen_time = mana_regen_seconds;
-         params.max_mana = ( ( fc::uint128_t( effective_vests ) * gpo.downvote_pool_percent ) / STEEM_100_PERCENT ).to_int64();
+         params.max_mana = ( ( fc::uint128_t( effective_vests ) * gpo.downvote_pool_percent ) / freezone_100_PERCENT ).to_int64();
          account.downvote_manabar.regenerate_mana( params, gpo.time );
-         account.downvote_manabar.use_mana( ( -new_mana * gpo.downvote_pool_percent ) / STEEM_100_PERCENT );
+         account.downvote_manabar.use_mana( ( -new_mana * gpo.downvote_pool_percent ) / freezone_100_PERCENT );
       }
    } FC_CAPTURE_LOG_AND_RETHROW( (account)(effective_vests) )
 }
 
-} } } // steem::chain::util
+} } } // freezone::chain::util
 
-FC_REFLECT( steem::chain::util::manabar,
+FC_REFLECT( freezone::chain::util::manabar,
    (current_mana)
    (last_update_time)
    )

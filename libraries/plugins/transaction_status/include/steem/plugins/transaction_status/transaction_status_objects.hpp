@@ -1,18 +1,18 @@
 #pragma once
-#include <steem/chain/steem_object_types.hpp>
-#include <steem/protocol/transaction.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
+#include <freezone/protocol/transaction.hpp>
 
-namespace steem { namespace plugins { namespace transaction_status {
+namespace freezone { namespace plugins { namespace transaction_status {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
-#ifndef STEEM_TRANSACTION_STATUS_SPACE_ID
-#define STEEM_TRANSACTION_STATUS_SPACE_ID 18
+#ifndef freezone_TRANSACTION_STATUS_SPACE_ID
+#define freezone_TRANSACTION_STATUS_SPACE_ID 18
 #endif
 
 enum transaction_status_object_type
 {
-   transaction_status_object_type = ( STEEM_TRANSACTION_STATUS_SPACE_ID << 8 )
+   transaction_status_object_type = ( freezone_TRANSACTION_STATUS_SPACE_ID << 8 )
 };
 
 enum transaction_status
@@ -66,9 +66,9 @@ typedef multi_index_container<
 
 
 
-} } } // steem::plugins::transaction_status
+} } } // freezone::plugins::transaction_status
 
-FC_REFLECT_ENUM( steem::plugins::transaction_status::transaction_status,
+FC_REFLECT_ENUM( freezone::plugins::transaction_status::transaction_status,
                 (unknown)
                 (within_mempool)
                 (within_reversible_block)
@@ -77,5 +77,5 @@ FC_REFLECT_ENUM( steem::plugins::transaction_status::transaction_status,
                 (expired_irreversible)
                 (too_old) )
 
-FC_REFLECT( steem::plugins::transaction_status::transaction_status_object, (id)(transaction_id)(block_num) )
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::transaction_status::transaction_status_object, steem::plugins::transaction_status::transaction_status_index )
+FC_REFLECT( freezone::plugins::transaction_status::transaction_status_object, (id)(transaction_id)(block_num) )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::transaction_status::transaction_status_object, freezone::plugins::transaction_status::transaction_status_index )

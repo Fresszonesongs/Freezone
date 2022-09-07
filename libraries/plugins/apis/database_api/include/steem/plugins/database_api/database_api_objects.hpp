@@ -1,20 +1,20 @@
 #pragma once
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/block_summary_object.hpp>
-#include <steem/chain/comment_object.hpp>
-#include <steem/chain/global_property_object.hpp>
-#include <steem/chain/history_object.hpp>
-#include <steem/chain/steem_objects.hpp>
-#include <steem/chain/smt_objects.hpp>
-#include <steem/chain/sps_objects.hpp>
-#include <steem/chain/transaction_object.hpp>
-#include <steem/chain/witness_objects.hpp>
-#include <steem/chain/database.hpp>
-#include <steem/chain/smt_objects/account_balance_object.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/block_summary_object.hpp>
+#include <freezone/chain/comment_object.hpp>
+#include <freezone/chain/global_property_object.hpp>
+#include <freezone/chain/history_object.hpp>
+#include <freezone/chain/freezone_objects.hpp>
+#include <freezone/chain/SST_objects.hpp>
+#include <freezone/chain/sps_objects.hpp>
+#include <freezone/chain/transaction_object.hpp>
+#include <freezone/chain/witness_objects.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/SST_objects/account_balance_object.hpp>
 
-namespace steem { namespace plugins { namespace database_api {
+namespace freezone { namespace plugins { namespace database_api {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
 typedef change_recovery_account_request_object api_change_recovery_account_request_object;
 typedef block_summary_object                   api_block_summary_object;
@@ -58,7 +58,7 @@ struct api_comment_object
       author_rewards( o.author_rewards ),
       net_votes( o.net_votes ),
       max_accepted_payout( o.max_accepted_payout ),
-      percent_steem_dollars( o.percent_steem_dollars ),
+      percent_freezone_dollars( o.percent_freezone_dollars ),
       allow_replies( o.allow_replies ),
       allow_votes( o.allow_votes ),
       allow_curation_rewards( o.allow_curation_rewards )
@@ -125,7 +125,7 @@ struct api_comment_object
    string            root_permlink;
 
    asset             max_accepted_payout;
-   uint16_t          percent_steem_dollars = 0;
+   uint16_t          percent_freezone_dollars = 0;
    bool              allow_replies = false;
    bool              allow_votes = false;
    bool              allow_curation_rewards = false;
@@ -191,9 +191,9 @@ struct api_account_object
       savings_sbd_last_interest_payment( a.savings_sbd_last_interest_payment ),
       savings_withdraw_requests( a.savings_withdraw_requests ),
       reward_sbd_balance( a.reward_sbd_balance ),
-      reward_steem_balance( a.reward_steem_balance ),
+      reward_freezone_balance( a.reward_freezone_balance ),
       reward_vesting_balance( a.reward_vesting_balance ),
-      reward_vesting_steem( a.reward_vesting_steem ),
+      reward_vesting_freezone( a.reward_vesting_freezone ),
       curation_rewards( a.curation_rewards ),
       posting_rewards( a.posting_rewards ),
       vesting_shares( a.vesting_shares ),
@@ -231,9 +231,9 @@ struct api_account_object
       }
 #endif
 
-      const auto& by_control_account_index = db.get_index<smt_token_index>().indices().get<by_control_account>();
-      auto smt_obj_itr = by_control_account_index.find( name );
-      is_smt = smt_obj_itr != by_control_account_index.end();
+      const auto& by_control_account_index = db.get_index<SST_token_index>().indices().get<by_control_account>();
+      auto SST_obj_itr = by_control_account_index.find( name );
+      is_SST = SST_obj_itr != by_control_account_index.end();
    }
 
 
@@ -282,9 +282,9 @@ struct api_account_object
    uint8_t           savings_withdraw_requests = 0;
 
    asset             reward_sbd_balance;
-   asset             reward_steem_balance;
+   asset             reward_freezone_balance;
    asset             reward_vesting_balance;
-   asset             reward_vesting_steem;
+   asset             reward_vesting_freezone;
 
    share_type        curation_rewards;
    share_type        posting_rewards;
@@ -310,7 +310,7 @@ struct api_account_object
 
    share_type        pending_claimed_accounts = 0;
 
-   bool              is_smt = false;
+   bool              is_SST = false;
 };
 
 struct api_owner_authority_history_object
@@ -539,17 +539,17 @@ struct api_hardfork_property_object
    fc::time_point_sec            next_hardfork_time;
 };
 
-struct api_smt_token_object
+struct api_SST_token_object
 {
-   api_smt_token_object( const smt_token_object& token, const database& db ) : token( token )
+   api_SST_token_object( const SST_token_object& token, const database& db ) : token( token )
    {
-      const smt_ico_object* ico = db.find< chain::smt_ico_object, chain::by_symbol >( token.liquid_symbol );
+      const SST_ico_object* ico = db.find< chain::SST_ico_object, chain::by_symbol >( token.liquid_symbol );
       if ( ico != nullptr )
          this->ico = *ico;
    }
 
-   smt_token_object                token;
-   fc::optional< smt_ico_object >  ico;
+   SST_token_object                token;
+   fc::optional< SST_ico_object >  ico;
 };
 
 enum proposal_status
@@ -628,11 +628,11 @@ struct order_book
    vector< order >      bids;
 };
 
-struct api_smt_account_balance_object
+struct api_SST_account_balance_object
 {
-   api_smt_account_balance_object() = default;
+   api_SST_account_balance_object() = default;
 
-   api_smt_account_balance_object( const account_regular_balance_object& b, const database& db ) :
+   api_SST_account_balance_object( const account_regular_balance_object& b, const database& db ) :
       id( b.id ),
       name( b.name ),
       liquid( b.liquid ),
@@ -685,9 +685,9 @@ struct api_smt_account_balance_object
    asset               pending_vesting_value;
 };
 
-} } } // steem::plugins::database_api
+} } } // freezone::plugins::database_api
 
-FC_REFLECT( steem::plugins::database_api::api_comment_object,
+FC_REFLECT( freezone::plugins::database_api::api_comment_object,
              (id)(author)(permlink)
              (category)(parent_author)(parent_permlink)
              (title)(body)(json_metadata)(last_update)(created)(active)(last_payout)
@@ -696,15 +696,15 @@ FC_REFLECT( steem::plugins::database_api::api_comment_object,
              (children_abs_rshares)(cashout_time)(max_cashout_time)
              (total_vote_weight)(reward_weight)(total_payout_value)(curator_payout_value)(author_rewards)(net_votes)
              (root_author)(root_permlink)
-             (max_accepted_payout)(percent_steem_dollars)(allow_replies)(allow_votes)(allow_curation_rewards)
+             (max_accepted_payout)(percent_freezone_dollars)(allow_replies)(allow_votes)(allow_curation_rewards)
              (beneficiaries)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_comment_vote_object,
+FC_REFLECT( freezone::plugins::database_api::api_comment_vote_object,
              (id)(voter)(author)(permlink)(weight)(rshares)(vote_percent)(last_update)(num_changes)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_account_object,
+FC_REFLECT( freezone::plugins::database_api::api_account_object,
              (id)(name)(owner)(active)(posting)(memo_key)(json_metadata)(posting_json_metadata)(proxy)(last_owner_update)(last_account_update)
              (created)(mined)
              (recovery_account)(last_account_recovery)(reset_account)
@@ -713,31 +713,31 @@ FC_REFLECT( steem::plugins::database_api::api_account_object,
              (savings_balance)
              (sbd_balance)(sbd_seconds)(sbd_seconds_last_update)(sbd_last_interest_payment)
              (savings_sbd_balance)(savings_sbd_seconds)(savings_sbd_seconds_last_update)(savings_sbd_last_interest_payment)(savings_withdraw_requests)
-             (reward_sbd_balance)(reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)
+             (reward_sbd_balance)(reward_freezone_balance)(reward_vesting_balance)(reward_vesting_freezone)
              (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
              (curation_rewards)
              (posting_rewards)
              (proxied_vsf_votes)(witnesses_voted_for)
              (last_post)(last_root_post)(last_post_edit)(last_vote_time)
              (post_bandwidth)(pending_claimed_accounts)
-             (is_smt)
+             (is_SST)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_owner_authority_history_object,
+FC_REFLECT( freezone::plugins::database_api::api_owner_authority_history_object,
              (id)
              (account)
              (previous_owner_authority)
              (last_valid_time)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_account_recovery_request_object,
+FC_REFLECT( freezone::plugins::database_api::api_account_recovery_request_object,
              (id)
              (account_to_recover)
              (new_owner_authority)
              (expires)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_savings_withdraw_object,
+FC_REFLECT( freezone::plugins::database_api::api_savings_withdraw_object,
              (id)
              (from)
              (to)
@@ -747,13 +747,13 @@ FC_REFLECT( steem::plugins::database_api::api_savings_withdraw_object,
              (complete)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_feed_history_object,
+FC_REFLECT( freezone::plugins::database_api::api_feed_history_object,
              (id)
              (current_median_history)
              (price_history)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_witness_object,
+FC_REFLECT( freezone::plugins::database_api::api_witness_object,
              (id)
              (owner)
              (created)
@@ -767,7 +767,7 @@ FC_REFLECT( steem::plugins::database_api::api_witness_object,
              (available_witness_account_subsidies)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_witness_schedule_object,
+FC_REFLECT( freezone::plugins::database_api::api_witness_schedule_object,
              (id)
              (current_virtual_time)
              (next_shuffle_block_num)
@@ -788,13 +788,13 @@ FC_REFLECT( steem::plugins::database_api::api_witness_schedule_object,
              (min_witness_account_subsidy_decay)
           )
 
-FC_REFLECT_DERIVED( steem::plugins::database_api::api_signed_block_object, (steem::protocol::signed_block),
+FC_REFLECT_DERIVED( freezone::plugins::database_api::api_signed_block_object, (freezone::protocol::signed_block),
                      (block_id)
                      (signing_key)
                      (transaction_ids)
                   )
 
-FC_REFLECT( steem::plugins::database_api::api_hardfork_property_object,
+FC_REFLECT( freezone::plugins::database_api::api_hardfork_property_object,
             (id)
             (processed_hardforks)
             (last_hardfork)
@@ -803,12 +803,12 @@ FC_REFLECT( steem::plugins::database_api::api_hardfork_property_object,
             (next_hardfork_time)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_smt_token_object,
+FC_REFLECT( freezone::plugins::database_api::api_SST_token_object,
    (token)
    (ico)
 )
 
-FC_REFLECT_ENUM( steem::plugins::database_api::proposal_status,
+FC_REFLECT_ENUM( freezone::plugins::database_api::proposal_status,
                   (all)
                   (inactive)
                   (active)
@@ -816,7 +816,7 @@ FC_REFLECT_ENUM( steem::plugins::database_api::proposal_status,
                   (votable)
                )
 
-FC_REFLECT( steem::plugins::database_api::api_proposal_object,
+FC_REFLECT( freezone::plugins::database_api::api_proposal_object,
             (id)
             (proposal_id)
             (creator)
@@ -830,17 +830,17 @@ FC_REFLECT( steem::plugins::database_api::api_proposal_object,
             (status)
           )
 
-FC_REFLECT( steem::plugins::database_api::api_proposal_vote_object,
+FC_REFLECT( freezone::plugins::database_api::api_proposal_vote_object,
             (id)
             (voter)
             (proposal)
           )
 
-FC_REFLECT( steem::plugins::database_api::order, (order_price)(decimal_price)(real_price)(for_sale)(to_receive)(created) );
+FC_REFLECT( freezone::plugins::database_api::order, (order_price)(decimal_price)(real_price)(for_sale)(to_receive)(created) );
 
-FC_REFLECT( steem::plugins::database_api::order_book, (asks)(bids) );
+FC_REFLECT( freezone::plugins::database_api::order_book, (asks)(bids) );
 
-FC_REFLECT( steem::plugins::database_api::api_smt_account_balance_object,
+FC_REFLECT( freezone::plugins::database_api::api_SST_account_balance_object,
             (id)
             (name)
             (liquid)

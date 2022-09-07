@@ -1,25 +1,25 @@
-#include <steem/protocol/config.hpp>
+#include <freezone/protocol/config.hpp>
 
-#include <steem/plugins/rc/rc_config.hpp>
-#include <steem/plugins/rc/rc_objects.hpp>
-#include <steem/plugins/rc/rc_operations.hpp>
+#include <freezone/plugins/rc/rc_config.hpp>
+#include <freezone/plugins/rc/rc_objects.hpp>
+#include <freezone/plugins/rc/rc_operations.hpp>
 
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/database.hpp>
-#include <steem/chain/global_property_object.hpp>
-#include <steem/chain/smt_objects.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/global_property_object.hpp>
+#include <freezone/chain/SST_objects.hpp>
 
-#include <steem/chain/util/manabar.hpp>
+#include <freezone/chain/util/manabar.hpp>
 
-#include <steem/protocol/operation_util_impl.hpp>
+#include <freezone/protocol/operation_util_impl.hpp>
 
-namespace steem { namespace plugins { namespace rc {
+namespace freezone { namespace plugins { namespace rc {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
 bool is_destination_nai( const string& dest )
 {
-   return dest.size() == STEEM_ASSET_SYMBOL_NAI_STRING_LENGTH - 1 && dest.c_str()[0] == '@' && dest.c_str()[1] == '@';
+   return dest.size() == freezone_ASSET_SYMBOL_NAI_STRING_LENGTH - 1 && dest.c_str()[0] == '@' && dest.c_str()[1] == '@';
 }
 
 void delegate_to_pool_operation::validate()const
@@ -29,8 +29,8 @@ void delegate_to_pool_operation::validate()const
    if( is_destination_nai( to_pool ) )
    {
       auto symbol = asset_symbol_type::from_nai_string( std::string( to_pool ).c_str(), 0 );
-      FC_ASSERT( symbol.space() == asset_symbol_type::smt_nai_space, "SMT Pool destination not in NAI space" );
-      FC_ASSERT( !symbol.is_vesting(), "SMT Pool destination must be liquid NAI" );
+      FC_ASSERT( symbol.space() == asset_symbol_type::SST_nai_space, "SST Pool destination not in NAI space" );
+      FC_ASSERT( !symbol.is_vesting(), "SST Pool destination must be liquid NAI" );
    }
    else
    {
@@ -38,7 +38,7 @@ void delegate_to_pool_operation::validate()const
    }
 
    FC_ASSERT( amount.symbol.is_vesting(), "Must use vesting symbol" );
-   FC_ASSERT( amount.symbol == VESTS_SYMBOL, "Currently can only delegate VESTS (SMT's not supported #2698)" );
+   FC_ASSERT( amount.symbol == VESTS_SYMBOL, "Currently can only delegate VESTS (SST's not supported #2698)" );
    FC_ASSERT( amount.amount.value >= 0, "Delegation to pool cannot be negative" );
 }
 
@@ -48,9 +48,9 @@ void delegate_drc_from_pool_operation::validate()const
    validate_account_name( to_account );
 
    FC_ASSERT( to_slot >= 0 );
-   FC_ASSERT( to_slot < STEEM_RC_MAX_SLOTS );
+   FC_ASSERT( to_slot < freezone_RC_MAX_SLOTS );
    FC_ASSERT( asset_symbol.is_vesting(), "Must use vesting symbol" );
-   FC_ASSERT( asset_symbol == VESTS_SYMBOL, "Currently can only delegate VESTS (SMT's not supported #2698)" );
+   FC_ASSERT( asset_symbol == VESTS_SYMBOL, "Currently can only delegate VESTS (SST's not supported #2698)" );
    FC_ASSERT( drc_max_mana >= 0 );
 }
 
@@ -61,7 +61,7 @@ void set_slot_delegator_operation::validate()const
    validate_account_name( signer );
 
    FC_ASSERT( to_slot >= 0 );
-   FC_ASSERT( to_slot < STEEM_RC_MAX_SLOTS );
+   FC_ASSERT( to_slot < freezone_RC_MAX_SLOTS );
 }
 
 void maybe_cleanup_rc_pool( const rc_delegation_pool_object& pool, database& db )
@@ -79,7 +79,7 @@ void maybe_cleanup_rc_pool( const rc_delegation_pool_object& pool, database& db 
 
 void delegate_to_pool_evaluator::do_apply( const delegate_to_pool_operation& op )
 {
-   if( !_db.has_hardfork( STEEM_SMT_HARDFORK ) ) return;
+   if( !_db.has_hardfork( freezone_SST_HARDFORK ) ) return;
 
    const dynamic_global_property_object& gpo = _db.get_dynamic_global_properties();
    uint32_t now = gpo.time.sec_since_epoch();
@@ -89,20 +89,20 @@ void delegate_to_pool_evaluator::do_apply( const delegate_to_pool_operation& op 
    FC_ASSERT( from_rc_account.rc_manabar.last_update_time == now );
 
    const rc_delegation_pool_object* to_pool = _db.find< rc_delegation_pool_object, by_account_symbol >( boost::make_tuple( op.to_pool, op.amount.symbol ) );
-   steem::chain::util::manabar rc_pool_manabar;
-   steem::chain::util::manabar_params rc_pool_manabar_params;
-   rc_pool_manabar_params.regen_time = STEEM_RC_REGEN_TIME;
+   freezone::chain::util::manabar rc_pool_manabar;
+   freezone::chain::util::manabar_params rc_pool_manabar_params;
+   rc_pool_manabar_params.regen_time = freezone_RC_REGEN_TIME;
    if( !to_pool )
    {
       if( is_destination_nai( op.to_pool ) )
       {
-         asset_symbol_type smt_symbol = asset_symbol_type::from_nai_string( std::string( op.to_pool ).c_str(), 0 );
-         const auto& smt_idx = _db.get_index< smt_token_index, by_symbol >();
-         auto to_pool_smt = smt_idx.lower_bound( smt_symbol );
-         FC_ASSERT( to_pool_smt != smt_idx.end(), "SMT ${s} does not exist", ("s", op.to_pool) );
-         FC_ASSERT( to_pool_smt->liquid_symbol.to_nai() == smt_symbol.to_nai(), "SMT ${s} does not exist", ("s", op.to_pool) );
-         FC_ASSERT( to_pool_smt->phase == smt_phase::ico_completed || to_pool_smt->phase == smt_phase::launch_success,
-            "SMT ${s} must have succesfully completed ICO to receive delegation", ("s", op.to_pool) );
+         asset_symbol_type SST_symbol = asset_symbol_type::from_nai_string( std::string( op.to_pool ).c_str(), 0 );
+         const auto& SST_idx = _db.get_index< SST_token_index, by_symbol >();
+         auto to_pool_SST = SST_idx.lower_bound( SST_symbol );
+         FC_ASSERT( to_pool_SST != SST_idx.end(), "SST ${s} does not exist", ("s", op.to_pool) );
+         FC_ASSERT( to_pool_SST->liquid_symbol.to_nai() == SST_symbol.to_nai(), "SST ${s} does not exist", ("s", op.to_pool) );
+         FC_ASSERT( to_pool_SST->phase == SST_phase::ico_completed || to_pool_SST->phase == SST_phase::launch_success,
+            "SST ${s} must have succesfully completed ICO to receive delegation", ("s", op.to_pool) );
       }
       else
       {
@@ -125,7 +125,7 @@ void delegate_to_pool_evaluator::do_apply( const delegate_to_pool_operation& op 
 
    if( !edge )
    {
-      FC_ASSERT( from_rc_account.out_delegations <= STEEM_RC_MAX_INDEL, "Account already has ${n} delegations.", ("n", from_rc_account.out_delegations) );
+      FC_ASSERT( from_rc_account.out_delegations <= freezone_RC_MAX_INDEL, "Account already has ${n} delegations.", ("n", from_rc_account.out_delegations) );
    }
 
    int64_t old_max_rc = edge ? edge->amount.amount.value : 0;
@@ -136,7 +136,7 @@ void delegate_to_pool_evaluator::do_apply( const delegate_to_pool_operation& op 
    int64_t new_rc = std::min( new_max_rc, old_rc + std::max( std::min( delta_max_rc, from_account_rc ), int64_t( 0 ) ) );
    int64_t delta_rc = new_rc - old_rc;
 
-   steem::chain::util::manabar rc_account_manabar = from_rc_account.rc_manabar;
+   freezone::chain::util::manabar rc_account_manabar = from_rc_account.rc_manabar;
    rc_account_manabar.current_mana -= delta_rc;
    rc_pool_manabar.current_mana += delta_rc;
 
@@ -149,10 +149,10 @@ void delegate_to_pool_evaluator::do_apply( const delegate_to_pool_operation& op 
    }
    else
    {
-      FC_ASSERT( false, "SMT delegation is not supported" );
-      // TODO:  When fixing this FC_ASSERT() for SMT support, also be sure to implement
-      // rc_delegation_from_account_object to enforce total SMT delegations from account <= vesting of SMT in account,
-      // and also enforce this condition (by forcible de-delegation to the pool) on SMT powerdown.
+      FC_ASSERT( false, "SST delegation is not supported" );
+      // TODO:  When fixing this FC_ASSERT() for SST support, also be sure to implement
+      // rc_delegation_from_account_object to enforce total SST delegations from account <= vesting of SST in account,
+      // and also enforce this condition (by forcible de-delegation to the pool) on SST powerdown.
    }
 
    if( !to_pool )
@@ -229,7 +229,7 @@ void delegate_to_pool_evaluator::do_apply( const delegate_to_pool_operation& op 
 
 void delegate_drc_from_pool_evaluator::do_apply( const delegate_drc_from_pool_operation& op )
 {
-   if( !_db.has_hardfork( STEEM_SMT_HARDFORK ) ) return;
+   if( !_db.has_hardfork( freezone_SST_HARDFORK ) ) return;
 
    const auto& to_rca = _db.get< rc_account_object, by_name >( op.to_account );
 
@@ -237,7 +237,7 @@ void delegate_drc_from_pool_evaluator::do_apply( const delegate_drc_from_pool_op
       ("n", op.to_slot)("e", to_rca.indel_slots[ op.to_slot ])("w", op.from_pool) );
 
    const auto* edge = _db.find< rc_outdel_drc_edge_object, by_edge >( boost::make_tuple( op.from_pool, op.to_account, op.asset_symbol ) );
-   steem::chain::util::manabar edge_manabar;
+   freezone::chain::util::manabar edge_manabar;
 
    const auto now = _db.head_block_time();
 
@@ -257,8 +257,8 @@ void delegate_drc_from_pool_evaluator::do_apply( const delegate_drc_from_pool_op
    }
    else
    {
-      steem::chain::util::manabar_params edge_manabar_params;
-      edge_manabar_params.regen_time = STEEM_RC_REGEN_TIME;
+      freezone::chain::util::manabar_params edge_manabar_params;
+      edge_manabar_params.regen_time = freezone_RC_REGEN_TIME;
       edge_manabar_params.max_mana = edge->drc_max_mana;
       edge_manabar = edge->drc_manabar;
       edge_manabar.regenerate_mana( edge_manabar_params, now );
@@ -303,7 +303,7 @@ void delegate_drc_from_pool_evaluator::do_apply( const delegate_drc_from_pool_op
 
 void set_slot_delegator_evaluator::do_apply( const set_slot_delegator_operation& op )
 {
-   if( !_db.has_hardfork( STEEM_SMT_HARDFORK ) ) return;
+   if( !_db.has_hardfork( freezone_SST_HARDFORK ) ) return;
 
    const auto& to_account = _db.get_account( op.to_account );
    const auto& from_account = _db.get_account( op.from_pool );
@@ -316,35 +316,35 @@ void set_slot_delegator_evaluator::do_apply( const set_slot_delegator_operation&
 
    switch( op.to_slot )
    {
-      case STEEM_RC_CREATOR_SLOT_NUM:
+      case freezone_RC_CREATOR_SLOT_NUM:
       {
          FC_ASSERT( to_rca.creator == op.signer,
             "Only the account creator ${c} can change RC creator slot ${n}",
-            ("c", to_rca.creator)("n", STEEM_RC_CREATOR_SLOT_NUM) );
+            ("c", to_rca.creator)("n", freezone_RC_CREATOR_SLOT_NUM) );
          break;
       }
-      case STEEM_RC_RECOVERY_SLOT_NUM:
+      case freezone_RC_RECOVERY_SLOT_NUM:
       {
          if( to_account.recovery_account != account_name_type() )
          {
             FC_ASSERT( to_account.recovery_account == op.signer,
                "Only recovery partner ${r} can change RC recovery slot ${n}.",
-               ("r", to_account.recovery_account)("n", STEEM_RC_RECOVERY_SLOT_NUM) );
+               ("r", to_account.recovery_account)("n", freezone_RC_RECOVERY_SLOT_NUM) );
          }
          else
          {
             const auto& top_witness_owner = _db.get_index< witness_index, by_vote_name >().begin()->owner;
             FC_ASSERT( top_witness_owner == op.signer,
                "Only top witness ${w} can change RC recovery slot ${n}.",
-               ("r", top_witness_owner)("n", STEEM_RC_RECOVERY_SLOT_NUM) );
+               ("r", top_witness_owner)("n", freezone_RC_RECOVERY_SLOT_NUM) );
          }
          break;
       }
       default:
       {
-         FC_ASSERT( op.to_slot >= STEEM_RC_USER_SLOT_NUM && op.to_slot < STEEM_RC_MAX_SLOTS,
+         FC_ASSERT( op.to_slot >= freezone_RC_USER_SLOT_NUM && op.to_slot < freezone_RC_MAX_SLOTS,
             "User controlled slots must be between ${l} and ${u}",
-            ("l", STEEM_RC_USER_SLOT_NUM)("u", STEEM_RC_MAX_SLOTS) );
+            ("l", freezone_RC_USER_SLOT_NUM)("u", freezone_RC_MAX_SLOTS) );
          FC_ASSERT( op.signer == op.to_account, "The user must change user controlled RC slots." );
 
          break;
@@ -367,6 +367,6 @@ void set_slot_delegator_evaluator::do_apply( const set_slot_delegator_operation&
    });
 }
 
-} } } // steem::plugins::rc
+} } } // freezone::plugins::rc
 
-STEEM_DEFINE_OPERATION_TYPE( steem::plugins::rc::rc_plugin_operation )
+freezone_DEFINE_OPERATION_TYPE( freezone::plugins::rc::rc_plugin_operation )

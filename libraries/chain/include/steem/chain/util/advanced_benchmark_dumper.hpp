@@ -10,7 +10,7 @@
 
 #include <utility>
 
-namespace steem { namespace chain { namespace util {
+namespace freezone { namespace chain { namespace util {
 
 template <typename TCntr>
 struct emplace_ret_value
@@ -109,11 +109,11 @@ class advanced_benchmark_dumper
       void dump();
 };
 
-} } } // steem::chain::util
+} } } // freezone::chain::util
 
-FC_REFLECT( steem::chain::util::advanced_benchmark_dumper::item, (op_name)(time)(count) )
-FC_REFLECT( steem::chain::util::advanced_benchmark_dumper::ritem, (op_name)(time)(count) )
+FC_REFLECT( freezone::chain::util::advanced_benchmark_dumper::item, (op_name)(time)(count) )
+FC_REFLECT( freezone::chain::util::advanced_benchmark_dumper::ritem, (op_name)(time)(count) )
 
-FC_REFLECT( steem::chain::util::advanced_benchmark_dumper::total_info< std::set< steem::chain::util::advanced_benchmark_dumper::item > >, (total_time)(items) )
-FC_REFLECT( steem::chain::util::advanced_benchmark_dumper::total_info< std::multiset< steem::chain::util::advanced_benchmark_dumper::ritem > >, (total_time)(items) )
+FC_REFLECT( freezone::chain::util::advanced_benchmark_dumper::total_info< std::set< freezone::chain::util::advanced_benchmark_dumper::item > >, (total_time)(items) )
+FC_REFLECT( freezone::chain::util::advanced_benchmark_dumper::total_info< std::multiset< freezone::chain::util::advanced_benchmark_dumper::ritem > >, (total_time)(items) )
 

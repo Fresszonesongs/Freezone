@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <steem/app/plugin.hpp>
+#include <freezone/app/plugin.hpp>
 
-namespace steem { namespace plugin { namespace raw_block {
+namespace freezone { namespace plugin { namespace raw_block {
 
-using steem::app::application;
+using freezone::app::application;
 
-class raw_block_plugin : public steem::app::plugin
+class raw_block_plugin : public freezone::app::plugin
 {
    public:
       raw_block_plugin( application* app );

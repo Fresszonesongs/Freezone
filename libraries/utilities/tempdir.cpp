@@ -22,18 +22,18 @@
  * THE SOFTWARE.
  */
 
-#include <steem/utilities/tempdir.hpp>
+#include <freezone/utilities/tempdir.hpp>
 
 #include <cstdlib>
 
-namespace steem { namespace utilities {
+namespace freezone { namespace utilities {
 
 fc::path temp_directory_path()
 {
-   const char* steemit_tempdir = getenv("STEEM_TEMPDIR");
-   if( steemit_tempdir != nullptr )
-      return fc::path( steemit_tempdir );
-   return fc::temp_directory_path() / "steem-tmp";
+   const char* freezone_tempdir = getenv("freezone_TEMPDIR");
+   if( freezone_tempdir != nullptr )
+      return fc::path( freezone_tempdir );
+   return fc::temp_directory_path() / "freezone-tmp";
 }
 
-} } // steem::utilities
+} } // freezone::utilities

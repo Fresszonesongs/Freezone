@@ -1,15 +1,15 @@
 #pragma once
 
-#include <steem/protocol/types.hpp>
-#include <steem/chain/steem_object_types.hpp>
-#include <steem/chain/database.hpp>
+#include <freezone/protocol/types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
+#include <freezone/chain/database.hpp>
 
-namespace steem { namespace plugins{ namespace follow {
+namespace freezone { namespace plugins{ namespace follow {
 
-using namespace steem::chain;
-using steem::chain::database;
+using namespace freezone::chain;
+using freezone::chain::database;
 
-using steem::protocol::account_name_type;
+using freezone::protocol::account_name_type;
 
 class performance_impl;
 
@@ -135,4 +135,4 @@ class performance
       }
 };
 
-} } } //steem::follow
+} } } //freezone::follow

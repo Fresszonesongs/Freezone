@@ -1,20 +1,20 @@
 #pragma once
 
-#include <steem/chain/steem_object_types.hpp>
-#include <steem/chain/util/manabar.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
+#include <freezone/chain/util/manabar.hpp>
 
-#include <steem/protocol/smt_operations.hpp>
+#include <freezone/protocol/SST_operations.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 /**
- * Class responsible for holding regular (i.e. non-reward) balance of SMT for given account.
+ * Class responsible for holding regular (i.e. non-reward) balance of SST for given account.
  * It has not been unified with reward balance object counterpart, due to different number
  * of fields needed to hold balances (2 for regular, 3 for reward).
  */
 class account_regular_balance_object : public object< account_regular_balance_object_type, account_regular_balance_object >
 {
-   STEEM_STD_ALLOCATOR_CONSTRUCTOR( account_regular_balance_object );
+   freezone_STD_ALLOCATOR_CONSTRUCTOR( account_regular_balance_object );
 
 public:
    template <typename Constructor, typename Allocator>
@@ -48,7 +48,7 @@ public:
 
    asset_symbol_type get_stripped_symbol() const
    {
-      return asset_symbol_type::from_asset_num( liquid.symbol.get_stripped_precision_smt_num() );
+      return asset_symbol_type::from_asset_num( liquid.symbol.get_stripped_precision_SST_num() );
    }
 
    void initialize_assets( asset_symbol_type liquid_symbol )
@@ -62,7 +62,7 @@ public:
 
    void add_vesting( const asset& shares, const asset& vesting_value )
    {
-      // There's no need to store vesting value (in liquid SMT variant) in regular balance.
+      // There's no need to store vesting value (in liquid SST variant) in regular balance.
       vesting_shares += shares;
    }
 
@@ -77,13 +77,13 @@ public:
 };
 
 /**
- * Class responsible for holding reward balance of SMT for given account.
+ * Class responsible for holding reward balance of SST for given account.
  * It has not been unified with regular balance object counterpart, due to different number
  * of fields needed to hold balances (2 for regular, 3 for reward).
  */
 class account_rewards_balance_object : public object< account_rewards_balance_object_type, account_rewards_balance_object >
 {
-   STEEM_STD_ALLOCATOR_CONSTRUCTOR( account_rewards_balance_object );
+   freezone_STD_ALLOCATOR_CONSTRUCTOR( account_rewards_balance_object );
 
 public:
    template <typename Constructor, typename Allocator>
@@ -94,9 +94,9 @@ public:
 
    id_type             id;
    account_name_type   name;
-   asset               pending_liquid;          /// 'reward_steem_balance' for pending STEEM
+   asset               pending_liquid;          /// 'reward_freezone_balance' for pending freezone
    asset               pending_vesting_shares;  /// 'reward_vesting_balance' for pending VESTS
-   asset               pending_vesting_value;   /// 'reward_vesting_steem' for pending VESTS
+   asset               pending_vesting_value;   /// 'reward_vesting_freezone' for pending VESTS
 
    asset_symbol_type get_liquid_symbol() const
    {
@@ -105,7 +105,7 @@ public:
 
    asset_symbol_type get_stripped_symbol() const
    {
-      return asset_symbol_type::from_asset_num( pending_liquid.symbol.get_stripped_precision_smt_num() );
+      return asset_symbol_type::from_asset_num( pending_liquid.symbol.get_stripped_precision_SST_num() );
    }
 
    void initialize_assets( asset_symbol_type liquid_symbol )
@@ -184,9 +184,9 @@ typedef multi_index_container <
    allocator< account_rewards_balance_object >
 > account_rewards_balance_index;
 
-} } // namespace steem::chain
+} } // namespace freezone::chain
 
-FC_REFLECT( steem::chain::account_regular_balance_object,
+FC_REFLECT( freezone::chain::account_regular_balance_object,
    (id)
    (name)
    (liquid)
@@ -202,7 +202,7 @@ FC_REFLECT( steem::chain::account_regular_balance_object,
    (last_vote_time)
 )
 
-FC_REFLECT( steem::chain::account_rewards_balance_object,
+FC_REFLECT( freezone::chain::account_rewards_balance_object,
    (id)
    (name)
    (pending_liquid)
@@ -210,5 +210,5 @@ FC_REFLECT( steem::chain::account_rewards_balance_object,
    (pending_vesting_value)
 )
 
-CHAINBASE_SET_INDEX_TYPE( steem::chain::account_regular_balance_object, steem::chain::account_regular_balance_index )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::account_rewards_balance_object, steem::chain::account_rewards_balance_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::account_regular_balance_object, freezone::chain::account_regular_balance_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::account_rewards_balance_object, freezone::chain::account_rewards_balance_index )

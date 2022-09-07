@@ -1,14 +1,14 @@
 #pragma once
-#include <steem/protocol/base.hpp>
+#include <freezone/protocol/base.hpp>
 
-#include <steem/chain/evaluator.hpp>
+#include <freezone/chain/evaluator.hpp>
 
 
-namespace steem { namespace plugins { namespace follow {
+namespace freezone { namespace plugins { namespace follow {
 
 using namespace std;
-using steem::protocol::account_name_type;
-using steem::protocol::base_operation;
+using freezone::protocol::account_name_type;
+using freezone::protocol::base_operation;
 
 class follow_plugin;
 
@@ -39,14 +39,14 @@ typedef fc::static_variant<
          reblog_operation
       > follow_plugin_operation;
 
-STEEM_DEFINE_PLUGIN_EVALUATOR( follow_plugin, follow_plugin_operation, follow );
-STEEM_DEFINE_PLUGIN_EVALUATOR( follow_plugin, follow_plugin_operation, reblog );
+freezone_DEFINE_PLUGIN_EVALUATOR( follow_plugin, follow_plugin_operation, follow );
+freezone_DEFINE_PLUGIN_EVALUATOR( follow_plugin, follow_plugin_operation, reblog );
 
-} } } // steem::plugins::follow
+} } } // freezone::plugins::follow
 
-FC_REFLECT( steem::plugins::follow::follow_operation, (follower)(following)(what) )
-FC_REFLECT( steem::plugins::follow::reblog_operation, (account)(author)(permlink) )
+FC_REFLECT( freezone::plugins::follow::follow_operation, (follower)(following)(what) )
+FC_REFLECT( freezone::plugins::follow::reblog_operation, (account)(author)(permlink) )
 
-STEEM_DECLARE_OPERATION_TYPE( steem::plugins::follow::follow_plugin_operation )
+freezone_DECLARE_OPERATION_TYPE( freezone::plugins::follow::follow_plugin_operation )
 
-FC_REFLECT_TYPENAME( steem::plugins::follow::follow_plugin_operation )
+FC_REFLECT_TYPENAME( freezone::plugins::follow::follow_plugin_operation )

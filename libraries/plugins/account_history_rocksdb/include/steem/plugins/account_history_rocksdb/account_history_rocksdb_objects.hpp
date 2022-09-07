@@ -1,27 +1,27 @@
 #pragma once
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 
-#ifndef STEEM_ACCOUNT_HISTORY_ROCKSDB_SPACE_ID
-#define STEEM_ACCOUNT_HISTORY_ROCKSDB_SPACE_ID 15
+#ifndef freezone_ACCOUNT_HISTORY_ROCKSDB_SPACE_ID
+#define freezone_ACCOUNT_HISTORY_ROCKSDB_SPACE_ID 15
 #endif
 
-namespace steem { namespace plugins { namespace account_history_rocksdb {
+namespace freezone { namespace plugins { namespace account_history_rocksdb {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
 typedef std::vector<char> serialize_buffer_t;
 
 enum account_history_rocksdb_object_types
 {
-   volatile_operation_object_type = ( STEEM_ACCOUNT_HISTORY_ROCKSDB_SPACE_ID << 8 )
+   volatile_operation_object_type = ( freezone_ACCOUNT_HISTORY_ROCKSDB_SPACE_ID << 8 )
 };
 
 class volatile_operation_object : public object< volatile_operation_object_type, volatile_operation_object >
 {
-   STEEM_STD_ALLOCATOR_CONSTRUCTOR( volatile_operation_object )
+   freezone_STD_ALLOCATOR_CONSTRUCTOR( volatile_operation_object )
 
    public:
       template< typename Constructor, typename Allocator >
@@ -92,9 +92,9 @@ typedef multi_index_container<
       allocator< volatile_operation_object >
    > volatile_operation_index;
 
-} } } // steem::plugins::account_history_rocksdb
+} } } // freezone::plugins::account_history_rocksdb
 
-FC_REFLECT( steem::plugins::account_history_rocksdb::volatile_operation_object, (id)(trx_id)(block)(trx_in_block)(op_in_trx)(virtual_op)(timestamp)(serialized_op)(impacted) )
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::account_history_rocksdb::volatile_operation_object, steem::plugins::account_history_rocksdb::volatile_operation_index )
+FC_REFLECT( freezone::plugins::account_history_rocksdb::volatile_operation_object, (id)(trx_id)(block)(trx_in_block)(op_in_trx)(virtual_op)(timestamp)(serialized_op)(impacted) )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::account_history_rocksdb::volatile_operation_object, freezone::plugins::account_history_rocksdb::volatile_operation_index )
 
-FC_REFLECT( steem::plugins::account_history_rocksdb::rocksdb_operation_object, (id)(trx_id)(block)(trx_in_block)(op_in_trx)(virtual_op)(timestamp)(serialized_op) )
+FC_REFLECT( freezone::plugins::account_history_rocksdb::rocksdb_operation_object, (id)(trx_id)(block)(trx_in_block)(op_in_trx)(virtual_op)(timestamp)(serialized_op) )

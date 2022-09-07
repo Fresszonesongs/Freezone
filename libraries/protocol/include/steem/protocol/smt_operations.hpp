@@ -1,29 +1,29 @@
 #pragma once
 
-#include <steem/protocol/base.hpp>
-#include <steem/protocol/asset.hpp>
-#include <steem/protocol/misc_utilities.hpp>
+#include <freezone/protocol/base.hpp>
+#include <freezone/protocol/asset.hpp>
+#include <freezone/protocol/misc_utilities.hpp>
 
-#define SMT_MAX_UNIT_ROUTES            10
-#define SMT_MAX_UNIT_COUNT             20
-#define SMT_MAX_DECIMAL_PLACES         8
+#define SST_MAX_UNIT_ROUTES            10
+#define SST_MAX_UNIT_COUNT             20
+#define SST_MAX_DECIMAL_PLACES         8
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 /**
- * This operation introduces new SMT into blockchain as identified by
- * Numerical Asset Identifier (NAI). Also the SMT precision (decimal points)
+ * This operation introduces new SST into blockchain as identified by
+ * Numerical Asset Identifier (NAI). Also the SST precision (decimal points)
  * is explicitly provided.
  */
-struct smt_create_operation : public base_operation
+struct SST_create_operation : public base_operation
 {
    account_name_type control_account;
    asset_symbol_type symbol;
 
-   smt_ticker_type   desired_ticker;
+   SST_ticker_type   desired_ticker;
 
    /// The amount to be transfered from @account to null account as elevation fee.
-   asset             smt_creation_fee;
+   asset             SST_creation_fee;
    /// Separately provided precision for clarity and redundancy.
    uint8_t           precision;
 
@@ -35,20 +35,20 @@ struct smt_create_operation : public base_operation
    { a.insert( control_account ); }
 };
 
-struct smt_generation_unit
+struct SST_generation_unit
 {
-   flat_map< unit_target_type, uint16_t > steem_unit;
+   flat_map< unit_target_type, uint16_t > freezone_unit;
    flat_map< unit_target_type, uint16_t > token_unit;
 
-   uint32_t steem_unit_sum()const;
+   uint32_t freezone_unit_sum()const;
    uint32_t token_unit_sum()const;
 
    void validate()const;
 };
 
-struct smt_capped_generation_policy
+struct SST_capped_generation_policy
 {
-   smt_generation_unit generation_unit;
+   SST_generation_unit generation_unit;
 
    extensions_type     extensions;
 
@@ -56,21 +56,21 @@ struct smt_capped_generation_policy
 };
 
 typedef static_variant<
-   smt_capped_generation_policy
-   > smt_generation_policy;
+   SST_capped_generation_policy
+   > SST_generation_policy;
 
-struct smt_setup_operation : public base_operation
+struct SST_setup_operation : public base_operation
 {
    account_name_type control_account;
    asset_symbol_type symbol;
 
-   int64_t                 max_supply = STEEM_MAX_SHARE_SUPPLY;
+   int64_t                 max_supply = freezone_MAX_SHARE_SUPPLY;
 
    time_point_sec          contribution_begin_time;
    time_point_sec          contribution_end_time;
    time_point_sec          launch_time;
 
-   share_type              steem_satoshi_min;
+   share_type              freezone_satoshi_min;
 
    uint32_t                min_unit_ratio = 0;
    uint32_t                max_unit_ratio = 0;
@@ -83,7 +83,7 @@ struct smt_setup_operation : public base_operation
    { a.insert( control_account ); }
 };
 
-struct smt_emissions_unit
+struct SST_emissions_unit
 {
    flat_map< unit_target_type, uint16_t > token_unit;
 
@@ -91,13 +91,13 @@ struct smt_emissions_unit
    uint32_t token_unit_sum()const;
 };
 
-struct smt_setup_ico_tier_operation : public base_operation
+struct SST_setup_ico_tier_operation : public base_operation
 {
    account_name_type     control_account;
    asset_symbol_type     symbol;
 
-   share_type            steem_satoshi_cap;
-   smt_generation_policy generation_policy;
+   share_type            freezone_satoshi_cap;
+   SST_generation_policy generation_policy;
    bool                  remove = false;
 
    extensions_type       extensions;
@@ -108,13 +108,13 @@ struct smt_setup_ico_tier_operation : public base_operation
    { a.insert( control_account ); }
 };
 
-struct smt_setup_emissions_operation : public base_operation
+struct SST_setup_emissions_operation : public base_operation
 {
    account_name_type   control_account;
    asset_symbol_type   symbol;
 
    time_point_sec      schedule_time;
-   smt_emissions_unit  emissions_unit;
+   SST_emissions_unit  emissions_unit;
 
    uint32_t            interval_seconds = 0;
    uint32_t            emission_count = 0;
@@ -139,28 +139,28 @@ struct smt_setup_emissions_operation : public base_operation
    { a.insert( control_account ); }
 };
 
-struct smt_param_allow_voting
+struct SST_param_allow_voting
 {
    bool value = true;
 };
 
 typedef static_variant<
-   smt_param_allow_voting
-   > smt_setup_parameter;
+   SST_param_allow_voting
+   > SST_setup_parameter;
 
-struct smt_param_windows_v1
+struct SST_param_windows_v1
 {
-   uint32_t cashout_window_seconds = 0;                // STEEM_CASHOUT_WINDOW_SECONDS
-   uint32_t reverse_auction_window_seconds = 0;        // STEEM_REVERSE_AUCTION_WINDOW_SECONDS
+   uint32_t cashout_window_seconds = 0;                // freezone_CASHOUT_WINDOW_SECONDS
+   uint32_t reverse_auction_window_seconds = 0;        // freezone_REVERSE_AUCTION_WINDOW_SECONDS
 };
 
-struct smt_param_vote_regeneration_period_seconds_v1
+struct SST_param_vote_regeneration_period_seconds_v1
 {
-   uint32_t vote_regeneration_period_seconds = 0;      // STEEM_VOTING_MANA_REGENERATION_SECONDS
+   uint32_t vote_regeneration_period_seconds = 0;      // freezone_VOTING_MANA_REGENERATION_SECONDS
    uint32_t votes_per_regeneration_period = 0;
 };
 
-struct smt_param_rewards_v1
+struct SST_param_rewards_v1
 {
    uint128_t               content_constant = 0;
    uint16_t                percent_curation_rewards = 0;
@@ -168,23 +168,23 @@ struct smt_param_rewards_v1
    protocol::curve_id      curation_reward_curve;
 };
 
-struct smt_param_allow_downvotes
+struct SST_param_allow_downvotes
 {
    bool value = true;
 };
 
 typedef static_variant<
-   smt_param_windows_v1,
-   smt_param_vote_regeneration_period_seconds_v1,
-   smt_param_rewards_v1,
-   smt_param_allow_downvotes
-   > smt_runtime_parameter;
+   SST_param_windows_v1,
+   SST_param_vote_regeneration_period_seconds_v1,
+   SST_param_rewards_v1,
+   SST_param_allow_downvotes
+   > SST_runtime_parameter;
 
-struct smt_set_setup_parameters_operation : public base_operation
+struct SST_set_setup_parameters_operation : public base_operation
 {
    account_name_type                control_account;
    asset_symbol_type                symbol;
-   flat_set< smt_setup_parameter >  setup_parameters;
+   flat_set< SST_setup_parameter >  setup_parameters;
    extensions_type                  extensions;
 
    void validate()const;
@@ -193,11 +193,11 @@ struct smt_set_setup_parameters_operation : public base_operation
    { a.insert( control_account ); }
 };
 
-struct smt_set_runtime_parameters_operation : public base_operation
+struct SST_set_runtime_parameters_operation : public base_operation
 {
    account_name_type                   control_account;
    asset_symbol_type                   symbol;
-   flat_set< smt_runtime_parameter >   runtime_parameters;
+   flat_set< SST_runtime_parameter >   runtime_parameters;
    extensions_type                     extensions;
 
    void validate()const;
@@ -206,7 +206,7 @@ struct smt_set_runtime_parameters_operation : public base_operation
    { a.insert( control_account ); }
 };
 
-struct smt_contribute_operation : public base_operation
+struct SST_contribute_operation : public base_operation
 {
    account_name_type  contributor;
    asset_symbol_type  symbol;
@@ -222,59 +222,59 @@ struct smt_contribute_operation : public base_operation
 } }
 
 FC_REFLECT(
-   steem::protocol::smt_create_operation,
+   freezone::protocol::SST_create_operation,
    (control_account)
    (symbol)
    (desired_ticker)
-   (smt_creation_fee)
+   (SST_creation_fee)
    (precision)
    (extensions)
 )
 
 FC_REFLECT(
-   steem::protocol::smt_setup_operation,
+   freezone::protocol::SST_setup_operation,
    (control_account)
    (symbol)
    (max_supply)
    (contribution_begin_time)
    (contribution_end_time)
    (launch_time)
-   (steem_satoshi_min)
+   (freezone_satoshi_min)
    (min_unit_ratio)
    (max_unit_ratio)
    (extensions)
    )
 
 FC_REFLECT(
-   steem::protocol::smt_generation_unit,
-   (steem_unit)
+   freezone::protocol::SST_generation_unit,
+   (freezone_unit)
    (token_unit)
    )
 
 
 FC_REFLECT(
-   steem::protocol::smt_capped_generation_policy,
+   freezone::protocol::SST_capped_generation_policy,
    (generation_unit)
    (extensions)
    )
 
 FC_REFLECT(
-   steem::protocol::smt_emissions_unit,
+   freezone::protocol::SST_emissions_unit,
    (token_unit)
    )
 
 FC_REFLECT(
-   steem::protocol::smt_setup_ico_tier_operation,
+   freezone::protocol::SST_setup_ico_tier_operation,
    (control_account)
    (symbol)
-   (steem_satoshi_cap)
+   (freezone_satoshi_cap)
    (generation_policy)
    (remove)
    (extensions)
    )
 
 FC_REFLECT(
-   steem::protocol::smt_setup_emissions_operation,
+   freezone::protocol::SST_setup_emissions_operation,
    (control_account)
    (symbol)
    (schedule_time)
@@ -294,26 +294,26 @@ FC_REFLECT(
    )
 
 FC_REFLECT(
-   steem::protocol::smt_param_allow_voting,
+   freezone::protocol::SST_param_allow_voting,
    (value)
    )
 
-FC_REFLECT_TYPENAME( steem::protocol::smt_setup_parameter )
+FC_REFLECT_TYPENAME( freezone::protocol::SST_setup_parameter )
 
 FC_REFLECT(
-   steem::protocol::smt_param_windows_v1,
+   freezone::protocol::SST_param_windows_v1,
    (cashout_window_seconds)
    (reverse_auction_window_seconds)
    )
 
 FC_REFLECT(
-   steem::protocol::smt_param_vote_regeneration_period_seconds_v1,
+   freezone::protocol::SST_param_vote_regeneration_period_seconds_v1,
    (vote_regeneration_period_seconds)
    (votes_per_regeneration_period)
    )
 
 FC_REFLECT(
-   steem::protocol::smt_param_rewards_v1,
+   freezone::protocol::SST_param_rewards_v1,
    (content_constant)
    (percent_curation_rewards)
    (author_reward_curve)
@@ -321,16 +321,16 @@ FC_REFLECT(
    )
 
 FC_REFLECT(
-   steem::protocol::smt_param_allow_downvotes,
+   freezone::protocol::SST_param_allow_downvotes,
    (value)
 )
 
 FC_REFLECT_TYPENAME(
-   steem::protocol::smt_runtime_parameter
+   freezone::protocol::SST_runtime_parameter
    )
 
 FC_REFLECT(
-   steem::protocol::smt_set_setup_parameters_operation,
+   freezone::protocol::SST_set_setup_parameters_operation,
    (control_account)
    (symbol)
    (setup_parameters)
@@ -338,7 +338,7 @@ FC_REFLECT(
    )
 
 FC_REFLECT(
-   steem::protocol::smt_set_runtime_parameters_operation,
+   freezone::protocol::SST_set_runtime_parameters_operation,
    (control_account)
    (symbol)
    (runtime_parameters)
@@ -346,7 +346,7 @@ FC_REFLECT(
    )
 
 FC_REFLECT(
-   steem::protocol::smt_contribute_operation,
+   freezone::protocol::SST_contribute_operation,
    (contributor)
    (symbol)
    (contribution_id)

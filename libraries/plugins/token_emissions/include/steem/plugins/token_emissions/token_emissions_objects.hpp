@@ -1,17 +1,17 @@
 #pragma once
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
-namespace steem { namespace plugins { namespace token_emissions {
+namespace freezone { namespace plugins { namespace token_emissions {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
-#ifndef STEEM_TOKEN_EMISSIONS_SPACE_ID
-#define STEEM_TOKEN_EMISSIONS_SPACE_ID 20
+#ifndef freezone_TOKEN_EMISSIONS_SPACE_ID
+#define freezone_TOKEN_EMISSIONS_SPACE_ID 20
 #endif
 
 enum token_emission_schedule_object_type
 {
-   token_emission_schedule_object_type = ( STEEM_TOKEN_EMISSIONS_SPACE_ID << 8 )
+   token_emission_schedule_object_type = ( freezone_TOKEN_EMISSIONS_SPACE_ID << 8 )
 };
 
 class token_emission_schedule_object : public object< token_emission_schedule_object_type, token_emission_schedule_object >
@@ -54,8 +54,8 @@ typedef multi_index_container<
 
 
 
-} } } // steem::plugins::token_emissions
+} } } // freezone::plugins::token_emissions
 
 
-FC_REFLECT( steem::plugins::token_emissions::token_emission_schedule_object, (id)(symbol)(next_consensus_emission)(next_scheduled_emission) )
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::token_emissions::token_emission_schedule_object, steem::plugins::token_emissions::token_emission_schedule_index )
+FC_REFLECT( freezone::plugins::token_emissions::token_emission_schedule_object, (id)(symbol)(next_consensus_emission)(next_scheduled_emission) )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::token_emissions::token_emission_schedule_object, freezone::plugins::token_emissions::token_emission_schedule_index )

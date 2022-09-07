@@ -1,9 +1,9 @@
 #pragma once
 
-#include <steem/plugins/transaction_status_api/transaction_status_api_args.hpp>
-#include <steem/plugins/json_rpc/utility.hpp>
+#include <freezone/plugins/transaction_status_api/transaction_status_api_args.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
 
-namespace steem { namespace plugins { namespace transaction_status_api {
+namespace freezone { namespace plugins { namespace transaction_status_api {
 
 namespace detail { class transaction_status_api_impl; }
 
@@ -18,5 +18,5 @@ private:
    std::unique_ptr< detail::transaction_status_api_impl > my;
 };
 
-} } } //steem::plugins::transaction_status_api
+} } } //freezone::plugins::transaction_status_api
 

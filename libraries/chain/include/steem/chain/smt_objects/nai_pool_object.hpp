@@ -1,17 +1,17 @@
 #pragma once
 
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/chain/steem_object_types.hpp>
-#include <steem/protocol/asset_symbol.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
+#include <freezone/protocol/asset_symbol.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
    class nai_pool_object : public object< nai_pool_object_type, nai_pool_object >
    {
-      STEEM_STD_ALLOCATOR_CONSTRUCTOR( nai_pool_object );
+      freezone_STD_ALLOCATOR_CONSTRUCTOR( nai_pool_object );
 
    public:
-      using pool_type = fc::array< asset_symbol_type, SMT_MAX_NAI_POOL_COUNT >;
+      using pool_type = fc::array< asset_symbol_type, SST_MAX_NAI_POOL_COUNT >;
 
       template< typename Constructor, typename Allocator >
       nai_pool_object( Constructor&& c, allocator< Allocator > a )
@@ -30,13 +30,13 @@ namespace steem { namespace chain {
 
       std::vector< asset_symbol_type > pool() const
       {
-         return std::vector< asset_symbol_type >{ nais.begin(), nais.end() - (SMT_MAX_NAI_POOL_COUNT - num_available_nais) };
+         return std::vector< asset_symbol_type >{ nais.begin(), nais.end() - (SST_MAX_NAI_POOL_COUNT - num_available_nais) };
       }
 
       bool contains( const asset_symbol_type& a ) const
       {
-         const auto end = nais.end() - (SMT_MAX_NAI_POOL_COUNT - num_available_nais);
-         return std::find( nais.begin(), end, asset_symbol_type::from_asset_num( a.get_stripped_precision_smt_num() ) ) != end;
+         const auto end = nais.end() - (SST_MAX_NAI_POOL_COUNT - num_available_nais);
+         return std::find( nais.begin(), end, asset_symbol_type::from_asset_num( a.get_stripped_precision_SST_num() ) ) != end;
       }
    };
 
@@ -48,8 +48,8 @@ namespace steem { namespace chain {
       allocator< nai_pool_object >
    > nai_pool_index;
 
-} } // namespace steem::chain
+} } // namespace freezone::chain
 
-FC_REFLECT( steem::chain::nai_pool_object, (id)(num_available_nais)(attempts_per_block)(collisions_per_block)(last_block_id)(nais) )
+FC_REFLECT( freezone::chain::nai_pool_object, (id)(num_available_nais)(attempts_per_block)(collisions_per_block)(last_block_id)(nais) )
 
-CHAINBASE_SET_INDEX_TYPE( steem::chain::nai_pool_object, steem::chain::nai_pool_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::nai_pool_object, freezone::chain::nai_pool_index )

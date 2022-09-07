@@ -1,28 +1,28 @@
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 struct votable_asset_info_v1;
 } }
 
-#include <steem/protocol/types_fwd.hpp>
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/protocol/types_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/schema/schema.hpp>
-#include <steem/schema/schema_impl.hpp>
-#include <steem/schema/schema_types.hpp>
+#include <freezone/schema/schema.hpp>
+#include <freezone/schema/schema_impl.hpp>
+#include <freezone/schema/schema_types.hpp>
 
-#include <steem/chain/schema_types/oid.hpp>
-#include <steem/protocol/schema_types/account_name_type.hpp>
-#include <steem/protocol/schema_types/asset_symbol_type.hpp>
+#include <freezone/chain/schema_types/oid.hpp>
+#include <freezone/protocol/schema_types/account_name_type.hpp>
+#include <freezone/protocol/schema_types/asset_symbol_type.hpp>
 
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/steem_objects.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/freezone_objects.hpp>
 
-using namespace steem::schema;
+using namespace freezone::schema;
 
 struct mystruct
 {
@@ -61,8 +61,8 @@ int main( int argc, char** argv, char** envp )
    std::vector< std::shared_ptr< abstract_schema > > schemas;
 
    schemas.push_back( get_schema_for_type< mystruct >() );
-   schemas.push_back( get_schema_for_type< steem::chain::account_object >() );
-   schemas.push_back( get_schema_for_type< steem::chain::comment_object >() );
+   schemas.push_back( get_schema_for_type< freezone::chain::account_object >() );
+   schemas.push_back( get_schema_for_type< freezone::chain::comment_object >() );
    add_dependent_schemas( schemas );
 
    for( const std::shared_ptr< abstract_schema >& s : schemas )

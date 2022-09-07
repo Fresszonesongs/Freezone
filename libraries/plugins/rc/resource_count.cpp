@@ -1,12 +1,12 @@
 
-#include <steem/plugins/rc/resource_count.hpp>
-#include <steem/plugins/rc/resource_sizes.hpp>
+#include <freezone/plugins/rc/resource_count.hpp>
+#include <freezone/plugins/rc/resource_sizes.hpp>
 
-#include <steem/protocol/operations.hpp>
+#include <freezone/protocol/operations.hpp>
 
-namespace steem { namespace plugins { namespace rc {
+namespace freezone { namespace plugins { namespace rc {
 
-using namespace steem::protocol;
+using namespace freezone::protocol;
 
 struct count_operation_visitor
 {
@@ -141,7 +141,7 @@ struct count_operation_visitor
 
    void operator()( const set_withdraw_vesting_route_operation& op )const
    {
-      FC_TODO( "Change RC state bytes computation to take SMT's into account" )
+      FC_TODO( "Change RC state bytes computation to take SST's into account" )
       state_bytes_count += _w.withdraw_vesting_route_object_base_size;
       execution_time_count += _e.set_withdraw_vesting_route_operation_exec_time;
    }
@@ -168,40 +168,40 @@ struct count_operation_visitor
 
    void operator()( const transfer_operation& )const
    {
-      FC_TODO( "Change RC state bytes computation to take SMT's into account" )
+      FC_TODO( "Change RC state bytes computation to take SST's into account" )
       execution_time_count += _e.transfer_operation_exec_time;
       market_op_count++;
    }
 
    void operator()( const transfer_to_vesting_operation& )const
    {
-      FC_TODO( "Change RC state bytes computation to take SMT's into account" )
+      FC_TODO( "Change RC state bytes computation to take SST's into account" )
       execution_time_count += _e.transfer_to_vesting_operation_exec_time;
       market_op_count++;
    }
 
    void operator()( const transfer_to_savings_operation& )const
    {
-      FC_TODO( "Change RC state bytes computation to take SMT's into account" )
+      FC_TODO( "Change RC state bytes computation to take SST's into account" )
       execution_time_count += _e.transfer_to_savings_operation_exec_time;
    }
 
    void operator()( const transfer_from_savings_operation& )const
    {
-      FC_TODO( "Change RC state bytes computation to take SMT's into account" )
+      FC_TODO( "Change RC state bytes computation to take SST's into account" )
       state_bytes_count += _w.savings_withdraw_object_byte_size;
       execution_time_count += _e.transfer_from_savings_operation_exec_time;
    }
 
    void operator()( const claim_reward_balance_operation& op )const
    {
-      FC_TODO( "Change RC state bytes computation to take SMT's into account" )
+      FC_TODO( "Change RC state bytes computation to take SST's into account" )
       execution_time_count += _e.claim_reward_balance_operation_exec_time;
    }
 
    void operator()( const withdraw_vesting_operation& op )const
    {
-      FC_TODO( "Change RC state bytes computation to take SMT's into account" )
+      FC_TODO( "Change RC state bytes computation to take SST's into account" )
       execution_time_count += _e.withdraw_vesting_operation_exec_time;
    }
 
@@ -309,42 +309,42 @@ struct count_operation_visitor
       execution_time_count += _e.claim_reward_balance2_operation_exec_time;
    }
 
-   void operator()( const smt_setup_operation& op )const
+   void operator()( const SST_setup_operation& op )const
    {
-      state_bytes_count += _w.smt_ico_object_size;
-      execution_time_count += _e.smt_setup_operation_exec_time;
-      execution_time_count += _e.smt_founder_payout_action_exec_time;
-      execution_time_count += _e.smt_token_launch_action_exec_time;
-      execution_time_count += _e.smt_ico_evaluation_action_exec_time;
-      execution_time_count += _e.smt_ico_launch_action_exec_time;
+      state_bytes_count += _w.SST_ico_object_size;
+      execution_time_count += _e.SST_setup_operation_exec_time;
+      execution_time_count += _e.SST_founder_payout_action_exec_time;
+      execution_time_count += _e.SST_token_launch_action_exec_time;
+      execution_time_count += _e.SST_ico_evaluation_action_exec_time;
+      execution_time_count += _e.SST_ico_launch_action_exec_time;
    }
 
-   void operator()( const smt_setup_emissions_operation& op )const
+   void operator()( const SST_setup_emissions_operation& op )const
    {
-      state_bytes_count += _w.smt_token_emissions_object_size;
-      execution_time_count += _e.smt_setup_emissions_operation_exec_time;
+      state_bytes_count += _w.SST_token_emissions_object_size;
+      execution_time_count += _e.SST_setup_emissions_operation_exec_time;
    }
 
-   void operator()( const smt_setup_ico_tier_operation& op )const
+   void operator()( const SST_setup_ico_tier_operation& op )const
    {
-      state_bytes_count += _w.smt_ico_tier_object_size;
-      execution_time_count += _e.smt_setup_ico_tier_operation_exec_time;
+      state_bytes_count += _w.SST_ico_tier_object_size;
+      execution_time_count += _e.SST_setup_ico_tier_operation_exec_time;
    }
 
-   void operator()( const smt_set_setup_parameters_operation& op )const
+   void operator()( const SST_set_setup_parameters_operation& op )const
    {
-      execution_time_count += _e.smt_set_setup_parameters_operation_exec_time;
+      execution_time_count += _e.SST_set_setup_parameters_operation_exec_time;
    }
 
-   void operator()( const smt_set_runtime_parameters_operation& op )const
+   void operator()( const SST_set_runtime_parameters_operation& op )const
    {
-      execution_time_count += _e.smt_set_runtime_parameters_operation_exec_time;
+      execution_time_count += _e.SST_set_runtime_parameters_operation_exec_time;
    }
 
-   void operator()( const smt_create_operation& op )const
+   void operator()( const SST_create_operation& op )const
    {
-      state_bytes_count += _w.smt_token_object_size;
-      execution_time_count += _e.smt_create_operation_exec_time;
+      state_bytes_count += _w.SST_token_object_size;
+      execution_time_count += _e.SST_create_operation_exec_time;
    }
 
    void operator()( const allowed_vote_assets& ava )const
@@ -352,11 +352,11 @@ struct count_operation_visitor
       state_bytes_count += _w.votable_assets_item_size * ava.votable_assets.size();
    }
 
-   void operator()( const smt_contribute_operation& op ) const
+   void operator()( const SST_contribute_operation& op ) const
    {
-      state_bytes_count += _w.smt_contribution_object_size;
-      execution_time_count += _e.smt_contribute_operation_exec_time;
-      execution_time_count += _e.smt_contributor_payout_action_exec_time;
+      state_bytes_count += _w.SST_contribution_object_size;
+      execution_time_count += _e.SST_contribute_operation_exec_time;
+      execution_time_count += _e.SST_contributor_payout_action_exec_time;
    }
 
    void operator()( const create_proposal_operation& op ) const
@@ -410,9 +410,9 @@ struct count_operation_visitor
 #ifdef IS_TEST_NET
    void operator()( const example_optional_action& ) const {}
 #endif
-   void operator()( const smt_token_emission_action& ) const
+   void operator()( const SST_token_emission_action& ) const
    {
-      execution_time_count += _e.smt_token_emission_action_exec_time;
+      execution_time_count += _e.SST_token_emission_action_exec_time;
    }
 
 
@@ -421,7 +421,7 @@ struct count_operation_visitor
    // withdraw_vesting, convert, set_withdraw_vesting_route, limit_order_create2
    // escrow_transfer, escrow_dispute, escrow_release, escrow_approve,
    // transfer_to_savings, transfer_from_savings, cancel_transfer_from_savings,
-   // claim_reward_balance, delegate_vesting_shares, any SMT operations
+   // claim_reward_balance, delegate_vesting_shares, any SST operations
 };
 
 typedef count_operation_visitor count_optional_action_visitor;
@@ -476,4 +476,4 @@ void count_resources(
    result.resource_count[ resource_execution_time ] += vtor.execution_time_count;
 }
 
-} } } // steem::plugins::rc
+} } } // freezone::plugins::rc

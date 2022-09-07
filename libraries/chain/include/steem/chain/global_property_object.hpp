@@ -1,16 +1,16 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
 #include <fc/uint128.hpp>
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
-#include <steem/protocol/asset.hpp>
+#include <freezone/protocol/asset.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-   using steem::protocol::asset;
-   using steem::protocol::price;
+   using freezone::protocol::asset;
+   using freezone::protocol::price;
 
    /**
     * @class dynamic_global_property_object
@@ -51,31 +51,31 @@ namespace steem { namespace chain {
           */
          uint32_t num_pow_witnesses = 0;
 
-         asset       virtual_supply             = asset( 0, STEEM_SYMBOL );
-         asset       current_supply             = asset( 0, STEEM_SYMBOL );
-         asset       confidential_supply        = asset( 0, STEEM_SYMBOL ); ///< total asset held in confidential balances
+         asset       virtual_supply             = asset( 0, freezone_SYMBOL );
+         asset       current_supply             = asset( 0, freezone_SYMBOL );
+         asset       confidential_supply        = asset( 0, freezone_SYMBOL ); ///< total asset held in confidential balances
          asset       init_sbd_supply            = asset( 0, SBD_SYMBOL );
          asset       current_sbd_supply         = asset( 0, SBD_SYMBOL );
          asset       confidential_sbd_supply    = asset( 0, SBD_SYMBOL ); ///< total asset held in confidential balances
-         asset       total_vesting_fund_steem   = asset( 0, STEEM_SYMBOL );
+         asset       total_vesting_fund_freezone   = asset( 0, freezone_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
-         asset       total_reward_fund_steem    = asset( 0, STEEM_SYMBOL );
+         asset       total_reward_fund_freezone    = asset( 0, freezone_SYMBOL );
          fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
          asset       pending_rewarded_vesting_shares = asset( 0, VESTS_SYMBOL );
-         asset       pending_rewarded_vesting_steem  = asset( 0, STEEM_SYMBOL );
+         asset       pending_rewarded_vesting_freezone  = asset( 0, freezone_SYMBOL );
 
          price       get_vesting_share_price() const
          {
-            if ( total_vesting_fund_steem.amount == 0 || total_vesting_shares.amount == 0 )
-               return price ( asset( 1000, STEEM_SYMBOL ), asset( 1000000, VESTS_SYMBOL ) );
+            if ( total_vesting_fund_freezone.amount == 0 || total_vesting_shares.amount == 0 )
+               return price ( asset( 1000, freezone_SYMBOL ), asset( 1000000, VESTS_SYMBOL ) );
 
-            return price( total_vesting_shares, total_vesting_fund_steem );
+            return price( total_vesting_shares, total_vesting_fund_freezone );
          }
 
          price get_reward_vesting_share_price() const
          {
             return price( total_vesting_shares + pending_rewarded_vesting_shares,
-               total_vesting_fund_steem + pending_rewarded_vesting_steem );
+               total_vesting_fund_freezone + pending_rewarded_vesting_freezone );
          }
 
          /**
@@ -83,7 +83,7 @@ namespace steem { namespace chain {
           */
          uint16_t sbd_interest_rate = 0;
 
-         uint16_t sbd_print_rate = STEEM_100_PERCENT;
+         uint16_t sbd_print_rate = freezone_100_PERCENT;
 
          /**
           *  Maximum block size is decided by the set of active witnesses which change every round.
@@ -124,9 +124,9 @@ namespace steem { namespace chain {
           * "wasting" voting power through spillover; any user voting faster than this rate will have
           * their votes reduced.
           */
-         uint32_t target_votes_per_period = STEEM_INITIAL_VOTE_POWER_RATE;
+         uint32_t target_votes_per_period = freezone_INITIAL_VOTE_POWER_RATE;
 
-         uint32_t delegation_return_period = STEEM_DELEGATION_RETURN_PERIOD_HF0;
+         uint32_t delegation_return_period = freezone_DELEGATION_RETURN_PERIOD_HF0;
 
          uint64_t reverse_auction_seconds = 0;
 
@@ -139,15 +139,15 @@ namespace steem { namespace chain {
          time_point_sec next_maintenance_time;
          time_point_sec last_budget_time;
 
-         uint16_t content_reward_percent = STEEM_CONTENT_REWARD_PERCENT_HF16;
-         uint16_t vesting_reward_percent = STEEM_VESTING_FUND_PERCENT_HF16;
-         uint16_t sps_fund_percent = STEEM_PROPOSAL_FUND_PERCENT_HF0;
+         uint16_t content_reward_percent = freezone_CONTENT_REWARD_PERCENT_HF16;
+         uint16_t vesting_reward_percent = freezone_VESTING_FUND_PERCENT_HF16;
+         uint16_t sps_fund_percent = freezone_PROPOSAL_FUND_PERCENT_HF0;
 
          asset sps_interval_ledger = asset( 0, SBD_SYMBOL );
 
          uint16_t downvote_pool_percent = 0;
 
-         asset smt_creation_fee = asset( 1000, SBD_SYMBOL );
+         asset SST_creation_fee = asset( 1000, SBD_SYMBOL );
    };
 
    typedef multi_index_container<
@@ -159,17 +159,17 @@ namespace steem { namespace chain {
       allocator< dynamic_global_property_object >
    > dynamic_global_property_index;
 
-} } // steem::chain
+} } // freezone::chain
 
 #ifdef ENABLE_MIRA
 namespace mira {
 
-template<> struct is_static_length< steem::chain::dynamic_global_property_object > : public boost::true_type {};
+template<> struct is_static_length< freezone::chain::dynamic_global_property_object > : public boost::true_type {};
 
 } // mira
 #endif
 
-FC_REFLECT( steem::chain::dynamic_global_property_object,
+FC_REFLECT( freezone::chain::dynamic_global_property_object,
              (id)
              (head_block_number)
              (head_block_id)
@@ -183,12 +183,12 @@ FC_REFLECT( steem::chain::dynamic_global_property_object,
              (init_sbd_supply)
              (current_sbd_supply)
              (confidential_sbd_supply)
-             (total_vesting_fund_steem)
+             (total_vesting_fund_freezone)
              (total_vesting_shares)
-             (total_reward_fund_steem)
+             (total_reward_fund_freezone)
              (total_reward_shares2)
              (pending_rewarded_vesting_shares)
-             (pending_rewarded_vesting_steem)
+             (pending_rewarded_vesting_freezone)
              (sbd_interest_rate)
              (sbd_print_rate)
              (maximum_block_size)
@@ -210,6 +210,6 @@ FC_REFLECT( steem::chain::dynamic_global_property_object,
              (sps_fund_percent)
              (sps_interval_ledger)
              (downvote_pool_percent)
-             (smt_creation_fee)
+             (SST_creation_fee)
           )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::dynamic_global_property_object, steem::chain::dynamic_global_property_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::dynamic_global_property_object, freezone::chain::dynamic_global_property_index )

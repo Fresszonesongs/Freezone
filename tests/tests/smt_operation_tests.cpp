@@ -4,59 +4,59 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/protocol/exceptions.hpp>
-#include <steem/protocol/hardfork.hpp>
-#include <steem/protocol/smt_util.hpp>
+#include <freezone/protocol/exceptions.hpp>
+#include <freezone/protocol/hardfork.hpp>
+#include <freezone/protocol/SST_util.hpp>
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/database_exceptions.hpp>
-#include <steem/chain/steem_objects.hpp>
-#include <steem/chain/smt_objects.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/database_exceptions.hpp>
+#include <freezone/chain/freezone_objects.hpp>
+#include <freezone/chain/SST_objects.hpp>
 
-#include <steem/chain/util/nai_generator.hpp>
-#include <steem/chain/util/smt_token.hpp>
+#include <freezone/chain/util/nai_generator.hpp>
+#include <freezone/chain/util/SST_token.hpp>
 
 #include "../db_fixture/database_fixture.hpp"
 
 #include <fc/uint128.hpp>
 
-using namespace steem::chain;
-using namespace steem::protocol;
+using namespace freezone::chain;
+using namespace freezone::protocol;
 using fc::string;
 using fc::uint128_t;
 using boost::container::flat_set;
 
-BOOST_FIXTURE_TEST_SUITE( smt_operation_tests, clean_database_fixture )
+BOOST_FIXTURE_TEST_SUITE( SST_operation_tests, clean_database_fixture )
 
-BOOST_AUTO_TEST_CASE( smt_limit_order_create_authorities )
+BOOST_AUTO_TEST_CASE( SST_limit_order_create_authorities )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_limit_order_create_authorities" );
+      BOOST_TEST_MESSAGE( "Testing: SST_limit_order_create_authorities" );
 
       ACTORS( (alice)(bob) )
 
       limit_order_create2_operation op;
 
-      //Create SMT and give some SMT to creator.
+      //Create SST and give some SST to creator.
       signed_transaction tx;
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 0 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 0 );
 
       tx.operations.clear();
       tx.signatures.clear();
 
       op.owner = "alice";
-      op.amount_to_sell = asset( 1000, STEEM_SYMBOL );
-      op.exchange_rate  = price( asset( 1000, STEEM_SYMBOL ), asset( 1000, alice_symbol ) );
-      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      op.amount_to_sell = asset( 1000, freezone_SYMBOL );
+      op.exchange_rate  = price( asset( 1000, freezone_SYMBOL ), asset( 1000, alice_symbol ) );
+      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_TIME_UNTIL_EXPIRATION );
 
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
 
       BOOST_TEST_MESSAGE( "--- Test failure when no signature." );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
 
       BOOST_TEST_MESSAGE( "--- Test success with account signature" );
       sign( tx, alice_private_key );
@@ -64,37 +64,37 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create_authorities )
 
       BOOST_TEST_MESSAGE( "--- Test failure with duplicate signature" );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_duplicate_sig );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_duplicate_sig );
 
       BOOST_TEST_MESSAGE( "--- Test failure with additional incorrect signature" );
       tx.signatures.clear();
       sign( tx, alice_private_key );
       sign( tx, bob_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_irrelevant_sig );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_irrelevant_sig );
 
       BOOST_TEST_MESSAGE( "--- Test failure with incorrect signature" );
       tx.signatures.clear();
       sign( tx, alice_post_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
 
       validate_database();
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
+BOOST_AUTO_TEST_CASE( SST_limit_order_create2_authorities )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_limit_order_create2_authorities" );
+      BOOST_TEST_MESSAGE( "Testing: SST_limit_order_create2_authorities" );
 
       ACTORS( (alice)(bob) )
 
       limit_order_create2_operation op;
 
-      //Create SMT and give some SMT to creator.
+      //Create SST and give some SST to creator.
       signed_transaction tx;
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 0 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 0 );
 
       tx.operations.clear();
       tx.signatures.clear();
@@ -102,13 +102,13 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
       op.owner = "alice";
       op.amount_to_sell = ASSET( "1.000 TESTS" );
       op.exchange_rate = price( ASSET( "1.000 TESTS" ), asset( 1000, alice_symbol ) );
-      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION );
+      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION );
 
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
 
       BOOST_TEST_MESSAGE( "--- Test failure when no signature." );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
 
       BOOST_TEST_MESSAGE( "--- Test success with account signature" );
       sign( tx, alice_private_key );
@@ -116,25 +116,25 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 
       BOOST_TEST_MESSAGE( "--- Test failure with duplicate signature" );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_duplicate_sig );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_duplicate_sig );
 
       BOOST_TEST_MESSAGE( "--- Test failure with additional incorrect signature" );
       tx.signatures.clear();
       sign( tx, alice_private_key );
       sign( tx, bob_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_irrelevant_sig );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_irrelevant_sig );
 
       BOOST_TEST_MESSAGE( "--- Test failure with incorrect signature" );
       tx.signatures.clear();
       sign( tx, alice_post_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
 
       validate_database();
    }
    FC_LOG_AND_RETHROW()
 }
 
-//BOOST_AUTO_TEST_CASE( smt_limit_order_create_apply )
+//BOOST_AUTO_TEST_CASE( SST_limit_order_create_apply )
 //{
 //   try
 //   {
@@ -142,9 +142,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //
 //      ACTORS( (alice)(bob) )
 //
-//      //Create SMT and give some SMT to creators.
+//      //Create SST and give some SST to creators.
 //      signed_transaction tx;
-//      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3);
+//      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3);
 //
 //      const account_object& alice_account = db->get_account( "alice" );
 //      const account_object& bob_account = db->get_account( "bob" );
@@ -155,15 +155,15 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      convert( "bob", ASSET("1000.000 TESTS" ) );
 //      generate_block();
 //
-//      asset alice_smt_balance = asset( 1000000, alice_symbol );
-//      asset bob_smt_balance = asset( 1000000, alice_symbol );
+//      asset alice_SST_balance = asset( 1000000, alice_symbol );
+//      asset bob_SST_balance = asset( 1000000, alice_symbol );
 //
 //      asset alice_balance = alice_account.balance;
 //
 //      asset bob_balance = bob_account.balance;
 //
-//      FUND( "alice", alice_smt_balance );
-//      FUND( "bob", bob_smt_balance );
+//      FUND( "alice", alice_SST_balance );
+//      FUND( "bob", bob_SST_balance );
 //
 //      tx.operations.clear();
 //      tx.signatures.clear();
@@ -178,15 +178,15 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      op.amount_to_sell = ASSET( "10.000 TESTS" );
 //      op.min_to_receive = asset( 10000, alice_symbol );
 //      op.fill_or_kill = false;
-//      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION );
+//      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION );
 //      tx.operations.push_back( op );
-//      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+//      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
 //      sign( tx, bob_private_key );
-//      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+//      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 //
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "bob", op.orderid ) ) == limit_order_idx.end() );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
 //      validate_database();
 //
 //      BOOST_TEST_MESSAGE( "--- Test failure when amount to receive is 0" );
@@ -197,11 +197,11 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      tx.signatures.clear();
 //      tx.operations.push_back( op );
 //      sign( tx, alice_private_key );
-//      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+//      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 //
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) ) == limit_order_idx.end() );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
 //      validate_database();
 //
 //      BOOST_TEST_MESSAGE( "--- Test failure when amount to sell is 0" );
@@ -212,26 +212,26 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      tx.signatures.clear();
 //      tx.operations.push_back( op );
 //      sign( tx, alice_private_key );
-//      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+//      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 //
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) ) == limit_order_idx.end() );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
 //      validate_database();
 //
 //      BOOST_TEST_MESSAGE( "--- Test failure when expiration is too long" );
 //      op.amount_to_sell = ASSET( "10.000 TESTS" );
 //      op.min_to_receive = ASSET( "15.000 TBD" );
-//      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION + 1 );
+//      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION + 1 );
 //      tx.operations.clear();
 //      tx.signatures.clear();
 //      tx.operations.push_back( op );
 //      sign( tx, alice_private_key );
-//      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+//      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 //
 //      BOOST_TEST_MESSAGE( "--- Test success creating limit order that will not be filled" );
 //
-//      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION );
+//      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION );
 //      op.amount_to_sell = ASSET( "10.000 TESTS" );
 //      op.min_to_receive = asset( 15000, alice_symbol );
 //      tx.operations.clear();
@@ -248,9 +248,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      BOOST_REQUIRE( limit_order->orderid == op.orderid );
 //      BOOST_REQUIRE( limit_order->for_sale == op.amount_to_sell.amount );
 //      BOOST_REQUIRE( limit_order->sell_price == price( op.amount_to_sell / op.min_to_receive ) );
-//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
 //      validate_database();
 //
 //      BOOST_TEST_MESSAGE( "--- Test failure creating limit order with duplicate id" );
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      tx.signatures.clear();
 //      tx.operations.push_back( op );
 //      sign( tx, alice_private_key );
-//      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+//      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 //
 //      limit_order = limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) );
 //      BOOST_REQUIRE( limit_order != limit_order_idx.end() );
@@ -268,9 +268,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      BOOST_REQUIRE( limit_order->orderid == op.orderid );
 //      BOOST_REQUIRE( limit_order->for_sale == 10000 );
 //      BOOST_REQUIRE( limit_order->sell_price == price( ASSET( "10.000 TESTS" ), op.min_to_receive ) );
-//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
 //      validate_database();
 //
 //      BOOST_TEST_MESSAGE( "--- Test sucess killing an order that will not be filled" );
@@ -281,16 +281,16 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      tx.signatures.clear();
 //      tx.operations.push_back( op );
 //      sign( tx, alice_private_key );
-//      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+//      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 //
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) ) == limit_order_idx.end() );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
 //      validate_database();
 //
 //      // BOOST_TEST_MESSAGE( "--- Test having a partial match to limit order" );
-//      // // Alice has order for 15 SMT at a price of 2:3
-//      // // Fill 5 STEEM for 7.5 SMT
+//      // // Alice has order for 15 SST at a price of 2:3
+//      // // Fill 5 freezone for 7.5 SST
 //
 //      op.owner = "bob";
 //      op.orderid = 1;
@@ -303,8 +303,8 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      sign( tx, bob_private_key );
 //      db->push_transaction( tx, 0 );
 //
-//      bob_smt_balance -= asset (7500, alice_symbol );
-//      alice_smt_balance += asset (7500, alice_symbol );
+//      bob_SST_balance -= asset (7500, alice_symbol );
+//      alice_SST_balance += asset (7500, alice_symbol );
 //      bob_balance += ASSET( "5.000 TESTS" );
 //
 //      auto recent_ops = get_last_operations( 1 );
@@ -316,12 +316,12 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      BOOST_REQUIRE( limit_order->orderid == op.orderid );
 //      BOOST_REQUIRE( limit_order->for_sale == 5000 );
 //      BOOST_REQUIRE( limit_order->sell_price == price( ASSET( "10.000 TESTS" ), asset( 15000, alice_symbol ) ) );
-//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
+//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "bob", op.orderid ) ) == limit_order_idx.end() );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
 //      BOOST_REQUIRE( fill_order_op.open_owner == "alice" );
 //      BOOST_REQUIRE( fill_order_op.open_orderid == 1 );
 //      BOOST_REQUIRE( fill_order_op.open_pays.amount.value == ASSET( "5.000 TESTS").amount.value );
@@ -340,8 +340,8 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      sign( tx, bob_private_key );
 //      db->push_transaction( tx, 0 );
 //
-//      bob_smt_balance -= asset( 15000, alice_symbol );
-//      alice_smt_balance += asset( 7500, alice_symbol );
+//      bob_SST_balance -= asset( 15000, alice_symbol );
+//      alice_SST_balance += asset( 7500, alice_symbol );
 //      bob_balance += ASSET( "5.000 TESTS" );
 //
 //      limit_order = limit_order_idx.find( boost::make_tuple( "bob", 1 ) );
@@ -350,12 +350,12 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      BOOST_REQUIRE( limit_order->orderid == 1 );
 //      BOOST_REQUIRE( limit_order->for_sale.value == 7500 );
 //      BOOST_REQUIRE( limit_order->sell_price == price( asset( 15000, alice_symbol ), ASSET( "10.000 TESTS" ) ) );
-//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
+//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", 1 ) ) == limit_order_idx.end() );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
 //      validate_database();
 //
 //      BOOST_TEST_MESSAGE( "--- Test filling an existing order and new order fully" );
@@ -371,15 +371,15 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      db->push_transaction( tx, 0 );
 //
 //      alice_balance -= ASSET( "5.000 TESTS" );
-//      alice_smt_balance += asset( 7500, alice_symbol );
+//      alice_SST_balance += asset( 7500, alice_symbol );
 //      bob_balance += ASSET( "5.000 TESTS" );
 //
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", 3 ) ) == limit_order_idx.end() );
 //      BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "bob", 1 ) ) == limit_order_idx.end() );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
 //      validate_database();
 //
 //      BOOST_TEST_MESSAGE( "--- Test filling limit order with better order when partial order is better." );
@@ -405,8 +405,8 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      db->push_transaction( tx, 0 );
 //
 //      alice_balance -= ASSET( "10.000 TESTS" );
-//      alice_smt_balance += asset( 11000, alice_symbol );
-//      bob_smt_balance -= asset( 12000, alice_symbol );
+//      alice_SST_balance += asset( 11000, alice_symbol );
+//      bob_SST_balance -= asset( 12000, alice_symbol );
 //      bob_balance += ASSET( "10.000 TESTS" );
 //
 //      limit_order = limit_order_idx.find( boost::make_tuple( "bob", 4 ) );
@@ -416,11 +416,11 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      BOOST_REQUIRE( limit_order->orderid == 4 );
 //      BOOST_REQUIRE( limit_order->for_sale.value == 1000 );
 //      BOOST_REQUIRE( limit_order->sell_price == price( asset( 12000, alice_symbol ), ASSET( "10.000 TESTS" ) ) );
-//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
 //      validate_database();
 //
 //      limit_order_cancel_operation can;
@@ -458,9 +458,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      db->push_transaction( tx, 0 );
 //
 //      alice_balance -= ASSET( "20.000 TESTS" );
-//      alice_smt_balance += asset( 12000, alice_symbol );
+//      alice_SST_balance += asset( 12000, alice_symbol );
 //
-//      bob_smt_balance -= asset( 11000, alice_symbol );
+//      bob_SST_balance -= asset( 11000, alice_symbol );
 //      bob_balance += ASSET( "10.909 TESTS" );
 //
 //      limit_order = limit_order_idx.find( boost::make_tuple( "alice", 5 ) );
@@ -470,25 +470,25 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_authorities )
 //      BOOST_REQUIRE( limit_order->orderid == 5 );
 //      BOOST_REQUIRE( limit_order->for_sale.value == 9091 );
 //      BOOST_REQUIRE( limit_order->sell_price == price( ASSET( "20.000 TESTS" ), asset( 22000, alice_symbol ) ) );
-//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-//      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+//      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+//      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+//      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
 //      validate_database();
 //   }
 //   FC_LOG_AND_RETHROW()
 //}
 
-BOOST_AUTO_TEST_CASE( smt_limit_order_create_apply )
+BOOST_AUTO_TEST_CASE( SST_limit_order_create_apply )
 {
    BOOST_TEST_MESSAGE( "Testing: limit_order_create_apply" );
 
    ACTORS( (alice) )
 
-   //Create SMT and give some SMT to creators.
+   //Create SST and give some SST to creators.
    signed_transaction tx;
-   asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3);
+   asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3);
 
    FUND( "alice", 1000000 );
    FUND( "alice", asset( 1000000, alice_symbol ) );
@@ -501,27 +501,27 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create_apply )
    op.owner = "alice";
    op.orderid = 1;
    op.amount_to_sell = asset( 7500, alice_symbol );
-   op.min_to_receive = asset( 5000, STEEM_SYMBOL );
+   op.min_to_receive = asset( 5000, freezone_SYMBOL );
    op.fill_or_kill = false;
    tx.operations.clear();
    tx.signatures.clear();
    tx.operations.push_back( op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 }
 
-BOOST_AUTO_TEST_CASE( smt_limit_order_cancel_authorities )
+BOOST_AUTO_TEST_CASE( SST_limit_order_cancel_authorities )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_limit_order_cancel_authorities" );
+      BOOST_TEST_MESSAGE( "Testing: SST_limit_order_cancel_authorities" );
 
       ACTORS( (alice)(bob) )
 
-      //Create SMT and give some SMT to creator.
+      //Create SST and give some SST to creator.
       signed_transaction tx;
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3 );
 
       FUND( "alice", asset( 100000, alice_symbol ) );
 
@@ -531,12 +531,12 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_cancel_authorities )
       limit_order_create2_operation c;
       c.owner = "alice";
       c.orderid = 1;
-      c.amount_to_sell = asset( 1000, STEEM_SYMBOL );
-      c.exchange_rate  = price( asset( 1000, STEEM_SYMBOL ), asset( 1000, alice_symbol ) );
-      c.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION );
+      c.amount_to_sell = asset( 1000, freezone_SYMBOL );
+      c.exchange_rate  = price( asset( 1000, freezone_SYMBOL ), asset( 1000, alice_symbol ) );
+      c.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION );
 
       tx.operations.push_back( c );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
@@ -549,7 +549,7 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_cancel_authorities )
       tx.operations.push_back( op );
 
       BOOST_TEST_MESSAGE( "--- Test failure when no signature." );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
 
       BOOST_TEST_MESSAGE( "--- Test success with account signature" );
       sign( tx, alice_private_key );
@@ -557,45 +557,45 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_cancel_authorities )
 
       BOOST_TEST_MESSAGE( "--- Test failure with duplicate signature" );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_duplicate_sig );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_duplicate_sig );
 
       BOOST_TEST_MESSAGE( "--- Test failure with additional incorrect signature" );
       tx.signatures.clear();
       sign( tx, alice_private_key );
       sign( tx, bob_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_irrelevant_sig );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_irrelevant_sig );
 
       BOOST_TEST_MESSAGE( "--- Test failure with incorrect signature" );
       tx.signatures.clear();
       sign( tx, alice_post_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), tx_missing_active_auth );
 
       validate_database();
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_limit_order_cancel_apply )
+BOOST_AUTO_TEST_CASE( SST_limit_order_cancel_apply )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_limit_order_cancel_apply" );
+      BOOST_TEST_MESSAGE( "Testing: SST_limit_order_cancel_apply" );
 
       ACTORS( (alice) )
 
-      //Create SMT and give some SMT to creator.
+      //Create SST and give some SST to creator.
       signed_transaction tx;
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3 );
 
       const account_object& alice_account = db->get_account( "alice" );
 
       tx.operations.clear();
       tx.signatures.clear();
 
-      asset alice_smt_balance = asset( 1000000, alice_symbol );
+      asset alice_SST_balance = asset( 1000000, alice_symbol );
       asset alice_balance = alice_account.balance;
 
-      FUND( "alice", alice_smt_balance );
+      FUND( "alice", alice_SST_balance );
 
       const auto& limit_order_idx = db->get_index< limit_order_index >().indices().get< by_account >();
 
@@ -606,18 +606,18 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_cancel_apply )
       op.owner = "alice";
       op.orderid = 5;
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
       BOOST_TEST_MESSAGE( "--- Test cancel order" );
 
       limit_order_create2_operation create;
       create.owner = "alice";
       create.orderid = 5;
-      create.amount_to_sell = asset( 5000, STEEM_SYMBOL );
-      create.exchange_rate  = price( asset( 1000, STEEM_SYMBOL ), asset( 1000, alice_symbol ) );
-      create.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION );
+      create.amount_to_sell = asset( 5000, freezone_SYMBOL );
+      create.exchange_rate  = price( asset( 1000, freezone_SYMBOL ), asset( 1000, alice_symbol ) );
+      create.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION );
       tx.operations.clear();
       tx.signatures.clear();
       tx.operations.push_back( create );
@@ -633,13 +633,13 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_cancel_apply )
       db->push_transaction( tx, 0 );
 
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", 5 ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
+BOOST_AUTO_TEST_CASE( SST_limit_order_create2_apply )
 {
    try
    {
@@ -647,9 +647,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
 
       ACTORS( (alice)(bob) )
 
-      //Create SMT and give some SMT to creators.
+      //Create SST and give some SST to creators.
       signed_transaction tx;
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3);
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3);
 
       const account_object& alice_account = db->get_account( "alice" );
       const account_object& bob_account = db->get_account( "bob" );
@@ -660,15 +660,15 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       convert( "bob", ASSET("1000.000 TESTS" ) );
       generate_block();
 
-      asset alice_smt_balance = asset( 1000000, alice_symbol );
-      asset bob_smt_balance = asset( 1000000, alice_symbol );
+      asset alice_SST_balance = asset( 1000000, alice_symbol );
+      asset bob_SST_balance = asset( 1000000, alice_symbol );
 
       asset alice_balance = alice_account.balance;
 
       asset bob_balance = bob_account.balance;
 
-      FUND( "alice", alice_smt_balance );
-      FUND( "bob", bob_smt_balance );
+      FUND( "alice", alice_SST_balance );
+      FUND( "bob", bob_SST_balance );
 
       tx.operations.clear();
       tx.signatures.clear();
@@ -683,15 +683,15 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       op.amount_to_sell = ASSET( "10.000 TESTS" );
       op.exchange_rate = price( ASSET( "1.000 TESTS" ), asset( 1000, alice_symbol ) );
       op.fill_or_kill = false;
-      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION );
+      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, bob_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "bob", op.orderid ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
       validate_database();
 
       BOOST_TEST_MESSAGE( "--- Test failure when amount to receive is 0" );
@@ -703,41 +703,41 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       tx.signatures.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
       validate_database();
 
       BOOST_TEST_MESSAGE( "--- Test failure when amount to sell is 0" );
 
-      op.amount_to_sell = asset( 0, STEEM_SYMBOL );
+      op.amount_to_sell = asset( 0, freezone_SYMBOL );
       op.exchange_rate = price( ASSET( "1.000 TESTS" ), asset( 1000, alice_symbol ) );
       tx.operations.clear();
       tx.signatures.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
       validate_database();
 
       BOOST_TEST_MESSAGE( "--- Test failure when expiration is too long" );
       op.amount_to_sell = ASSET( "10.000 TESTS" );
       op.exchange_rate = price( ASSET( "2.000 TESTS" ), ASSET( "3.000 TBD" ) );
-      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION + 1 );
+      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION + 1 );
       tx.operations.clear();
       tx.signatures.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
       BOOST_TEST_MESSAGE( "--- Test success creating limit order that will not be filled" );
 
-      op.expiration = db->head_block_time() + fc::seconds( STEEM_MAX_LIMIT_ORDER_EXPIRATION );
+      op.expiration = db->head_block_time() + fc::seconds( freezone_MAX_LIMIT_ORDER_EXPIRATION );
       op.amount_to_sell = ASSET( "10.000 TESTS" );
       op.exchange_rate = price( ASSET( "0.666 TESTS" ), asset( 1000, alice_symbol ) );
       tx.operations.clear();
@@ -754,9 +754,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       BOOST_REQUIRE( limit_order->orderid == op.orderid );
       BOOST_REQUIRE( limit_order->for_sale == op.amount_to_sell.amount );
       BOOST_REQUIRE( limit_order->sell_price == op.exchange_rate );
-      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
       validate_database();
 
       BOOST_TEST_MESSAGE( "--- Test failure creating limit order with duplicate id" );
@@ -766,7 +766,7 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       tx.signatures.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
       limit_order = limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) );
       BOOST_REQUIRE( limit_order != limit_order_idx.end() );
@@ -774,9 +774,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       BOOST_REQUIRE( limit_order->orderid == op.orderid );
       BOOST_REQUIRE( limit_order->for_sale == 10000 );
       BOOST_REQUIRE( limit_order->sell_price == op.exchange_rate );
-      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
       validate_database();
 
       BOOST_TEST_MESSAGE( "--- Test success killing an order that will not be filled" );
@@ -787,16 +787,16 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       tx.signatures.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", op.orderid ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
       validate_database();
 
       // BOOST_TEST_MESSAGE( "--- Test having a partial match to limit order" );
-      // // Alice has order for 15 SMT at a price of 2:3
-      // // Fill 5 STEEM for 7.5 SMT
+      // // Alice has order for 15 SST at a price of 2:3
+      // // Fill 5 freezone for 7.5 SST
 
       op.owner = "bob";
       op.orderid = 1;
@@ -809,8 +809,8 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       sign( tx, bob_private_key );
       db->push_transaction( tx, 0 );
 
-      bob_smt_balance -= asset (7500, alice_symbol );
-      alice_smt_balance += asset (7500, alice_symbol );
+      bob_SST_balance -= asset (7500, alice_symbol );
+      alice_SST_balance += asset (7500, alice_symbol );
       bob_balance += ASSET( "4.995 TESTS" );
 
       auto recent_ops = get_last_operations( 1 );
@@ -822,12 +822,12 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       BOOST_REQUIRE( limit_order->orderid == op.orderid );
       BOOST_REQUIRE( limit_order->for_sale == 5005 );
       BOOST_REQUIRE( limit_order->sell_price == price( ASSET( "0.666 TESTS" ), asset( 1000, alice_symbol ) ) );
-      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
+      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "bob", op.orderid ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
       BOOST_REQUIRE( fill_order_op.open_owner == "alice" );
       BOOST_REQUIRE( fill_order_op.open_orderid == 1 );
       BOOST_REQUIRE( fill_order_op.open_pays.amount.value == ASSET( "4.995 TESTS").amount.value );
@@ -846,8 +846,8 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       sign( tx, bob_private_key );
       db->push_transaction( tx, 0 );
 
-      bob_smt_balance -= asset( 15000, alice_symbol );
-      alice_smt_balance += asset( 7515, alice_symbol );
+      bob_SST_balance -= asset( 15000, alice_symbol );
+      alice_SST_balance += asset( 7515, alice_symbol );
       bob_balance += ASSET( "5.005 TESTS" );
 
       limit_order = limit_order_idx.find( boost::make_tuple( "bob", 1 ) );
@@ -856,12 +856,12 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       BOOST_REQUIRE( limit_order->orderid == 1 );
       BOOST_REQUIRE( limit_order->for_sale.value == 7485 );
       BOOST_REQUIRE( limit_order->sell_price == price( asset( 1000, alice_symbol ), ASSET( "0.666 TESTS" ) ) );
-      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
+      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", 1 ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
       validate_database();
 
       BOOST_TEST_MESSAGE( "--- Test filling an existing order and new order fully" );
@@ -877,16 +877,16 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       db->push_transaction( tx, 0 );
 
       alice_balance -= ASSET( "4.985 TESTS" );
-      alice_smt_balance += asset( 7484, alice_symbol );
+      alice_SST_balance += asset( 7484, alice_symbol );
       bob_balance += ASSET( "4.985 TESTS" );
-      bob_smt_balance += asset( 1, alice_symbol );
+      bob_SST_balance += asset( 1, alice_symbol );
 
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "alice", 3 ) ) == limit_order_idx.end() );
       BOOST_REQUIRE( limit_order_idx.find( boost::make_tuple( "bob", 1 ) ) == limit_order_idx.end() );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
       validate_database();
 
       BOOST_TEST_MESSAGE( "--- Test filling limit order with better order when partial order is better." );
@@ -912,8 +912,8 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       db->push_transaction( tx, 0 );
 
       alice_balance -= ASSET( "10.000 TESTS" );
-      alice_smt_balance += asset( 10000, alice_symbol );
-      bob_smt_balance -= asset( 12000, alice_symbol );
+      alice_SST_balance += asset( 10000, alice_symbol );
+      bob_SST_balance -= asset( 12000, alice_symbol );
       bob_balance += ASSET( "10.000 TESTS" );
 
       limit_order = limit_order_idx.find( boost::make_tuple( "bob", 4 ) );
@@ -923,11 +923,11 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       BOOST_REQUIRE( limit_order->orderid == 4 );
       BOOST_REQUIRE( limit_order->for_sale.value == 2000 );
       BOOST_REQUIRE( limit_order->sell_price == ~op.exchange_rate );
-      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
       validate_database();
 
       limit_order_cancel_operation can;
@@ -965,9 +965,9 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       db->push_transaction( tx, 0 );
 
       alice_balance -= ASSET( "20.000 TESTS" );
-      alice_smt_balance += asset( 12000, alice_symbol );
+      alice_SST_balance += asset( 12000, alice_symbol );
 
-      bob_smt_balance -= asset( 10000, alice_symbol );
+      bob_SST_balance -= asset( 10000, alice_symbol );
       bob_balance += ASSET( "12.000 TESTS" );
 
       limit_order = limit_order_idx.find( boost::make_tuple( "alice", 5 ) );
@@ -977,11 +977,11 @@ BOOST_AUTO_TEST_CASE( smt_limit_order_create2_apply )
       BOOST_REQUIRE( limit_order->orderid == 5 );
       BOOST_REQUIRE( limit_order->for_sale.value == 8000 );
       BOOST_REQUIRE( limit_order->sell_price == price( ASSET( "1.000 TESTS" ), asset( 1000, alice_symbol ) ) );
-      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, STEEM_SYMBOL ) );
-      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( alice_account, STEEM_SYMBOL ).amount.value == alice_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_smt_balance.amount.value );
-      BOOST_REQUIRE( db->get_balance( bob_account, STEEM_SYMBOL ).amount.value == bob_balance.amount.value );
+      BOOST_REQUIRE( limit_order->get_market() == std::make_pair( alice_symbol, freezone_SYMBOL ) );
+      BOOST_REQUIRE( db->get_balance( alice_account, alice_symbol ).amount.value == alice_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( alice_account, freezone_SYMBOL ).amount.value == alice_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, alice_symbol ).amount.value == bob_SST_balance.amount.value );
+      BOOST_REQUIRE( db->get_balance( bob_account, freezone_SYMBOL ).amount.value == bob_balance.amount.value );
       validate_database();
    }
    FC_LOG_AND_RETHROW()
@@ -998,35 +998,35 @@ BOOST_AUTO_TEST_CASE( claim_reward_balance2_validate )
 
       generate_block();
 
-      // Create SMT(s) and continue.
-      auto smts = create_smt_3("alice", alice_private_key);
-      const auto& smt1 = smts[0];
-      const auto& smt2 = smts[1];
-      const auto& smt3 = smts[2];
+      // Create SST(s) and continue.
+      auto SSTs = create_SST_3("alice", alice_private_key);
+      const auto& SST1 = SSTs[0];
+      const auto& SST2 = SSTs[1];
+      const auto& SST3 = SSTs[2];
 
       BOOST_TEST_MESSAGE( "Testing empty rewards" );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "Testing ineffective rewards" );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       // Manually inserted.
       op.reward_tokens.push_back( ASSET( "0.000 TESTS" ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
       op.reward_tokens.push_back( ASSET( "0.000 TBD" ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
       op.reward_tokens.push_back( ASSET( "0.000000 VESTS" ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
-      op.reward_tokens.push_back( asset( 0, smt1 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( 0, SST1 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
-      op.reward_tokens.push_back( asset( 0, smt2 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( 0, SST2 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
-      op.reward_tokens.push_back( asset( 0, smt3 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( 0, SST3 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
 
       BOOST_TEST_MESSAGE( "Testing single reward claims" );
@@ -1042,15 +1042,15 @@ BOOST_AUTO_TEST_CASE( claim_reward_balance2_validate )
       op.validate();
       op.reward_tokens.clear();
 
-      op.reward_tokens.push_back( asset( 1, smt1 ) );
+      op.reward_tokens.push_back( asset( 1, SST1 ) );
       op.validate();
       op.reward_tokens.clear();
 
-      op.reward_tokens.push_back( asset( 1, smt2 ) );
+      op.reward_tokens.push_back( asset( 1, SST2 ) );
       op.validate();
       op.reward_tokens.clear();
 
-      op.reward_tokens.push_back( asset( 1, smt3 ) );
+      op.reward_tokens.push_back( asset( 1, SST3 ) );
       op.validate();
       op.reward_tokens.clear();
 
@@ -1058,50 +1058,50 @@ BOOST_AUTO_TEST_CASE( claim_reward_balance2_validate )
       op.reward_tokens.push_back( ASSET( "1.000 TBD" ) );
       op.reward_tokens.push_back( ASSET( "1.000 TESTS" ) );
       op.reward_tokens.push_back( ASSET( "1.000000 VESTS" ) );
-      op.reward_tokens.push_back( asset( 1, smt1 ) );
-      op.reward_tokens.push_back( asset( 1, smt2 ) );
-      op.reward_tokens.push_back( asset( 1, smt3 ) );
+      op.reward_tokens.push_back( asset( 1, SST1 ) );
+      op.reward_tokens.push_back( asset( 1, SST2 ) );
+      op.reward_tokens.push_back( asset( 1, SST3 ) );
       op.validate();
 
       op.reward_tokens.clear();
 
       BOOST_TEST_MESSAGE( "Testing invalid rewards" );
       op.reward_tokens.push_back( ASSET( "-1.000 TESTS" ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
       op.reward_tokens.push_back( ASSET( "-1.000 TBD" ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
       op.reward_tokens.push_back( ASSET( "-1.000000 VESTS" ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
-      op.reward_tokens.push_back( asset( -1, smt1 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( -1, SST1 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
-      op.reward_tokens.push_back( asset( -1, smt2 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( -1, SST2 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
-      op.reward_tokens.push_back( asset( -1, smt3 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( -1, SST3 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
 
       BOOST_TEST_MESSAGE( "Testing duplicated reward tokens." );
-      op.reward_tokens.push_back( asset( 1, smt3 ) );
-      op.reward_tokens.push_back( asset( 1, smt3 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( 1, SST3 ) );
+      op.reward_tokens.push_back( asset( 1, SST3 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
 
       BOOST_TEST_MESSAGE( "Testing inconsistencies of manually inserted reward tokens." );
       op.reward_tokens.push_back( ASSET( "1.000 TESTS" ) );
       op.reward_tokens.push_back( ASSET( "1.000 TBD" ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.reward_tokens.push_back( asset( 1, smt3 ) );
-      op.reward_tokens.push_back( asset( 1, smt1 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( 1, SST3 ) );
+      op.reward_tokens.push_back( asset( 1, SST1 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.reward_tokens.clear();
-      op.reward_tokens.push_back( asset( 1, smt1 ) );
-      op.reward_tokens.push_back( asset( -1, smt3 ) );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.reward_tokens.push_back( asset( 1, SST1 ) );
+      op.reward_tokens.push_back( asset( -1, SST3 ) );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
    }
    FC_LOG_AND_RETHROW()
 }
@@ -1141,23 +1141,23 @@ BOOST_AUTO_TEST_CASE( claim_reward_balance2_apply )
       ACTORS( (alice) )
       generate_block();
 
-      auto smts = create_smt_3( "alice", alice_private_key );
-      const auto& smt1 = smts[0];
-      const auto& smt2 = smts[1];
-      const auto& smt3 = smts[2];
+      auto SSTs = create_SST_3( "alice", alice_private_key );
+      const auto& SST1 = SSTs[0];
+      const auto& SST2 = SSTs[1];
+      const auto& SST3 = SSTs[2];
 
-      FUND_SMT_REWARDS( "alice", asset( 10*std::pow(10, smt1.decimals()), smt1 ) );
-      FUND_SMT_REWARDS( "alice", asset( 10*std::pow(10, smt2.decimals()), smt2 ) );
-      FUND_SMT_REWARDS( "alice", asset( 10*std::pow(10, smt3.decimals()), smt3 ) );
+      FUND_SST_REWARDS( "alice", asset( 10*std::pow(10, SST1.decimals()), SST1 ) );
+      FUND_SST_REWARDS( "alice", asset( 10*std::pow(10, SST2.decimals()), SST2 ) );
+      FUND_SST_REWARDS( "alice", asset( 10*std::pow(10, SST3.decimals()), SST3 ) );
 
       db_plugin->debug_update( []( database& db )
       {
          db.modify( db.get_account( "alice" ), []( account_object& a )
          {
             a.reward_sbd_balance = ASSET( "10.000 TBD" );
-            a.reward_steem_balance = ASSET( "10.000 TESTS" );
+            a.reward_freezone_balance = ASSET( "10.000 TESTS" );
             a.reward_vesting_balance = ASSET( "10.000000 VESTS" );
-            a.reward_vesting_steem = ASSET( "10.000 TESTS" );
+            a.reward_vesting_freezone = ASSET( "10.000 TESTS" );
          });
 
          db.modify( db.get_dynamic_global_properties(), []( dynamic_global_property_object& gpo )
@@ -1166,19 +1166,19 @@ BOOST_AUTO_TEST_CASE( claim_reward_balance2_apply )
             gpo.current_supply += ASSET( "20.000 TESTS" );
             gpo.virtual_supply += ASSET( "20.000 TESTS" );
             gpo.pending_rewarded_vesting_shares += ASSET( "10.000000 VESTS" );
-            gpo.pending_rewarded_vesting_steem += ASSET( "10.000 TESTS" );
+            gpo.pending_rewarded_vesting_freezone += ASSET( "10.000 TESTS" );
          });
       });
 
       generate_block();
       validate_database();
 
-      auto alice_steem = db->get_account( "alice" ).balance;
+      auto alice_freezone = db->get_account( "alice" ).balance;
       auto alice_sbd = db->get_account( "alice" ).sbd_balance;
       auto alice_vests = db->get_account( "alice" ).vesting_shares;
-      auto alice_smt1 = db->get_balance( "alice", smt1 );
-      auto alice_smt2 = db->get_balance( "alice", smt2 );
-      auto alice_smt3 = db->get_balance( "alice", smt3 );
+      auto alice_SST1 = db->get_balance( "alice", SST1 );
+      auto alice_SST2 = db->get_balance( "alice", SST2 );
+      auto alice_SST3 = db->get_balance( "alice", SST3 );
 
       claim_reward_balance2_operation op;
       op.account = "alice";
@@ -1190,10 +1190,10 @@ BOOST_AUTO_TEST_CASE( claim_reward_balance2_apply )
       op.reward_tokens.push_back( ASSET( "0.000000 VESTS" ) );
       FAIL_WITH_OP(op, alice_private_key, fc::assert_exception);
       op.reward_tokens.clear();
-      // SMTs
-      op.reward_tokens.push_back( asset( 0, smt1 ) );
-      op.reward_tokens.push_back( asset( 0, smt2 ) );
-      op.reward_tokens.push_back( asset( 20*std::pow(10, smt3.decimals()), smt3 ) );
+      // SSTs
+      op.reward_tokens.push_back( asset( 0, SST1 ) );
+      op.reward_tokens.push_back( asset( 0, SST2 ) );
+      op.reward_tokens.push_back( asset( 20*std::pow(10, SST3.decimals()), SST3 ) );
       FAIL_WITH_OP(op, alice_private_key, fc::assert_exception);
       op.reward_tokens.clear();
 
@@ -1203,67 +1203,67 @@ BOOST_AUTO_TEST_CASE( claim_reward_balance2_apply )
       op.reward_tokens.clear();
       op.reward_tokens.push_back( partial_vests );
       PUSH_OP(op, alice_private_key);
-      BOOST_REQUIRE( db->get_account( "alice" ).balance == alice_steem + ASSET( "0.000 TESTS" ) );
-      BOOST_REQUIRE( db->get_account( "alice" ).reward_steem_balance == ASSET( "10.000 TESTS" ) );
+      BOOST_REQUIRE( db->get_account( "alice" ).balance == alice_freezone + ASSET( "0.000 TESTS" ) );
+      BOOST_REQUIRE( db->get_account( "alice" ).reward_freezone_balance == ASSET( "10.000 TESTS" ) );
       BOOST_REQUIRE( db->get_account( "alice" ).sbd_balance == alice_sbd + ASSET( "0.000 TBD" ) );
       BOOST_REQUIRE( db->get_account( "alice" ).reward_sbd_balance == ASSET( "10.000 TBD" ) );
       BOOST_REQUIRE( db->get_account( "alice" ).vesting_shares == alice_vests + partial_vests );
       BOOST_REQUIRE( db->get_account( "alice" ).reward_vesting_balance == ASSET( "5.000000 VESTS" ) );
-      BOOST_REQUIRE( db->get_account( "alice" ).reward_vesting_steem == ASSET( "5.000 TESTS" ) );
+      BOOST_REQUIRE( db->get_account( "alice" ).reward_vesting_freezone == ASSET( "5.000 TESTS" ) );
       validate_database();
       alice_vests += partial_vests;
       op.reward_tokens.clear();
-      // SMTs
-      asset partial_smt2 = asset( 5*std::pow(10, smt2.decimals()), smt2 );
-      op.reward_tokens.push_back( partial_smt2 );
+      // SSTs
+      asset partial_SST2 = asset( 5*std::pow(10, SST2.decimals()), SST2 );
+      op.reward_tokens.push_back( partial_SST2 );
       PUSH_OP(op, alice_private_key);
-      BOOST_REQUIRE( db->get_balance( "alice", smt1 ) == alice_smt1 + asset( 0, smt1 ) );
-      BOOST_REQUIRE( db->get_balance( "alice", smt2 ) == alice_smt2 + partial_smt2 );
-      BOOST_REQUIRE( db->get_balance( "alice", smt3 ) == alice_smt3 + asset( 0, smt3 ) );
+      BOOST_REQUIRE( db->get_balance( "alice", SST1 ) == alice_SST1 + asset( 0, SST1 ) );
+      BOOST_REQUIRE( db->get_balance( "alice", SST2 ) == alice_SST2 + partial_SST2 );
+      BOOST_REQUIRE( db->get_balance( "alice", SST3 ) == alice_SST3 + asset( 0, SST3 ) );
       validate_database();
-      alice_smt2 += partial_smt2;
+      alice_SST2 += partial_SST2;
       op.reward_tokens.clear();
 
       BOOST_TEST_MESSAGE( "--- Claiming the full reward balance" );
       // Legacy symbols
-      asset full_steem = ASSET( "10.000 TESTS" );
+      asset full_freezone = ASSET( "10.000 TESTS" );
       asset full_sbd = ASSET( "10.000 TBD" );
       op.reward_tokens.push_back( full_sbd );
-      op.reward_tokens.push_back( full_steem );
+      op.reward_tokens.push_back( full_freezone );
       op.reward_tokens.push_back( partial_vests );
       PUSH_OP(op, alice_private_key);
-      BOOST_REQUIRE( db->get_account( "alice" ).balance == alice_steem + full_steem );
-      BOOST_REQUIRE( db->get_account( "alice" ).reward_steem_balance == ASSET( "0.000 TESTS" ) );
+      BOOST_REQUIRE( db->get_account( "alice" ).balance == alice_freezone + full_freezone );
+      BOOST_REQUIRE( db->get_account( "alice" ).reward_freezone_balance == ASSET( "0.000 TESTS" ) );
       BOOST_REQUIRE( db->get_account( "alice" ).sbd_balance == alice_sbd + full_sbd );
       BOOST_REQUIRE( db->get_account( "alice" ).reward_sbd_balance == ASSET( "0.000 TBD" ) );
       BOOST_REQUIRE( db->get_account( "alice" ).vesting_shares == alice_vests + partial_vests );
       BOOST_REQUIRE( db->get_account( "alice" ).reward_vesting_balance == ASSET( "0.000000 VESTS" ) );
-      BOOST_REQUIRE( db->get_account( "alice" ).reward_vesting_steem == ASSET( "0.000 TESTS" ) );
+      BOOST_REQUIRE( db->get_account( "alice" ).reward_vesting_freezone == ASSET( "0.000 TESTS" ) );
       validate_database();
       op.reward_tokens.clear();
-      // SMTs
-      asset full_smt1 = asset( 10*std::pow(10, smt1.decimals()), smt1 );
-      asset full_smt3 = asset( 10*std::pow(10, smt3.decimals()), smt3 );
-      op.reward_tokens.push_back( full_smt1 );
-      op.reward_tokens.push_back( partial_smt2 );
-      op.reward_tokens.push_back( full_smt3 );
+      // SSTs
+      asset full_SST1 = asset( 10*std::pow(10, SST1.decimals()), SST1 );
+      asset full_SST3 = asset( 10*std::pow(10, SST3.decimals()), SST3 );
+      op.reward_tokens.push_back( full_SST1 );
+      op.reward_tokens.push_back( partial_SST2 );
+      op.reward_tokens.push_back( full_SST3 );
       PUSH_OP(op, alice_private_key);
-      BOOST_REQUIRE( db->get_balance( "alice", smt1 ) == alice_smt1 + full_smt1 );
-      BOOST_REQUIRE( db->get_balance( "alice", smt2 ) == alice_smt2 + partial_smt2 );
-      BOOST_REQUIRE( db->get_balance( "alice", smt3 ) == alice_smt3 + full_smt3 );
+      BOOST_REQUIRE( db->get_balance( "alice", SST1 ) == alice_SST1 + full_SST1 );
+      BOOST_REQUIRE( db->get_balance( "alice", SST2 ) == alice_SST2 + partial_SST2 );
+      BOOST_REQUIRE( db->get_balance( "alice", SST3 ) == alice_SST3 + full_SST3 );
       validate_database();
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_transfer_to_vesting_validate )
+BOOST_AUTO_TEST_CASE( SST_transfer_to_vesting_validate )
 {
-   BOOST_TEST_MESSAGE( "Testing: transfer_to_vesting_validate with SMT" );
+   BOOST_TEST_MESSAGE( "Testing: transfer_to_vesting_validate with SST" );
 
    ACTORS( (alice) )
    generate_block();
 
-   auto token = create_smt( "alice", alice_private_key, 3 );
+   auto token = create_SST( "alice", alice_private_key, 3 );
 
    FUND( "alice", asset( 100, token ) );
 
@@ -1300,14 +1300,14 @@ BOOST_AUTO_TEST_CASE( smt_transfer_to_vesting_validate )
    op.validate();
 }
 
-BOOST_AUTO_TEST_CASE( smt_transfer_to_vesting_apply )
+BOOST_AUTO_TEST_CASE( SST_transfer_to_vesting_apply )
 {
-   BOOST_TEST_MESSAGE( "Testing: smt_transfer_to_vesting_apply" );
+   BOOST_TEST_MESSAGE( "Testing: SST_transfer_to_vesting_apply" );
 
    ACTORS( (alice)(bob) )
    generate_block();
 
-   auto symbol = create_smt( "alice", alice_private_key, 3 );
+   auto symbol = create_SST( "alice", alice_private_key, 3 );
 
    FUND( "alice", asset( 10000, symbol ) );
 
@@ -1315,11 +1315,11 @@ BOOST_AUTO_TEST_CASE( smt_transfer_to_vesting_apply )
    BOOST_REQUIRE( db->get_balance( "alice", symbol ).amount == 10000 );
    BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ).amount == 0 );
 
-   const auto& token = db->get< smt_token_object, by_symbol >( symbol );
+   const auto& token = db->get< SST_token_object, by_symbol >( symbol );
 
-   auto smt_shares      = asset( token.total_vesting_shares, symbol.get_paired_symbol() );
-   auto smt_vests       = asset( token.total_vesting_fund_smt, symbol );
-   auto smt_share_price = token.get_vesting_share_price();
+   auto SST_shares      = asset( token.total_vesting_shares, symbol.get_paired_symbol() );
+   auto SST_vests       = asset( token.total_vesting_fund_SST, symbol );
+   auto SST_share_price = token.get_vesting_share_price();
 
    BOOST_TEST_MESSAGE( " -- Self transfer to vesting (alice)" );
    transfer_to_vesting_operation op;
@@ -1328,38 +1328,38 @@ BOOST_AUTO_TEST_CASE( smt_transfer_to_vesting_apply )
    op.amount = asset( 7500, symbol );
    PUSH_OP( op, alice_private_key );
 
-   auto new_vest = op.amount * smt_share_price;
-   smt_shares += new_vest;
-   smt_vests += op.amount;
-   auto alice_smt_shares = new_vest;
+   auto new_vest = op.amount * SST_share_price;
+   SST_shares += new_vest;
+   SST_vests += op.amount;
+   auto alice_SST_shares = new_vest;
 
    BOOST_TEST_MESSAGE( " -- Checking balances" );
    BOOST_REQUIRE( db->get_balance( "alice", symbol ) == asset( 2500, symbol ) );
-   BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ) == alice_smt_shares );
-   BOOST_REQUIRE( token.total_vesting_fund_smt.value == smt_vests.amount.value );
-   BOOST_REQUIRE( token.total_vesting_shares.value == smt_shares.amount.value );
+   BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ) == alice_SST_shares );
+   BOOST_REQUIRE( token.total_vesting_fund_SST.value == SST_vests.amount.value );
+   BOOST_REQUIRE( token.total_vesting_shares.value == SST_shares.amount.value );
 
    validate_database();
 
-   smt_share_price = token.get_vesting_share_price();
+   SST_share_price = token.get_vesting_share_price();
 
    BOOST_TEST_MESSAGE( " -- Transfer from alice to bob ( liquid -> vests)" );
    op.to = "bob";
    op.amount = asset( 2000, symbol );
    PUSH_OP( op, alice_private_key );
 
-   new_vest = op.amount * smt_share_price;
-   smt_shares += new_vest;
-   smt_vests += op.amount;
-   auto bob_smt_shares = new_vest;
+   new_vest = op.amount * SST_share_price;
+   SST_shares += new_vest;
+   SST_vests += op.amount;
+   auto bob_SST_shares = new_vest;
 
    BOOST_TEST_MESSAGE( " -- Checking balances" );
    BOOST_REQUIRE( db->get_balance( "alice", symbol ) == asset( 500, symbol ) );
-   BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ) == alice_smt_shares );
+   BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ) == alice_SST_shares );
    BOOST_REQUIRE( db->get_balance( "bob", symbol ) == asset( 0, symbol ) );
-   BOOST_REQUIRE( db->get_balance( "bob", symbol.get_paired_symbol() ) == bob_smt_shares );
-   BOOST_REQUIRE( token.total_vesting_fund_smt.value == smt_vests.amount.value );
-   BOOST_REQUIRE( token.total_vesting_shares.value == smt_shares.amount.value );
+   BOOST_REQUIRE( db->get_balance( "bob", symbol.get_paired_symbol() ) == bob_SST_shares );
+   BOOST_REQUIRE( token.total_vesting_fund_SST.value == SST_vests.amount.value );
+   BOOST_REQUIRE( token.total_vesting_shares.value == SST_shares.amount.value );
 
    BOOST_TEST_MESSAGE( " -- Transfer from alice to bob ( liquid -> vests ) insufficient funds" );
    op.amount = asset( 501, symbol );
@@ -1367,23 +1367,23 @@ BOOST_AUTO_TEST_CASE( smt_transfer_to_vesting_apply )
 
    BOOST_TEST_MESSAGE( " -- Checking balances" );
    BOOST_REQUIRE( db->get_balance( "alice", symbol ) == asset( 500, symbol ) );
-   BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ) == alice_smt_shares );
+   BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ) == alice_SST_shares );
    BOOST_REQUIRE( db->get_balance( "bob", symbol ) == asset( 0, symbol ) );
-   BOOST_REQUIRE( db->get_balance( "bob", symbol.get_paired_symbol() ) == bob_smt_shares );
-   BOOST_REQUIRE( token.total_vesting_fund_smt.value == smt_vests.amount.value );
-   BOOST_REQUIRE( token.total_vesting_shares.value == smt_shares.amount.value );
+   BOOST_REQUIRE( db->get_balance( "bob", symbol.get_paired_symbol() ) == bob_SST_shares );
+   BOOST_REQUIRE( token.total_vesting_fund_SST.value == SST_vests.amount.value );
+   BOOST_REQUIRE( token.total_vesting_shares.value == SST_shares.amount.value );
 
    validate_database();
 }
 
-BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_validate )
+BOOST_AUTO_TEST_CASE( SST_withdraw_vesting_validate )
 {
    BOOST_TEST_MESSAGE( "Testing: withdraw_vesting_validate" );
 
    ACTORS( (alice) )
    generate_block();
 
-   auto symbol = create_smt( "alice", alice_private_key, 3 );
+   auto symbol = create_SST( "alice", alice_private_key, 3 );
 
    withdraw_vesting_operation op;
    op.account = "alice";
@@ -1403,19 +1403,19 @@ BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_validate )
    op.validate();
 }
 
-BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_apply )
+BOOST_AUTO_TEST_CASE( SST_withdraw_vesting_apply )
 {
-   BOOST_TEST_MESSAGE( "Testing: smt_withdraw_vesting_apply" );
+   BOOST_TEST_MESSAGE( "Testing: SST_withdraw_vesting_apply" );
 
    ACTORS( (alice)(bob)(charlie) )
    generate_block();
 
-   auto symbol = create_smt( "charlie", charlie_private_key, 3 );
+   auto symbol = create_SST( "charlie", charlie_private_key, 3 );
 
-   FUND( STEEM_INIT_MINER_NAME, asset( 10000, symbol ) );
-   vest( STEEM_INIT_MINER_NAME, "alice", asset( 10000, symbol ) );
+   FUND( freezone_INIT_MINER_NAME, asset( 10000, symbol ) );
+   vest( freezone_INIT_MINER_NAME, "alice", asset( 10000, symbol ) );
 
-   BOOST_TEST_MESSAGE( "--- Test failure withdrawing negative SMT VESTS" );
+   BOOST_TEST_MESSAGE( "--- Test failure withdrawing negative SST VESTS" );
 
    withdraw_vesting_operation op;
    op.account = "alice";
@@ -1423,18 +1423,18 @@ BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_apply )
 
    signed_transaction tx;
    tx.operations.push_back( op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
-   BOOST_TEST_MESSAGE( "--- Test withdraw of existing SMT VESTS" );
+   BOOST_TEST_MESSAGE( "--- Test withdraw of existing SST VESTS" );
    op.vesting_shares = asset( db->get_balance( "alice", symbol.get_paired_symbol() ).amount / 2, symbol.get_paired_symbol() );
 
    auto old_vesting_shares = db->get_balance( "alice", symbol.get_paired_symbol() );
 
    tx.clear();
    tx.operations.push_back( op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
 
@@ -1443,9 +1443,9 @@ BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_apply )
 
    BOOST_REQUIRE( balance_obj != nullptr );
    BOOST_REQUIRE( db->get_balance( "alice", symbol.get_paired_symbol() ).amount.value == old_vesting_shares.amount.value );
-   BOOST_REQUIRE( balance_obj->vesting_withdraw_rate.amount.value == ( old_vesting_shares.amount / ( STEEM_VESTING_WITHDRAW_INTERVALS * 2 ) ).value + 1 );
+   BOOST_REQUIRE( balance_obj->vesting_withdraw_rate.amount.value == ( old_vesting_shares.amount / ( freezone_VESTING_WITHDRAW_INTERVALS * 2 ) ).value + 1 );
    BOOST_REQUIRE( balance_obj->to_withdraw.value == op.vesting_shares.amount.value );
-   BOOST_REQUIRE( balance_obj->next_vesting_withdrawal == db->head_block_time() + SMT_VESTING_WITHDRAW_INTERVAL_SECONDS );
+   BOOST_REQUIRE( balance_obj->next_vesting_withdrawal == db->head_block_time() + SST_VESTING_WITHDRAW_INTERVAL_SECONDS );
    validate_database();
 
    BOOST_TEST_MESSAGE( "--- Test changing vesting withdrawal" );
@@ -1454,14 +1454,14 @@ BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_apply )
 
    op.vesting_shares = asset( balance_obj->vesting_shares.amount / 3, symbol.get_paired_symbol() );
    tx.operations.push_back( op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
 
    BOOST_REQUIRE( balance_obj->vesting_shares.amount.value == old_vesting_shares.amount.value );
-   BOOST_REQUIRE( balance_obj->vesting_withdraw_rate.amount.value == ( old_vesting_shares.amount / ( STEEM_VESTING_WITHDRAW_INTERVALS * 3 ) ).value + 1 );
+   BOOST_REQUIRE( balance_obj->vesting_withdraw_rate.amount.value == ( old_vesting_shares.amount / ( freezone_VESTING_WITHDRAW_INTERVALS * 3 ) ).value + 1 );
    BOOST_REQUIRE( balance_obj->to_withdraw.value == op.vesting_shares.amount.value );
-   BOOST_REQUIRE( balance_obj->next_vesting_withdrawal == db->head_block_time() + SMT_VESTING_WITHDRAW_INTERVAL_SECONDS );
+   BOOST_REQUIRE( balance_obj->next_vesting_withdrawal == db->head_block_time() + SST_VESTING_WITHDRAW_INTERVAL_SECONDS );
    validate_database();
 
    BOOST_TEST_MESSAGE( "--- Test withdrawing more vests than available" );
@@ -1470,13 +1470,13 @@ BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_apply )
 
    op.vesting_shares = asset( balance_obj->vesting_shares.amount * 2, symbol.get_paired_symbol() );
    tx.operations.push_back( op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
    BOOST_REQUIRE( balance_obj->vesting_shares.amount.value == old_vesting_shares.amount.value );
-   BOOST_REQUIRE( balance_obj->vesting_withdraw_rate.amount.value == ( old_vesting_shares.amount / ( STEEM_VESTING_WITHDRAW_INTERVALS * 3 ) ).value + 1 );
-   BOOST_REQUIRE( balance_obj->next_vesting_withdrawal == db->head_block_time() + SMT_VESTING_WITHDRAW_INTERVAL_SECONDS );
+   BOOST_REQUIRE( balance_obj->vesting_withdraw_rate.amount.value == ( old_vesting_shares.amount / ( freezone_VESTING_WITHDRAW_INTERVALS * 3 ) ).value + 1 );
+   BOOST_REQUIRE( balance_obj->next_vesting_withdrawal == db->head_block_time() + SST_VESTING_WITHDRAW_INTERVAL_SECONDS );
    validate_database();
 
    BOOST_TEST_MESSAGE( "--- Test withdrawing 0 to reset vesting withdraw" );
@@ -1485,7 +1485,7 @@ BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_apply )
 
    op.vesting_shares = asset( 0, symbol.get_paired_symbol() );
    tx.operations.push_back( op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
 
@@ -1501,87 +1501,87 @@ BOOST_AUTO_TEST_CASE( smt_withdraw_vesting_apply )
    tx.clear();
    tx.operations.push_back( op );
    sign( tx, bob_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_validate )
+BOOST_AUTO_TEST_CASE( SST_create_validate )
 {
    try
    {
       ACTORS( (alice) );
 
-      BOOST_TEST_MESSAGE( " -- A valid smt_create_operation" );
-      smt_create_operation op;
+      BOOST_TEST_MESSAGE( " -- A valid SST_create_operation" );
+      SST_create_operation op;
       op.control_account = "alice";
-      op.smt_creation_fee = db->get_dynamic_global_properties().smt_creation_fee;
-      op.symbol = get_new_smt_symbol( 3, db );
+      op.SST_creation_fee = db->get_dynamic_global_properties().SST_creation_fee;
+      op.symbol = get_new_SST_symbol( 3, db );
       op.precision = op.symbol.decimals();
       op.validate();
 
       BOOST_TEST_MESSAGE( " -- Test invalid control account name" );
       op.control_account = "@@@@@";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.control_account = "alice";
 
       // Test invalid creation fees.
       BOOST_TEST_MESSAGE( " -- Invalid negative creation fee" );
-      op.smt_creation_fee.amount = -op.smt_creation_fee.amount;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.SST_creation_fee.amount = -op.SST_creation_fee.amount;
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Valid maximum SMT creation fee (STEEM_MAX_SHARE_SUPPLY)" );
-      op.smt_creation_fee.amount = STEEM_MAX_SHARE_SUPPLY;
+      BOOST_TEST_MESSAGE( " -- Valid maximum SST creation fee (freezone_MAX_SHARE_SUPPLY)" );
+      op.SST_creation_fee.amount = freezone_MAX_SHARE_SUPPLY;
       op.validate();
 
-      BOOST_TEST_MESSAGE( " -- Invalid SMT creation fee (MAX_SHARE_SUPPLY + 1)" );
-      op.smt_creation_fee.amount++;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      BOOST_TEST_MESSAGE( " -- Invalid SST creation fee (MAX_SHARE_SUPPLY + 1)" );
+      op.SST_creation_fee.amount++;
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Invalid currency for SMT creation fee (VESTS)" );
-      op.smt_creation_fee = ASSET( "1.000000 VESTS" );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.smt_creation_fee = db->get_dynamic_global_properties().smt_creation_fee;
+      BOOST_TEST_MESSAGE( " -- Invalid currency for SST creation fee (VESTS)" );
+      op.SST_creation_fee = ASSET( "1.000000 VESTS" );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.SST_creation_fee = db->get_dynamic_global_properties().SST_creation_fee;
 
-      BOOST_TEST_MESSAGE( " -- Invalid SMT creation fee: differing decimals" );
+      BOOST_TEST_MESSAGE( " -- Invalid SST creation fee: differing decimals" );
       op.precision = 0;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.precision = op.symbol.decimals();
 
       // Test symbol
-      BOOST_TEST_MESSAGE( " -- Invalid SMT creation symbol: vesting symbol used instead of liquid one" );
+      BOOST_TEST_MESSAGE( " -- Invalid SST creation symbol: vesting symbol used instead of liquid one" );
       op.symbol = op.symbol.get_paired_symbol();
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Invalid SMT creation symbol: STEEM cannot be an SMT" );
-      op.symbol = STEEM_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      BOOST_TEST_MESSAGE( " -- Invalid SST creation symbol: freezone cannot be an SST" );
+      op.symbol = freezone_SYMBOL;
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Invalid SMT creation symbol: SBD cannot be an SMT" );
+      BOOST_TEST_MESSAGE( " -- Invalid SST creation symbol: SBD cannot be an SST" );
       op.symbol = SBD_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Invalid SMT creation symbol: VESTS cannot be an SMT" );
+      BOOST_TEST_MESSAGE( " -- Invalid SST creation symbol: VESTS cannot be an SST" );
       op.symbol = VESTS_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.symbol = get_new_smt_symbol( 3, db );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.symbol = get_new_SST_symbol( 3, db );
 
-      BOOST_TEST_MESSAGE( " -- Invalid SMT Ticker Symbols" );
+      BOOST_TEST_MESSAGE( " -- Invalid SST Ticker Symbols" );
       op.desired_ticker = "TeST";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       op.desired_ticker = "TEST1";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       op.desired_ticker = "TEST!";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      op.desired_ticker = STEEM_SYMBOL_STR;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.desired_ticker = freezone_SYMBOL_STR;
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       op.desired_ticker = VESTS_SYMBOL_STR;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       op.desired_ticker = SBD_SYMBOL_STR;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.desired_ticker = "TEST";
 
       // If this fails, it could indicate a test above has failed for the wrong reasons
@@ -1590,16 +1590,16 @@ BOOST_AUTO_TEST_CASE( smt_create_validate )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_authorities )
+BOOST_AUTO_TEST_CASE( SST_create_authorities )
 {
    try
    {
-      SMT_SYMBOL( alice, 3, db );
+      SST_SYMBOL( alice, 3, db );
 
-      smt_create_operation op;
+      SST_create_operation op;
       op.control_account = "alice";
       op.symbol = alice_symbol;
-      op.smt_creation_fee = db->get_dynamic_global_properties().smt_creation_fee;
+      op.SST_creation_fee = db->get_dynamic_global_properties().SST_creation_fee;
 
       flat_set< account_name_type > auths;
       flat_set< account_name_type > expected;
@@ -1617,14 +1617,14 @@ BOOST_AUTO_TEST_CASE( smt_create_authorities )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_duplicate )
+BOOST_AUTO_TEST_CASE( SST_create_duplicate )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_create_duplicate" );
+      BOOST_TEST_MESSAGE( "Testing: SST_create_duplicate" );
 
       ACTORS( (alice) )
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 0 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 0 );
 
       // We add the NAI back to the pool to ensure the test does not fail because the NAI is not in the pool
       db->modify( db->get< nai_pool_object >(), [&] ( nai_pool_object& obj )
@@ -1632,20 +1632,20 @@ BOOST_AUTO_TEST_CASE( smt_create_duplicate )
          obj.nais[ 0 ] = alice_symbol;
       } );
 
-      // Fail on duplicate SMT lookup
-      STEEM_REQUIRE_THROW( create_smt_with_nai( "alice", alice_private_key, alice_symbol.to_nai(), alice_symbol.decimals() ), fc::assert_exception)
+      // Fail on duplicate SST lookup
+      freezone_REQUIRE_THROW( create_SST_with_nai( "alice", alice_private_key, alice_symbol.to_nai(), alice_symbol.decimals() ), fc::assert_exception)
    }
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_duplicate_differing_decimals )
+BOOST_AUTO_TEST_CASE( SST_create_duplicate_differing_decimals )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_create_duplicate_differing_decimals" );
+      BOOST_TEST_MESSAGE( "Testing: SST_create_duplicate_differing_decimals" );
 
       ACTORS( (alice) )
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3 /* Decimals */ );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3 /* Decimals */ );
 
       // We add the NAI back to the pool to ensure the test does not fail because the NAI is not in the pool
       db->modify( db->get< nai_pool_object >(), [&] ( nai_pool_object& obj )
@@ -1653,20 +1653,20 @@ BOOST_AUTO_TEST_CASE( smt_create_duplicate_differing_decimals )
          obj.nais[ 0 ] = asset_symbol_type::from_nai( alice_symbol.to_nai(), 0 );
       } );
 
-      // Fail on duplicate SMT lookup
-      STEEM_REQUIRE_THROW( create_smt_with_nai( "alice", alice_private_key, alice_symbol.to_nai(), 2 /* Decimals */ ), fc::assert_exception)
+      // Fail on duplicate SST lookup
+      freezone_REQUIRE_THROW( create_SST_with_nai( "alice", alice_private_key, alice_symbol.to_nai(), 2 /* Decimals */ ), fc::assert_exception)
    }
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_duplicate_different_users )
+BOOST_AUTO_TEST_CASE( SST_create_duplicate_different_users )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_create_duplicate_different_users" );
+      BOOST_TEST_MESSAGE( "Testing: SST_create_duplicate_different_users" );
 
       ACTORS( (alice)(bob) )
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 0 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 0 );
 
       // We add the NAI back to the pool to ensure the test does not fail because the NAI is not in the pool
       db->modify( db->get< nai_pool_object >(), [&] ( nai_pool_object& obj )
@@ -1674,22 +1674,22 @@ BOOST_AUTO_TEST_CASE( smt_create_duplicate_different_users )
          obj.nais[ 0 ] = alice_symbol;
       } );
 
-      // Fail on duplicate SMT lookup
-      STEEM_REQUIRE_THROW( create_smt_with_nai( "bob", bob_private_key, alice_symbol.to_nai(), alice_symbol.decimals() ), fc::assert_exception)
+      // Fail on duplicate SST lookup
+      freezone_REQUIRE_THROW( create_SST_with_nai( "bob", bob_private_key, alice_symbol.to_nai(), alice_symbol.decimals() ), fc::assert_exception)
    }
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_with_steem_funds )
+BOOST_AUTO_TEST_CASE( SST_create_with_freezone_funds )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_create_with_steem_funds" );
+      BOOST_TEST_MESSAGE( "Testing: SST_create_with_freezone_funds" );
 
-      // This test expects 1.000 TBD smt_creation_fee
+      // This test expects 1.000 TBD SST_creation_fee
       db->modify( db->get_dynamic_global_properties(), [&] ( dynamic_global_property_object& dgpo )
       {
-         dgpo.smt_creation_fee = asset( 1000, SBD_SYMBOL );
+         dgpo.SST_creation_fee = asset( 1000, SBD_SYMBOL );
       } );
 
       set_price_feed( price( ASSET( "1.000 TBD" ), ASSET( "1.000 TESTS" ) ) );
@@ -1700,37 +1700,37 @@ BOOST_AUTO_TEST_CASE( smt_create_with_steem_funds )
 
       FUND( "alice", ASSET( "0.999 TESTS" ) );
 
-      smt_create_operation op;
+      SST_create_operation op;
       op.control_account = "alice";
-      op.smt_creation_fee = ASSET( "1.000 TESTS" );
-      op.symbol = get_new_smt_symbol( 3, db );
+      op.SST_creation_fee = ASSET( "1.000 TESTS" );
+      op.symbol = get_new_SST_symbol( 3, db );
       op.precision = op.symbol.decimals();
       op.validate();
 
       // Fail insufficient funds
       FAIL_WITH_OP( op, alice_private_key, fc::assert_exception );
 
-      BOOST_REQUIRE( util::smt::find_token( *db, op.symbol, true ) == nullptr );
+      BOOST_REQUIRE( util::SST::find_token( *db, op.symbol, true ) == nullptr );
 
       FUND( "alice", ASSET( "0.001 TESTS" ) );
 
       PUSH_OP( op, alice_private_key );
 
-      BOOST_REQUIRE( util::smt::find_token( *db, op.symbol, true ) != nullptr );
+      BOOST_REQUIRE( util::SST::find_token( *db, op.symbol, true ) != nullptr );
    }
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_with_sbd_funds )
+BOOST_AUTO_TEST_CASE( SST_create_with_sbd_funds )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_create_with_sbd_funds" );
+      BOOST_TEST_MESSAGE( "Testing: SST_create_with_sbd_funds" );
 
-      // This test expects 1.000 TBD smt_creation_fee
+      // This test expects 1.000 TBD SST_creation_fee
       db->modify( db->get_dynamic_global_properties(), [&] ( dynamic_global_property_object& dgpo )
       {
-         dgpo.smt_creation_fee = asset( 1000, SBD_SYMBOL );
+         dgpo.SST_creation_fee = asset( 1000, SBD_SYMBOL );
       } );
 
       set_price_feed( price( ASSET( "1.000 TBD" ), ASSET( "1.000 TESTS" ) ) );
@@ -1741,32 +1741,32 @@ BOOST_AUTO_TEST_CASE( smt_create_with_sbd_funds )
 
       FUND( "alice", ASSET( "0.999 TBD" ) );
 
-      smt_create_operation op;
+      SST_create_operation op;
       op.control_account = "alice";
-      op.smt_creation_fee = ASSET( "1.000 TBD" );
-      op.symbol = get_new_smt_symbol( 3, db );
+      op.SST_creation_fee = ASSET( "1.000 TBD" );
+      op.symbol = get_new_SST_symbol( 3, db );
       op.precision = op.symbol.decimals();
       op.validate();
 
       // Fail insufficient funds
       FAIL_WITH_OP( op, alice_private_key, fc::assert_exception );
 
-      BOOST_REQUIRE( util::smt::find_token( *db, op.symbol, true ) == nullptr );
+      BOOST_REQUIRE( util::SST::find_token( *db, op.symbol, true ) == nullptr );
 
       FUND( "alice", ASSET( "0.001 TBD" ) );
 
       PUSH_OP( op, alice_private_key );
 
-      BOOST_REQUIRE( util::smt::find_token( *db, op.symbol, true ) != nullptr );
+      BOOST_REQUIRE( util::SST::find_token( *db, op.symbol, true ) != nullptr );
    }
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_with_invalid_nai )
+BOOST_AUTO_TEST_CASE( SST_create_with_invalid_nai )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_create_with_invalid_nai" );
+      BOOST_TEST_MESSAGE( "Testing: SST_create_with_invalid_nai" );
 
       ACTORS( (alice) )
 
@@ -1775,20 +1775,20 @@ BOOST_AUTO_TEST_CASE( smt_create_with_invalid_nai )
       uint32_t collisions = 0;
       do
       {
-         BOOST_REQUIRE( collisions < SMT_MAX_NAI_GENERATION_TRIES );
+         BOOST_REQUIRE( collisions < SST_MAX_NAI_GENERATION_TRIES );
          collisions++;
 
          ast = util::nai_generator::generate( seed++ );
       }
-      while ( db->get< nai_pool_object >().contains( ast ) || util::smt::find_token( *db, ast, true ) != nullptr );
+      while ( db->get< nai_pool_object >().contains( ast ) || util::SST::find_token( *db, ast, true ) != nullptr );
 
       // Fail on NAI pool not containing this NAI
-      STEEM_REQUIRE_THROW( create_smt_with_nai( "alice", alice_private_key, ast.to_nai(), ast.decimals() ), fc::assert_exception)
+      freezone_REQUIRE_THROW( create_SST_with_nai( "alice", alice_private_key, ast.to_nai(), ast.decimals() ), fc::assert_exception)
    }
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_creation_fee_test )
+BOOST_AUTO_TEST_CASE( SST_creation_fee_test )
 {
    try
    {
@@ -1797,12 +1797,12 @@ BOOST_AUTO_TEST_CASE( smt_creation_fee_test )
 
       set_price_feed( price( ASSET( "1.000 TBD" ), ASSET( "2.000 TESTS" ) ) );
 
-      // This ensures that our actual smt_creation_fee is sane in production (either STEEM or SBD)
+      // This ensures that our actual SST_creation_fee is sane in production (either freezone or SBD)
       const dynamic_global_property_object& dgpo = db->get_dynamic_global_properties();
-      FC_ASSERT( dgpo.smt_creation_fee.symbol == STEEM_SYMBOL || dgpo.smt_creation_fee.symbol == SBD_SYMBOL,
-                "Unexpected symbol for the SMT creation fee on the dynamic global properties object: ${s}", ("s", dgpo.smt_creation_fee.symbol) );
+      FC_ASSERT( dgpo.SST_creation_fee.symbol == freezone_SYMBOL || dgpo.SST_creation_fee.symbol == SBD_SYMBOL,
+                "Unexpected symbol for the SST creation fee on the dynamic global properties object: ${s}", ("s", dgpo.SST_creation_fee.symbol) );
 
-      FC_ASSERT( dgpo.smt_creation_fee.amount > 0, "Expected positive smt_creation_fee." );
+      FC_ASSERT( dgpo.SST_creation_fee.amount > 0, "Expected positive SST_creation_fee." );
 
       for ( int i = 0; i < 2; i++ )
       {
@@ -1813,19 +1813,19 @@ BOOST_AUTO_TEST_CASE( smt_creation_fee_test )
          if ( !i ) // First pass
             db->modify( dgpo, [&] ( dynamic_global_property_object& dgpo )
             {
-               dgpo.smt_creation_fee = asset( 2000, STEEM_SYMBOL );
+               dgpo.SST_creation_fee = asset( 2000, freezone_SYMBOL );
             } );
          else // Second pass
             db->modify( dgpo, [&] ( dynamic_global_property_object& dgpo )
             {
-               dgpo.smt_creation_fee = asset( 1000, SBD_SYMBOL );
+               dgpo.SST_creation_fee = asset( 1000, SBD_SYMBOL );
             } );
 
          BOOST_TEST_MESSAGE( " -- Invalid creation fee, 0.001 TESTS short" );
-         smt_create_operation fail_op;
+         SST_create_operation fail_op;
          fail_op.control_account = "alice";
-         fail_op.smt_creation_fee = ASSET( "1.999 TESTS" );
-         fail_op.symbol = get_new_smt_symbol( 3, db );
+         fail_op.SST_creation_fee = ASSET( "1.999 TESTS" );
+         fail_op.symbol = get_new_SST_symbol( 3, db );
          fail_op.precision = fail_op.symbol.decimals();
          fail_op.validate();
 
@@ -1833,22 +1833,22 @@ BOOST_AUTO_TEST_CASE( smt_creation_fee_test )
          FAIL_WITH_OP( fail_op, alice_private_key, fc::assert_exception );
 
          BOOST_TEST_MESSAGE( " -- Invalid creation fee, 0.001 TBD short" );
-         smt_create_operation fail_op2;
+         SST_create_operation fail_op2;
          fail_op2.control_account = "alice";
-         fail_op2.smt_creation_fee = ASSET( "0.999 TBD" );
-         fail_op2.symbol = get_new_smt_symbol( 3, db );
+         fail_op2.SST_creation_fee = ASSET( "0.999 TBD" );
+         fail_op2.symbol = get_new_SST_symbol( 3, db );
          fail_op2.precision = fail_op2.symbol.decimals();
          fail_op2.validate();
 
          // Fail because we are 0.001 TBD short of the fee
          FAIL_WITH_OP( fail_op2, alice_private_key, fc::assert_exception );
 
-         BOOST_TEST_MESSAGE( " -- Valid creation fee, using STEEM" );
-         // We should be able to pay with STEEM
-         smt_create_operation op;
+         BOOST_TEST_MESSAGE( " -- Valid creation fee, using freezone" );
+         // We should be able to pay with freezone
+         SST_create_operation op;
          op.control_account = "alice";
-         op.smt_creation_fee = ASSET( "2.000 TESTS" );
-         op.symbol = get_new_smt_symbol( 3, db );
+         op.SST_creation_fee = ASSET( "2.000 TESTS" );
+         op.symbol = get_new_SST_symbol( 3, db );
          op.precision = op.symbol.decimals();
          op.validate();
 
@@ -1857,10 +1857,10 @@ BOOST_AUTO_TEST_CASE( smt_creation_fee_test )
 
          BOOST_TEST_MESSAGE( " -- Valid creation fee, using SBD" );
          // We should be able to pay with SBD
-         smt_create_operation op2;
+         SST_create_operation op2;
          op2.control_account = "alice";
-         op2.smt_creation_fee = ASSET( "1.000 TBD" );
-         op2.symbol = get_new_smt_symbol( 3, db );
+         op2.SST_creation_fee = ASSET( "1.000 TBD" );
+         op2.symbol = get_new_SST_symbol( 3, db );
          op2.precision = op.symbol.decimals();
          op2.validate();
 
@@ -1871,11 +1871,11 @@ BOOST_AUTO_TEST_CASE( smt_creation_fee_test )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_create_reset )
+BOOST_AUTO_TEST_CASE( SST_create_reset )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing smt_create_operation reset" );
+      BOOST_TEST_MESSAGE( "Testing SST_create_operation reset" );
 
       ACTORS( (alice) )
       generate_block();
@@ -1883,11 +1883,11 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
       set_price_feed( price( ASSET( "1.000 TBD" ), ASSET( "1.000 TESTS" ) ) );
       fund( "alice", ASSET( "100.000 TESTS" ) );
 
-       SMT_SYMBOL( alice, 3, db )
+       SST_SYMBOL( alice, 3, db )
 
       db_plugin->debug_update( [=]( database& db )
       {
-         db.create< smt_token_object >( [&]( smt_token_object& o )
+         db.create< SST_token_object >( [&]( SST_token_object& o )
          {
             o.control_account = "alice";
             o.liquid_symbol = alice_symbol;
@@ -1897,43 +1897,43 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
       generate_block();
 
       signed_transaction tx;
-      smt_setup_emissions_operation op1;
+      SST_setup_emissions_operation op1;
       op1.control_account = "alice";
       op1.symbol = alice_symbol;
-      op1.emissions_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 10;
+      op1.emissions_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 10;
       op1.schedule_time = db->head_block_time() + fc::days(30);
-      op1.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op1.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
       op1.emission_count = 1;
       op1.lep_abs_amount = 0;
       op1.rep_abs_amount = 0;
       op1.lep_rel_amount_numerator = 1;
       op1.rep_rel_amount_numerator = 0;
 
-      smt_setup_emissions_operation op2;
+      SST_setup_emissions_operation op2;
       op2.control_account = "alice";
       op2.symbol = alice_symbol;
-      op2.emissions_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 10;
+      op2.emissions_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 10;
       op2.schedule_time = op1.schedule_time + fc::days( 365 );
-      op2.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op2.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
       op2.emission_count = 10;
       op2.lep_abs_amount = 0;
       op2.rep_abs_amount = 0;
       op2.lep_rel_amount_numerator = 1;
       op2.rep_rel_amount_numerator = 0;
 
-      smt_set_runtime_parameters_operation op3;
-      smt_param_windows_v1 windows;
+      SST_set_runtime_parameters_operation op3;
+      SST_param_windows_v1 windows;
       windows.cashout_window_seconds = 86400 * 4;
       windows.reverse_auction_window_seconds = 60 * 5;
-      smt_param_vote_regeneration_period_seconds_v1 vote_regen;
+      SST_param_vote_regeneration_period_seconds_v1 vote_regen;
       vote_regen.vote_regeneration_period_seconds = 86400 * 6;
       vote_regen.votes_per_regeneration_period = 600;
-      smt_param_rewards_v1 rewards;
+      SST_param_rewards_v1 rewards;
       rewards.content_constant = uint128_t( uint64_t( 1000000000000ull ) );
-      rewards.percent_curation_rewards = 15 * STEEM_1_PERCENT;
+      rewards.percent_curation_rewards = 15 * freezone_1_PERCENT;
       rewards.author_reward_curve = curve_id::quadratic;
       rewards.curation_reward_curve = curve_id::linear;
-      smt_param_allow_downvotes downvotes;
+      SST_param_allow_downvotes downvotes;
       downvotes.value = false;
       op3.runtime_parameters.insert( windows );
       op3.runtime_parameters.insert( vote_regen );
@@ -1942,20 +1942,20 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
       op3.control_account = "alice";
       op3.symbol = alice_symbol;
 
-      smt_set_setup_parameters_operation op4;
-      smt_param_allow_voting voting;
+      SST_set_setup_parameters_operation op4;
+      SST_param_allow_voting voting;
       voting.value = false;
       op4.setup_parameters.insert( voting );
       op4.control_account = "alice";
       op4.symbol = alice_symbol;
 
-      smt_capped_generation_policy valid_capped_generation_policy;
-      valid_capped_generation_policy.generation_unit.steem_unit[ "alice" ] = 2;
+      SST_capped_generation_policy valid_capped_generation_policy;
+      valid_capped_generation_policy.generation_unit.freezone_unit[ "alice" ] = 2;
       valid_capped_generation_policy.generation_unit.token_unit[ "alice" ] = 2;
 
-      smt_setup_ico_tier_operation op5;
+      SST_setup_ico_tier_operation op5;
       op5.control_account = "alice";
-      op5.steem_satoshi_cap = 100000;
+      op5.freezone_satoshi_cap = 100000;
       op5.generation_policy = valid_capped_generation_policy;
       op5.symbol = alice_symbol;
 
@@ -1964,28 +1964,28 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
       tx.operations.push_back( op3 );
       tx.operations.push_back( op4 );
       tx.operations.push_back( op5 );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
       BOOST_TEST_MESSAGE( "--- Failure when specifying fee" );
       auto alice_prec_4 = asset_symbol_type::from_nai( alice_symbol.to_nai(), 4 );
-      smt_create_operation op;
+      SST_create_operation op;
       op.control_account = "alice";
       op.symbol = alice_prec_4;
-      op.smt_creation_fee = ASSET( "1.000 TESTS" );
+      op.SST_creation_fee = ASSET( "1.000 TESTS" );
       op.precision = 4;
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Failure resetting SMT with token emissions" );
-      op.smt_creation_fee = ASSET( "0.000 TBD" );
+      BOOST_TEST_MESSAGE( "--- Failure resetting SST with token emissions" );
+      op.SST_creation_fee = ASSET( "0.000 TBD" );
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Failure deleting token emissions in wrong order" );
       op1.remove = true;
@@ -1994,7 +1994,7 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
       tx.operations.push_back( op1 );
       tx.operations.push_back( op2 );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Success deleting token emissions" );
       tx.clear();
@@ -2003,12 +2003,12 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
-      BOOST_TEST_MESSAGE( "--- Failure resetting SMT" );
-      op.smt_creation_fee = ASSET( "0.000 TBD" );
+      BOOST_TEST_MESSAGE( "--- Failure resetting SST" );
+      op.SST_creation_fee = ASSET( "0.000 TBD" );
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Success deleting ICO tier" );
       op5.remove = true;
@@ -2017,29 +2017,29 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
-      BOOST_TEST_MESSAGE( "--- Success resetting SMT" );
-      op.smt_creation_fee = ASSET( "0.000 TBD" );
+      BOOST_TEST_MESSAGE( "--- Success resetting SST" );
+      op.SST_creation_fee = ASSET( "0.000 TBD" );
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
-      auto token = db->get< smt_token_object, by_symbol >( alice_prec_4 );
+      auto token = db->get< SST_token_object, by_symbol >( alice_prec_4 );
 
       BOOST_REQUIRE( token.liquid_symbol == op.symbol );
       BOOST_REQUIRE( token.control_account == "alice" );
       BOOST_REQUIRE( token.allow_voting == true );
-      BOOST_REQUIRE( token.cashout_window_seconds == STEEM_CASHOUT_WINDOW_SECONDS );
-      BOOST_REQUIRE( token.reverse_auction_window_seconds == STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF20 );
-      BOOST_REQUIRE( token.vote_regeneration_period_seconds == STEEM_VOTING_MANA_REGENERATION_SECONDS );
-      BOOST_REQUIRE( token.votes_per_regeneration_period == SMT_DEFAULT_VOTES_PER_REGEN_PERIOD );
-      BOOST_REQUIRE( token.content_constant == STEEM_CONTENT_CONSTANT_HF0 );
-      BOOST_REQUIRE( token.percent_curation_rewards == SMT_DEFAULT_PERCENT_CURATION_REWARDS );
+      BOOST_REQUIRE( token.cashout_window_seconds == freezone_CASHOUT_WINDOW_SECONDS );
+      BOOST_REQUIRE( token.reverse_auction_window_seconds == freezone_REVERSE_AUCTION_WINDOW_SECONDS_HF20 );
+      BOOST_REQUIRE( token.vote_regeneration_period_seconds == freezone_VOTING_MANA_REGENERATION_SECONDS );
+      BOOST_REQUIRE( token.votes_per_regeneration_period == SST_DEFAULT_VOTES_PER_REGEN_PERIOD );
+      BOOST_REQUIRE( token.content_constant == freezone_CONTENT_CONSTANT_HF0 );
+      BOOST_REQUIRE( token.percent_curation_rewards == SST_DEFAULT_PERCENT_CURATION_REWARDS );
       BOOST_REQUIRE( token.author_reward_curve == curve_id::linear );
       BOOST_REQUIRE( token.curation_reward_curve == curve_id::square_root );
       BOOST_REQUIRE( token.allow_downvotes == true );
 
-      const auto& emissions_idx = db->get_index< smt_token_emissions_index, by_id >();
+      const auto& emissions_idx = db->get_index< SST_token_emissions_index, by_id >();
       BOOST_REQUIRE( emissions_idx.begin() == emissions_idx.end() );
 
       generate_block();
@@ -2048,28 +2048,28 @@ BOOST_AUTO_TEST_CASE( smt_create_reset )
 
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( alice_prec_4 ), [&]( smt_token_object& o )
+         db.modify( db.get< SST_token_object, by_symbol >( alice_prec_4 ), [&]( SST_token_object& o )
          {
-            o.phase = smt_phase::setup_completed;
+            o.phase = SST_phase::setup_completed;
          });
       });
 
-      tx.set_expiration( db->head_block_time() + STEEM_BLOCK_INTERVAL * 10 );
+      tx.set_expiration( db->head_block_time() + freezone_BLOCK_INTERVAL * 10 );
       tx.signatures.clear();
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_nai_pool_removal )
+BOOST_AUTO_TEST_CASE( SST_nai_pool_removal )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_nai_pool_removal" );
+      BOOST_TEST_MESSAGE( "Testing: SST_nai_pool_removal" );
 
       ACTORS( (alice) )
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 0 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 0 );
 
       // Ensure the NAI does not exist in the pool after being registered
       BOOST_REQUIRE( !db->get< nai_pool_object >().contains( alice_symbol ) );
@@ -2077,15 +2077,15 @@ BOOST_AUTO_TEST_CASE( smt_nai_pool_removal )
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_nai_pool_count )
+BOOST_AUTO_TEST_CASE( SST_nai_pool_count )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_nai_pool_count" );
+      BOOST_TEST_MESSAGE( "Testing: SST_nai_pool_count" );
       const auto &npo = db->get< nai_pool_object >();
 
       // We should begin with a full NAI pool
-      BOOST_REQUIRE( npo.num_available_nais == SMT_MAX_NAI_POOL_COUNT );
+      BOOST_REQUIRE( npo.num_available_nais == SST_MAX_NAI_POOL_COUNT );
 
       ACTORS( (alice) )
 
@@ -2096,51 +2096,51 @@ BOOST_AUTO_TEST_CASE( smt_nai_pool_count )
       convert( "alice", ASSET( "10000.000 TESTS" ) );
 
       // Drain the NAI pool one at a time
-      for ( unsigned int i = 1; i <= SMT_MAX_NAI_POOL_COUNT; i++ )
+      for ( unsigned int i = 1; i <= SST_MAX_NAI_POOL_COUNT; i++ )
       {
-         smt_create_operation op;
+         SST_create_operation op;
          signed_transaction tx;
 
-         op.symbol = get_new_smt_symbol( 0, this->db );
+         op.symbol = get_new_SST_symbol( 0, this->db );
          op.precision = op.symbol.decimals();
-         op.smt_creation_fee = db->get_dynamic_global_properties().smt_creation_fee;
+         op.SST_creation_fee = db->get_dynamic_global_properties().SST_creation_fee;
          op.control_account = "alice";
 
          tx.operations.push_back( op );
-         tx.set_expiration( this->db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+         tx.set_expiration( this->db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
          tx.sign( alice_private_key, this->db->get_chain_id(), fc::ecc::bip_0062 );
 
          this->db->push_transaction( tx, 0 );
 
-         BOOST_REQUIRE( npo.num_available_nais == SMT_MAX_NAI_POOL_COUNT - i );
+         BOOST_REQUIRE( npo.num_available_nais == SST_MAX_NAI_POOL_COUNT - i );
          BOOST_REQUIRE( npo.nais[ npo.num_available_nais ] == asset_symbol_type() );
       }
 
       // At this point, there should be no available NAIs
-      STEEM_REQUIRE_THROW( get_new_smt_symbol( 0, this->db ), fc::assert_exception );
+      freezone_REQUIRE_THROW( get_new_SST_symbol( 0, this->db ), fc::assert_exception );
 
       this->generate_block();
 
       // We should end with a full NAI pool after block generation
-      BOOST_REQUIRE( npo.num_available_nais == SMT_MAX_NAI_POOL_COUNT );
+      BOOST_REQUIRE( npo.num_available_nais == SST_MAX_NAI_POOL_COUNT );
    }
    FC_LOG_AND_RETHROW();
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_emissions_validate )
+BOOST_AUTO_TEST_CASE( SST_setup_emissions_validate )
 {
    try
    {
       ACTORS( (alice)(bob) );
       generate_block();
 
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3 );
 
-      smt_setup_emissions_operation op;
+      SST_setup_emissions_operation op;
       op.control_account = "alice";
       op.symbol = alice_symbol;
-      op.emissions_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 10;
-      op.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op.emissions_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 10;
+      op.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
       op.emission_count = 1;
 
       fc::time_point_sec schedule_time = fc::time_point::now();
@@ -2156,69 +2156,69 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_validate )
       op.validate();
 
       BOOST_TEST_MESSAGE( " -- Invalid token symbol" );
-      op.symbol = STEEM_SYMBOL;
+      op.symbol = freezone_SYMBOL;
       op.lep_abs_amount = 0;
       op.rep_abs_amount = 0;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.symbol = alice_symbol;
       op.lep_abs_amount = 0;
       op.rep_abs_amount = 0;
 
       BOOST_TEST_MESSAGE( " -- No emissions" );
       op.lep_rel_amount_numerator = 0;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.lep_rel_amount_numerator = 1;
 
       BOOST_TEST_MESSAGE( " -- Invalid control account name" );
       op.control_account = "@@@@";
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.control_account = "alice";
 
       BOOST_TEST_MESSAGE(" -- Empty emission unit" );
       op.emissions_unit.token_unit.clear();
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
 
       BOOST_TEST_MESSAGE( " -- Invalid emission unit token unit account" );
       op.emissions_unit.token_unit[ "@@@@" ] = 10;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.emissions_unit.token_unit.clear();
-      op.emissions_unit.token_unit[ SMT_DESTINATION_REWARDS ] = 1;
-      op.emissions_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 1;
-      op.emissions_unit.token_unit[ SMT_DESTINATION_VESTING ] = 1;
+      op.emissions_unit.token_unit[ SST_DESTINATION_REWARDS ] = 1;
+      op.emissions_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 1;
+      op.emissions_unit.token_unit[ SST_DESTINATION_VESTING ] = 1;
 
       BOOST_TEST_MESSAGE( " -- Invalid schedule time" );
-      op.schedule_time = STEEM_GENESIS_TIME;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      op.schedule_time = freezone_GENESIS_TIME;
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.schedule_time = fc::time_point::now();
 
       BOOST_TEST_MESSAGE( " -- 0 emission count" );
       op.emission_count = 0;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.emission_count = 1;
 
       BOOST_TEST_MESSAGE( " -- Interval seconds too low" );
-      op.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS - 1;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
-      op.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS - 1;
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
+      op.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
 
       BOOST_TEST_MESSAGE( " -- Negative asset left endpoint" );
       op.lep_abs_amount = -1;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.lep_abs_amount = 0;
 
       BOOST_TEST_MESSAGE( " -- Negative asset right endpoint" );
       op.rep_abs_amount = -1;
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.rep_abs_amount = 0;
 
       BOOST_TEST_MESSAGE( " -- Left endpoint time cannot be before schedule time" );
       op.lep_time -= fc::seconds( 1 );
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.lep_time += fc::seconds( 1 );
 
       BOOST_TEST_MESSAGE( " -- Right endpoint time cannot be after schedule end time" );
       op.rep_time += fc::seconds( 1 );
-      STEEM_REQUIRE_THROW( op.validate(), fc::exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::exception );
       op.rep_time -= fc::seconds( 1 );
 
       BOOST_TEST_MESSAGE( " -- Left endpoint time and right endpoint time can be anything if they're equal" );
@@ -2231,13 +2231,13 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_validate )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_emissions_authorities )
+BOOST_AUTO_TEST_CASE( SST_setup_emissions_authorities )
 {
    try
    {
-      //SMT_SYMBOL( alice, 3, db );
+      //SST_SYMBOL( alice, 3, db );
 
-      smt_setup_emissions_operation op;
+      SST_setup_emissions_operation op;
       op.control_account = "alice";
       fc::time_point now = fc::time_point::now();
       op.schedule_time = now;
@@ -2260,7 +2260,7 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_authorities )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_emissions_apply )
+BOOST_AUTO_TEST_CASE( SST_setup_emissions_apply )
 {
    try
    {
@@ -2268,16 +2268,16 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_apply )
 
       generate_block();
 
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3 );
 
       fc::time_point_sec emissions1_schedule_time = fc::time_point::now();
 
-      smt_setup_emissions_operation op;
+      SST_setup_emissions_operation op;
       op.control_account = "alice";
       op.symbol = alice_symbol;
       op.emissions_unit.token_unit[ "alice" ] = 10;
       op.schedule_time = emissions1_schedule_time;
-      op.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
       op.emission_count = 2;
       op.lep_abs_amount = 0;
       op.rep_abs_amount = 0;
@@ -2285,21 +2285,21 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_apply )
       op.rep_rel_amount_numerator = 0;;
       op.validate();
 
-      BOOST_TEST_MESSAGE( " -- Control account does not own SMT" );
+      BOOST_TEST_MESSAGE( " -- Control account does not own SST" );
       op.control_account = "bob";
       FAIL_WITH_OP( op, bob_private_key, fc::assert_exception );
       op.control_account = "alice";
 
-      BOOST_TEST_MESSAGE( " -- SMT setup phase has already completed" );
-      auto smt_token = util::smt::find_token( *db, alice_symbol );
-      db->modify( *smt_token, [&] ( smt_token_object& obj )
+      BOOST_TEST_MESSAGE( " -- SST setup phase has already completed" );
+      auto SST_token = util::SST::find_token( *db, alice_symbol );
+      db->modify( *SST_token, [&] ( SST_token_object& obj )
       {
-         obj.phase = smt_phase::setup_completed;
+         obj.phase = SST_phase::setup_completed;
       } );
       FAIL_WITH_OP( op, alice_private_key, fc::assert_exception );
-      db->modify( *smt_token, [&] ( smt_token_object& obj )
+      db->modify( *SST_token, [&] ( SST_token_object& obj )
       {
-         obj.phase = smt_phase::setup;
+         obj.phase = SST_phase::setup;
       } );
 
       BOOST_TEST_MESSAGE( " -- Failure when submitting an emission to a non-existent account" );
@@ -2308,7 +2308,7 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_apply )
       op.emissions_unit.token_unit.clear();
 
       BOOST_TEST_MESSAGE( " -- Failure when submitting an emission to a non-existent vesting account" );
-      op.emissions_unit.token_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "charlie" ) ] = 10;
+      op.emissions_unit.token_unit[ SST_DESTINATION_ACCOUNT_VESTING( "charlie" ) ] = 10;
       FAIL_WITH_OP( op, alice_private_key, fc::assert_exception );
       op.emissions_unit.token_unit.clear();
 
@@ -2317,12 +2317,12 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_apply )
       PUSH_OP( op, alice_private_key );
 
       BOOST_TEST_MESSAGE( " -- Emissions range is overlapping" );
-      smt_setup_emissions_operation op2;
+      SST_setup_emissions_operation op2;
       op2.control_account = "alice";
       op2.symbol = alice_symbol;
-      op2.emissions_unit.token_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "bob" ) ] = 10;
-      op2.schedule_time = emissions1_schedule_time + fc::seconds( SMT_EMISSION_MIN_INTERVAL_SECONDS * 2 - 1 );
-      op2.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op2.emissions_unit.token_unit[ SST_DESTINATION_ACCOUNT_VESTING( "bob" ) ] = 10;
+      op2.schedule_time = emissions1_schedule_time + fc::seconds( SST_EMISSION_MIN_INTERVAL_SECONDS * 2 - 1 );
+      op2.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
       op2.emission_count = 6;
       op2.lep_abs_amount = 1200;
       op2.rep_abs_amount = 1000;
@@ -2336,13 +2336,13 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_apply )
       PUSH_OP( op2, alice_private_key );
 
       BOOST_TEST_MESSAGE( " -- Emissions must be created in chronological order" );
-      smt_setup_emissions_operation op3;
+      SST_setup_emissions_operation op3;
       op3.control_account = "alice";
       op3.symbol = alice_symbol;
-      op3.emissions_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 10;
-      op3.schedule_time = emissions1_schedule_time - fc::seconds( ( SMT_EMISSION_MIN_INTERVAL_SECONDS * 2 ) + 1 );
-      op3.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
-      op3.emission_count = SMT_EMIT_INDEFINITELY;
+      op3.emissions_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 10;
+      op3.schedule_time = emissions1_schedule_time - fc::seconds( ( SST_EMISSION_MIN_INTERVAL_SECONDS * 2 ) + 1 );
+      op3.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
+      op3.emission_count = SST_EMIT_INDEFINITELY;
       op3.lep_abs_amount = 0;
       op3.rep_abs_amount = 1000;
       op3.lep_rel_amount_numerator = 0;
@@ -2353,16 +2353,16 @@ BOOST_AUTO_TEST_CASE( smt_setup_emissions_apply )
       op3.schedule_time = op2.schedule_time + fc::seconds( uint64_t( op2.interval_seconds ) * uint64_t( op2.emission_count - 1 ) );
       FAIL_WITH_OP( op3, alice_private_key, fc::assert_exception );
 
-      op3.schedule_time += SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op3.schedule_time += SST_EMISSION_MIN_INTERVAL_SECONDS;
       PUSH_OP( op3, alice_private_key );
 
       BOOST_TEST_MESSAGE( " -- No more emissions permitted" );
-      smt_setup_emissions_operation op4;
+      SST_setup_emissions_operation op4;
       op4.control_account = "alice";
       op4.symbol = alice_symbol;
-      op4.emissions_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 10;
+      op4.emissions_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 10;
       op4.schedule_time = op3.schedule_time + fc::days( 365 );
-      op4.interval_seconds = SMT_EMISSION_MIN_INTERVAL_SECONDS;
+      op4.interval_seconds = SST_EMISSION_MIN_INTERVAL_SECONDS;
       op4.emission_count = 10;
       op4.lep_abs_amount = 0;
       op4.rep_abs_amount = 0;
@@ -2387,35 +2387,35 @@ BOOST_AUTO_TEST_CASE( set_setup_parameters_validate )
       ACTORS( (alice) )
       generate_block();
 
-      asset_symbol_type alice_symbol = create_smt( "alice", alice_private_key, 3 );
+      asset_symbol_type alice_symbol = create_SST( "alice", alice_private_key, 3 );
 
-      smt_set_setup_parameters_operation op;
+      SST_set_setup_parameters_operation op;
       op.control_account = "alice";
       op.symbol = alice_symbol;
-      op.setup_parameters.emplace( smt_param_allow_voting { .value = true } );
+      op.setup_parameters.emplace( SST_param_allow_voting { .value = true } );
 
       op.validate();
 
-      op.symbol = STEEM_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid symbol
+      op.symbol = freezone_SYMBOL;
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid symbol
       op.symbol = VESTS_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid symbol
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid symbol
       op.symbol = SBD_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid symbol
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid symbol
       op.symbol = alice_symbol;
 
       op.control_account = "####";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid account name
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Invalid account name
       op.control_account = "alice";
 
       op.setup_parameters.clear();
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Empty setup parameters
-      op.setup_parameters.emplace( smt_param_allow_voting { .value = true } );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception ); // Empty setup parameters
+      op.setup_parameters.emplace( SST_param_allow_voting { .value = true } );
 
       op.validate();
 
       op.setup_parameters.clear();
-      op.setup_parameters.emplace( smt_param_allow_voting { .value = false } );
+      op.setup_parameters.emplace( SST_param_allow_voting { .value = false } );
       op.validate();
    }
    FC_LOG_AND_RETHROW()
@@ -2425,7 +2425,7 @@ BOOST_AUTO_TEST_CASE( set_setup_parameters_authorities )
 {
    try
    {
-      smt_set_setup_parameters_operation op;
+      SST_set_setup_parameters_operation op;
       op.control_account = "alice";
 
       flat_set<account_name_type> auths;
@@ -2459,27 +2459,27 @@ BOOST_AUTO_TEST_CASE( set_setup_parameters_apply )
       convert( "alice", ASSET( "5000.000 TESTS" ) );
       convert( "bob", ASSET( "5000.000 TESTS" ) );
 
-      auto alice_symbol = create_smt( "alice", alice_private_key, 3 );
-      auto bob_symbol = create_smt( "bob", bob_private_key, 3 );
+      auto alice_symbol = create_SST( "alice", alice_private_key, 3 );
+      auto bob_symbol = create_SST( "bob", bob_private_key, 3 );
 
-      auto alice_token = util::smt::find_token( *db, alice_symbol );
-      auto bob_token = util::smt::find_token( *db, bob_symbol );
+      auto alice_token = util::SST::find_token( *db, alice_symbol );
+      auto bob_token = util::SST::find_token( *db, bob_symbol );
 
       BOOST_REQUIRE( alice_token->allow_voting == true );
 
-      smt_set_setup_parameters_operation op;
+      SST_set_setup_parameters_operation op;
       op.control_account = "alice";
       op.symbol = alice_symbol;
 
       BOOST_TEST_MESSAGE( " -- Succeed set voting to false" );
-      op.setup_parameters.emplace( smt_param_allow_voting { .value = false } );
+      op.setup_parameters.emplace( SST_param_allow_voting { .value = false } );
       PUSH_OP( op, alice_private_key );
 
       BOOST_REQUIRE( alice_token->allow_voting == false );
 
       BOOST_TEST_MESSAGE( " -- Succeed set voting to true" );
       op.setup_parameters.clear();
-      op.setup_parameters.emplace( smt_param_allow_voting { .value = true } );
+      op.setup_parameters.emplace( SST_param_allow_voting { .value = true } );
       PUSH_OP( op, alice_private_key );
 
       BOOST_REQUIRE( alice_token->allow_voting == true );
@@ -2492,7 +2492,7 @@ BOOST_AUTO_TEST_CASE( set_setup_parameters_apply )
       BOOST_TEST_MESSAGE( " -- Succeed set voting to true" );
       op.control_account = "bob";
       op.setup_parameters.clear();
-      op.setup_parameters.emplace( smt_param_allow_voting { .value = true } );
+      op.setup_parameters.emplace( SST_param_allow_voting { .value = true } );
 
       PUSH_OP( op, bob_private_key );
       BOOST_REQUIRE( bob_token->allow_voting == true );
@@ -2503,13 +2503,13 @@ BOOST_AUTO_TEST_CASE( set_setup_parameters_apply )
       FAIL_WITH_OP( op, bob_private_key, fc::assert_exception );
 
       BOOST_TEST_MESSAGE( " -- Failure with non-existent asset symbol" );
-      op.symbol = this->get_new_smt_symbol( 1, db );
+      op.symbol = this->get_new_SST_symbol( 1, db );
       FAIL_WITH_OP( op, bob_private_key, fc::assert_exception );
 
       BOOST_TEST_MESSAGE( " -- Succeed set voting to false" );
       op.symbol = bob_symbol;
       op.setup_parameters.clear();
-      op.setup_parameters.emplace( smt_param_allow_voting { .value = false } );
+      op.setup_parameters.emplace( SST_param_allow_voting { .value = false } );
       PUSH_OP( op, bob_private_key );
       BOOST_REQUIRE( bob_token->allow_voting == false );
 
@@ -2519,119 +2519,119 @@ BOOST_AUTO_TEST_CASE( set_setup_parameters_apply )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
+BOOST_AUTO_TEST_CASE( SST_set_runtime_parameters_validate )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_set_runtime_parameters_validate" );
+      BOOST_TEST_MESSAGE( "Testing: SST_set_runtime_parameters_validate" );
 
-      smt_set_runtime_parameters_operation op;
+      SST_set_runtime_parameters_operation op;
 
-      auto new_symbol = get_new_smt_symbol( 3, db );
+      auto new_symbol = get_new_SST_symbol( 3, db );
 
       op.symbol = new_symbol;
       op.control_account = "alice";
-      op.runtime_parameters.insert( smt_param_allow_downvotes() );
+      op.runtime_parameters.insert( SST_param_allow_downvotes() );
 
       // If this fails, it could indicate a test above has failed for the wrong reasons
       op.validate();
 
       BOOST_TEST_MESSAGE( "--- Test invalid control account name" );
       op.control_account = "@@@@@";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.control_account = "alice";
 
       // Test symbol
-      BOOST_TEST_MESSAGE( "--- Invalid SMT creation symbol: vesting symbol used instead of liquid one" );
+      BOOST_TEST_MESSAGE( "--- Invalid SST creation symbol: vesting symbol used instead of liquid one" );
       op.symbol = op.symbol.get_paired_symbol();
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Invalid SMT creation symbol: STEEM cannot be an SMT" );
-      op.symbol = STEEM_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      BOOST_TEST_MESSAGE( "--- Invalid SST creation symbol: freezone cannot be an SST" );
+      op.symbol = freezone_SYMBOL;
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Invalid SMT creation symbol: SBD cannot be an SMT" );
+      BOOST_TEST_MESSAGE( "--- Invalid SST creation symbol: SBD cannot be an SST" );
       op.symbol = SBD_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Invalid SMT creation symbol: VESTS cannot be an SMT" );
+      BOOST_TEST_MESSAGE( "--- Invalid SST creation symbol: VESTS cannot be an SST" );
       op.symbol = VESTS_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.symbol = new_symbol;
 
       BOOST_TEST_MESSAGE( "--- Failure when no parameters are set" );
       op.runtime_parameters.clear();
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       /*
        * Inequality to test:
        *
-       * 0 <= reverse_auction_window_seconds + SMT_UPVOTE_LOCKOUT < cashout_window_seconds
-       * <= SMT_VESTING_WITHDRAW_INTERVAL_SECONDS
+       * 0 <= reverse_auction_window_seconds + SST_UPVOTE_LOCKOUT < cashout_window_seconds
+       * <= SST_VESTING_WITHDRAW_INTERVAL_SECONDS
        */
 
-      BOOST_TEST_MESSAGE( "--- Failure when cashout_window_second is equal to SMT_UPVOTE_LOCKOUT" );
-      smt_param_windows_v1 windows;
+      BOOST_TEST_MESSAGE( "--- Failure when cashout_window_second is equal to SST_UPVOTE_LOCKOUT" );
+      SST_param_windows_v1 windows;
       windows.reverse_auction_window_seconds = 0;
-      windows.cashout_window_seconds = SMT_UPVOTE_LOCKOUT;
+      windows.cashout_window_seconds = SST_UPVOTE_LOCKOUT;
       op.runtime_parameters.insert( windows );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Success when cashout_window_seconds is above SMT_UPVOTE_LOCKOUT" );
+      BOOST_TEST_MESSAGE( "--- Success when cashout_window_seconds is above SST_UPVOTE_LOCKOUT" );
       windows.cashout_window_seconds++;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( windows );
       op.validate();
 
-      BOOST_TEST_MESSAGE( "--- Failure when cashout_window_seconds is equal to reverse_auction_window_seconds + SMT_UPVOTE_LOCKOUT" );
+      BOOST_TEST_MESSAGE( "--- Failure when cashout_window_seconds is equal to reverse_auction_window_seconds + SST_UPVOTE_LOCKOUT" );
       windows.reverse_auction_window_seconds++;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( windows );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Failure when cashout_window_seconds is greater than SMT_VESTING_WITHDRAW_INTERVAL_SECONDS" );
-      windows.cashout_window_seconds = SMT_VESTING_WITHDRAW_INTERVAL_SECONDS + 1;
+      BOOST_TEST_MESSAGE( "--- Failure when cashout_window_seconds is greater than SST_VESTING_WITHDRAW_INTERVAL_SECONDS" );
+      windows.cashout_window_seconds = SST_VESTING_WITHDRAW_INTERVAL_SECONDS + 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( windows );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Success when cashout_window_seconds is equal to SMT_VESTING_WITHDRAW_INTERVAL_SECONDS" );
+      BOOST_TEST_MESSAGE( "--- Success when cashout_window_seconds is equal to SST_VESTING_WITHDRAW_INTERVAL_SECONDS" );
       windows.cashout_window_seconds--;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( windows );
       op.validate();
 
-      BOOST_TEST_MESSAGE( "--- Success when reverse_auction_window_seconds + SMT_UPVOTE_LOCKOUT is one less than cashout_window_seconds" );
-      windows.reverse_auction_window_seconds = windows.cashout_window_seconds - SMT_UPVOTE_LOCKOUT - 1;
+      BOOST_TEST_MESSAGE( "--- Success when reverse_auction_window_seconds + SST_UPVOTE_LOCKOUT is one less than cashout_window_seconds" );
+      windows.reverse_auction_window_seconds = windows.cashout_window_seconds - SST_UPVOTE_LOCKOUT - 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( windows );
       op.validate();
 
-      BOOST_TEST_MESSAGE( "--- Failure when reverse_auction_window_seconds + SMT_UPVOTE_LOCKOUT is equal to cashout_window_seconds" );
+      BOOST_TEST_MESSAGE( "--- Failure when reverse_auction_window_seconds + SST_UPVOTE_LOCKOUT is equal to cashout_window_seconds" );
       windows.cashout_window_seconds--;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( windows );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       /*
        * Conditions to test:
        *
-       * 0 < vote_regeneration_seconds < SMT_VESTING_WITHDRAW_INTERVAL_SECONDS
+       * 0 < vote_regeneration_seconds < SST_VESTING_WITHDRAW_INTERVAL_SECONDS
        *
        * votes_per_regeneration_period * 86400 / vote_regeneration_period
-       * <= SMT_MAX_NOMINAL_VOTES_PER_DAY
+       * <= SST_MAX_NOMINAL_VOTES_PER_DAY
        *
-       * 0 < votes_per_regeneration_period <= SMT_MAX_VOTES_PER_REGENERATION
+       * 0 < votes_per_regeneration_period <= SST_MAX_VOTES_PER_REGENERATION
        */
-      uint32_t practical_regen_seconds_lower_bound = 86400 / SMT_MAX_NOMINAL_VOTES_PER_DAY;
+      uint32_t practical_regen_seconds_lower_bound = 86400 / SST_MAX_NOMINAL_VOTES_PER_DAY;
 
       BOOST_TEST_MESSAGE( "--- Failure when vote_regeneration_period_seconds is 0" );
-      smt_param_vote_regeneration_period_seconds_v1 vote_regen;
+      SST_param_vote_regeneration_period_seconds_v1 vote_regen;
       vote_regen.vote_regeneration_period_seconds = 0;
       vote_regen.votes_per_regeneration_period = 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Success when vote_regeneration_period_seconds is greater than 0" );
       // Any value less than 86 will violate the nominal votes per day check. 86 is a practical minimum as a consequence.
@@ -2640,13 +2640,13 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
       op.runtime_parameters.insert( vote_regen );
       op.validate();
 
-      BOOST_TEST_MESSAGE( "--- Failure when vote_regeneration_period_seconds is greater SMT_VESTING_WITHDRAW_INTERVAL_SECONDS" );
-      vote_regen.vote_regeneration_period_seconds = SMT_VESTING_WITHDRAW_INTERVAL_SECONDS + 1;
+      BOOST_TEST_MESSAGE( "--- Failure when vote_regeneration_period_seconds is greater SST_VESTING_WITHDRAW_INTERVAL_SECONDS" );
+      vote_regen.vote_regeneration_period_seconds = SST_VESTING_WITHDRAW_INTERVAL_SECONDS + 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( "--- Success when vote_regeneration_period_seconds is equal to SMT_VESTING_WITHDRAW_INTERVAL_SECONDS" );
+      BOOST_TEST_MESSAGE( "--- Success when vote_regeneration_period_seconds is equal to SST_VESTING_WITHDRAW_INTERVAL_SECONDS" );
       vote_regen.vote_regeneration_period_seconds--;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
@@ -2655,7 +2655,7 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
       BOOST_TEST_MESSAGE( "--- Test various \"nominal votes per day\" scenarios" );
       BOOST_TEST_MESSAGE( "--- Mid Point Checks" );
       vote_regen.vote_regeneration_period_seconds = 86400;
-      vote_regen.votes_per_regeneration_period = SMT_MAX_NOMINAL_VOTES_PER_DAY;
+      vote_regen.votes_per_regeneration_period = SST_MAX_NOMINAL_VOTES_PER_DAY;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
       op.validate();
@@ -2663,22 +2663,22 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
       vote_regen.vote_regeneration_period_seconds = 86399;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       vote_regen.vote_regeneration_period_seconds = 86400;
-      vote_regen.votes_per_regeneration_period = SMT_MAX_NOMINAL_VOTES_PER_DAY + 1;
+      vote_regen.votes_per_regeneration_period = SST_MAX_NOMINAL_VOTES_PER_DAY + 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       vote_regen.vote_regeneration_period_seconds = 86401;
-      vote_regen.votes_per_regeneration_period = SMT_MAX_NOMINAL_VOTES_PER_DAY;
+      vote_regen.votes_per_regeneration_period = SST_MAX_NOMINAL_VOTES_PER_DAY;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
       op.validate();
 
       vote_regen.vote_regeneration_period_seconds = 86400;
-      vote_regen.votes_per_regeneration_period = SMT_MAX_NOMINAL_VOTES_PER_DAY - 1;
+      vote_regen.votes_per_regeneration_period = SST_MAX_NOMINAL_VOTES_PER_DAY - 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
       op.validate();
@@ -2688,13 +2688,13 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
       vote_regen.votes_per_regeneration_period = 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       vote_regen.vote_regeneration_period_seconds = practical_regen_seconds_lower_bound + 1;
       vote_regen.votes_per_regeneration_period = 2;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       vote_regen.vote_regeneration_period_seconds = practical_regen_seconds_lower_bound + 2;
       vote_regen.votes_per_regeneration_period = 1;
@@ -2703,41 +2703,41 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
       op.validate();
 
       BOOST_TEST_MESSAGE( "--- Upper Bound Checks" );
-      vote_regen.vote_regeneration_period_seconds = SMT_VESTING_WITHDRAW_INTERVAL_SECONDS;
-      vote_regen.votes_per_regeneration_period = SMT_MAX_VOTES_PER_REGENERATION;
+      vote_regen.vote_regeneration_period_seconds = SST_VESTING_WITHDRAW_INTERVAL_SECONDS;
+      vote_regen.votes_per_regeneration_period = SST_MAX_VOTES_PER_REGENERATION;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
       op.validate();
 
-      vote_regen.votes_per_regeneration_period = SMT_MAX_VOTES_PER_REGENERATION + 1;
+      vote_regen.votes_per_regeneration_period = SST_MAX_VOTES_PER_REGENERATION + 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      vote_regen.vote_regeneration_period_seconds = SMT_VESTING_WITHDRAW_INTERVAL_SECONDS - 1;
-      vote_regen.votes_per_regeneration_period = SMT_MAX_VOTES_PER_REGENERATION;
+      vote_regen.vote_regeneration_period_seconds = SST_VESTING_WITHDRAW_INTERVAL_SECONDS - 1;
+      vote_regen.votes_per_regeneration_period = SST_MAX_VOTES_PER_REGENERATION;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      vote_regen.vote_regeneration_period_seconds = SMT_VESTING_WITHDRAW_INTERVAL_SECONDS;
-      vote_regen.votes_per_regeneration_period = SMT_MAX_VOTES_PER_REGENERATION - 1;
+      vote_regen.vote_regeneration_period_seconds = SST_VESTING_WITHDRAW_INTERVAL_SECONDS;
+      vote_regen.votes_per_regeneration_period = SST_MAX_VOTES_PER_REGENERATION - 1;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( vote_regen );
       op.validate();
 
       BOOST_TEST_MESSAGE( "--- Failure when percent_curation_rewards greater than 10000" );
-      smt_param_rewards_v1 rewards;
-      rewards.content_constant = STEEM_CONTENT_CONSTANT_HF0;
-      rewards.percent_curation_rewards = STEEM_100_PERCENT + 1;
+      SST_param_rewards_v1 rewards;
+      rewards.content_constant = freezone_CONTENT_CONSTANT_HF0;
+      rewards.percent_curation_rewards = freezone_100_PERCENT + 1;
       rewards.author_reward_curve = curve_id::linear;
       rewards.curation_reward_curve = curve_id::square_root;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( rewards );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Success when percent_curation_rewards is 10000" );
-      rewards.percent_curation_rewards = STEEM_100_PERCENT;
+      rewards.percent_curation_rewards = freezone_100_PERCENT;
       op.runtime_parameters.clear();
       op.runtime_parameters.insert( rewards );
       op.validate();
@@ -2754,7 +2754,7 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
       rewards = {};
       for ( auto& curve : valid_curves )
       {
-         BOOST_TEST_MESSAGE( std::string( "--- Success when author curve is " ) + fc::reflector< steem::protocol::curve_id >::to_string( curve ) );
+         BOOST_TEST_MESSAGE( std::string( "--- Success when author curve is " ) + fc::reflector< freezone::protocol::curve_id >::to_string( curve ) );
          rewards.author_reward_curve = curve;
          op.runtime_parameters.clear();
          op.runtime_parameters.insert( rewards );
@@ -2764,25 +2764,25 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_validate )
       rewards = {};
       for ( auto& curve : valid_curves )
       {
-         BOOST_TEST_MESSAGE( std::string( "--- Success when curation curve is " ) + fc::reflector< steem::protocol::curve_id >::to_string( curve ) );
+         BOOST_TEST_MESSAGE( std::string( "--- Success when curation curve is " ) + fc::reflector< freezone::protocol::curve_id >::to_string( curve ) );
          rewards.curation_reward_curve = curve;
          op.runtime_parameters.clear();
          op.runtime_parameters.insert( rewards );
          op.validate();
       }
 
-      // Literally nothing to test for smt_param_allow_downvotes because it can only be true or false.
+      // Literally nothing to test for SST_param_allow_downvotes because it can only be true or false.
       // Inclusion success was tested in initial positive validation at the beginning of the test.
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_authorities )
+BOOST_AUTO_TEST_CASE( SST_set_runtime_parameters_authorities )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_set_runtime_parameters_authorities" );
-      smt_set_runtime_parameters_operation op;
+      BOOST_TEST_MESSAGE( "Testing: SST_set_runtime_parameters_authorities" );
+      SST_set_runtime_parameters_operation op;
       op.control_account = "alice";
 
       flat_set< account_name_type > auths;
@@ -2801,38 +2801,38 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_authorities )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_apply )
+BOOST_AUTO_TEST_CASE( SST_set_runtime_parameters_apply )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_set_runtime_parameters_evaluate" );
+      BOOST_TEST_MESSAGE( "Testing: SST_set_runtime_parameters_evaluate" );
 
       ACTORS( (alice)(bob) )
-      SMT_SYMBOL( alice, 3, db );
-      SMT_SYMBOL( bob, 3, db );
+      SST_SYMBOL( alice, 3, db );
+      SST_SYMBOL( bob, 3, db );
 
       generate_block();
 
       db_plugin->debug_update( [=](database& db)
       {
-         db.create< smt_token_object >( [&]( smt_token_object& o )
+         db.create< SST_token_object >( [&]( SST_token_object& o )
          {
             o.control_account = "alice";
             o.liquid_symbol = alice_symbol;
          });
       });
 
-      smt_set_runtime_parameters_operation op;
+      SST_set_runtime_parameters_operation op;
       signed_transaction tx;
 
       BOOST_TEST_MESSAGE( "--- Failure with wrong control account" );
       op.control_account = "bob";
       op.symbol = alice_symbol;
-      op.runtime_parameters.insert( smt_param_allow_downvotes() );
+      op.runtime_parameters.insert( SST_param_allow_downvotes() );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, bob_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Failure with a non-existent asset symbol" );
       op.control_account = "alice";
@@ -2840,7 +2840,7 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_apply )
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Failure with wrong precision in asset symbol" );
       op.symbol = alice_symbol;
@@ -2848,23 +2848,23 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_apply )
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Success updating runtime parameters" );
       op.runtime_parameters.clear();
       // These are params different than the default
-      smt_param_windows_v1 windows;
+      SST_param_windows_v1 windows;
       windows.cashout_window_seconds = 86400 * 4;
       windows.reverse_auction_window_seconds = 60 * 5;
-      smt_param_vote_regeneration_period_seconds_v1 vote_regen;
+      SST_param_vote_regeneration_period_seconds_v1 vote_regen;
       vote_regen.vote_regeneration_period_seconds = 86400 * 6;
       vote_regen.votes_per_regeneration_period = 600;
-      smt_param_rewards_v1 rewards;
+      SST_param_rewards_v1 rewards;
       rewards.content_constant = uint128_t( uint64_t( 1000000000000ull ) );
-      rewards.percent_curation_rewards = 15 * STEEM_1_PERCENT;
+      rewards.percent_curation_rewards = 15 * freezone_1_PERCENT;
       rewards.author_reward_curve = curve_id::quadratic;
       rewards.curation_reward_curve = curve_id::linear;
-      smt_param_allow_downvotes downvotes;
+      SST_param_allow_downvotes downvotes;
       downvotes.value = false;
       op.runtime_parameters.insert( windows );
       op.runtime_parameters.insert( vote_regen );
@@ -2876,7 +2876,7 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_apply )
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
-      const auto& token = db->get< smt_token_object, by_symbol >( alice_symbol );
+      const auto& token = db->get< SST_token_object, by_symbol >( alice_symbol );
 
       BOOST_REQUIRE( token.cashout_window_seconds == windows.cashout_window_seconds );
       BOOST_REQUIRE( token.reverse_auction_window_seconds == windows.reverse_auction_window_seconds );
@@ -2891,64 +2891,64 @@ BOOST_AUTO_TEST_CASE( smt_set_runtime_parameters_apply )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_contribute_validate )
+BOOST_AUTO_TEST_CASE( SST_contribute_validate )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_contribute_validate" );
+      BOOST_TEST_MESSAGE( "Testing: SST_contribute_validate" );
 
-      auto new_symbol = get_new_smt_symbol( 3, db );
+      auto new_symbol = get_new_SST_symbol( 3, db );
 
-      smt_contribute_operation op;
+      SST_contribute_operation op;
       op.contributor = "alice";
-      op.contribution = asset( 1000, STEEM_SYMBOL );
+      op.contribution = asset( 1000, freezone_SYMBOL );
       op.contribution_id = 1;
       op.symbol = new_symbol;
       op.validate();
 
       BOOST_TEST_MESSAGE( " -- Failure on invalid account name" );
       op.contributor = "@@@@@";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.contributor = "alice";
 
       BOOST_TEST_MESSAGE( " -- Failure on negative contribution" );
-      op.contribution = asset( -1, STEEM_SYMBOL );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.contribution = asset( 1000, STEEM_SYMBOL );
+      op.contribution = asset( -1, freezone_SYMBOL );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.contribution = asset( 1000, freezone_SYMBOL );
 
       BOOST_TEST_MESSAGE( " -- Failure on no contribution" );
-      op.contribution = asset( 0, STEEM_SYMBOL );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.contribution = asset( 1000, STEEM_SYMBOL );
+      op.contribution = asset( 0, freezone_SYMBOL );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.contribution = asset( 1000, freezone_SYMBOL );
 
       BOOST_TEST_MESSAGE( " -- Failure on VESTS contribution" );
       op.contribution = asset( 1000, VESTS_SYMBOL );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.contribution = asset( 1000, STEEM_SYMBOL );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.contribution = asset( 1000, freezone_SYMBOL );
 
       BOOST_TEST_MESSAGE( " -- Failure on SBD contribution" );
       op.contribution = asset( 1000, SBD_SYMBOL );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.contribution = asset( 1000, STEEM_SYMBOL );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.contribution = asset( 1000, freezone_SYMBOL );
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT contribution" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST contribution" );
       op.contribution = asset( 1000, new_symbol );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
-      op.contribution = asset( 1000, STEEM_SYMBOL );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      op.contribution = asset( 1000, freezone_SYMBOL );
 
-      BOOST_TEST_MESSAGE( " -- Failure on contribution to STEEM" );
-      op.symbol = STEEM_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      BOOST_TEST_MESSAGE( " -- Failure on contribution to freezone" );
+      op.symbol = freezone_SYMBOL;
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.symbol = new_symbol;
 
       BOOST_TEST_MESSAGE( " -- Failure on contribution to VESTS" );
       op.symbol = VESTS_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.symbol = new_symbol;
 
       BOOST_TEST_MESSAGE( " -- Failure on contribution to SBD" );
       op.symbol = SBD_SYMBOL;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.symbol = new_symbol;
 
       op.validate();
@@ -2956,20 +2956,20 @@ BOOST_AUTO_TEST_CASE( smt_contribute_validate )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_contribute_apply )
+BOOST_AUTO_TEST_CASE( SST_contribute_apply )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_contribute_evaluate" );
+      BOOST_TEST_MESSAGE( "Testing: SST_contribute_evaluate" );
 
       ACTORS( (alice)(bob)(sam) );
-      SMT_SYMBOL( alice, 3, db );
+      SST_SYMBOL( alice, 3, db );
 
       generate_block();
 
-      auto alice_asset_accumulator = asset( 0, STEEM_SYMBOL );
-      auto bob_asset_accumulator = asset( 0, STEEM_SYMBOL );
-      auto sam_asset_accumulator = asset( 0, STEEM_SYMBOL );
+      auto alice_asset_accumulator = asset( 0, freezone_SYMBOL );
+      auto bob_asset_accumulator = asset( 0, freezone_SYMBOL );
+      auto sam_asset_accumulator = asset( 0, freezone_SYMBOL );
 
       auto alice_contribution_counter = 0;
       auto bob_contribution_counter = 0;
@@ -2981,63 +2981,63 @@ BOOST_AUTO_TEST_CASE( smt_contribute_apply )
 
       db_plugin->debug_update( [=] ( database& db )
       {
-         db.create< smt_token_object >( [&]( smt_token_object& o )
+         db.create< SST_token_object >( [&]( SST_token_object& o )
          {
             o.control_account = "alice";
             o.liquid_symbol = alice_symbol;
          } );
 
-         db.create< smt_ico_object >( [&]( smt_ico_object& o )
+         db.create< SST_ico_object >( [&]( SST_ico_object& o )
          {
             o.symbol = alice_symbol;
          } );
 
-         db.create< smt_ico_tier_object >( [&]( smt_ico_tier_object& o )
+         db.create< SST_ico_tier_object >( [&]( SST_ico_tier_object& o )
          {
             o.symbol = alice_symbol;
-            o.steem_satoshi_cap = 1000;
+            o.freezone_satoshi_cap = 1000;
          } );
 
-         db.create< smt_ico_tier_object >( [&]( smt_ico_tier_object& o )
+         db.create< SST_ico_tier_object >( [&]( SST_ico_tier_object& o )
          {
             o.symbol = alice_symbol;
-            o.steem_satoshi_cap = 99000;
+            o.freezone_satoshi_cap = 99000;
          } );
       } );
 
-      smt_contribute_operation bob_op;
+      SST_contribute_operation bob_op;
       bob_op.contributor = "bob";
-      bob_op.contribution = asset( 1000, STEEM_SYMBOL );
+      bob_op.contribution = asset( 1000, freezone_SYMBOL );
       bob_op.contribution_id = bob_contribution_counter;
       bob_op.symbol = alice_symbol;
 
-      smt_contribute_operation alice_op;
+      SST_contribute_operation alice_op;
       alice_op.contributor = "alice";
-      alice_op.contribution = asset( 2000, STEEM_SYMBOL );
+      alice_op.contribution = asset( 2000, freezone_SYMBOL );
       alice_op.contribution_id = alice_contribution_counter;
       alice_op.symbol = alice_symbol;
 
-      smt_contribute_operation sam_op;
+      SST_contribute_operation sam_op;
       sam_op.contributor = "sam";
-      sam_op.contribution = asset( 3000, STEEM_SYMBOL );
+      sam_op.contribution = asset( 3000, freezone_SYMBOL );
       sam_op.contribution_id = sam_contribution_counter;
       sam_op.symbol = alice_symbol;
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT not in contribution phase" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST not in contribution phase" );
       FAIL_WITH_OP( bob_op, bob_private_key, fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT not in contribution phase" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST not in contribution phase" );
       FAIL_WITH_OP( alice_op, alice_private_key, fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT not in contribution phase" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST not in contribution phase" );
       FAIL_WITH_OP( sam_op, sam_private_key, fc::assert_exception );
 
       db_plugin->debug_update( [=] ( database& db )
       {
-         const smt_token_object *token = util::smt::find_token( db, alice_symbol );
-         db.modify( *token, [&]( smt_token_object& o )
+         const SST_token_object *token = util::SST::find_token( db, alice_symbol );
+         db.modify( *token, [&]( SST_token_object& o )
          {
-            o.phase = smt_phase::ico;
+            o.phase = SST_phase::ico;
          } );
       } );
 
@@ -3121,34 +3121,34 @@ BOOST_AUTO_TEST_CASE( smt_contribute_apply )
 
       db_plugin->debug_update( [=] ( database& db )
       {
-         const smt_token_object *token = util::smt::find_token( db, alice_symbol );
-         db.modify( *token, [&]( smt_token_object& o )
+         const SST_token_object *token = util::SST::find_token( db, alice_symbol );
+         db.modify( *token, [&]( SST_token_object& o )
          {
-            o.phase = smt_phase::ico_completed;
+            o.phase = SST_phase::ico_completed;
          } );
       } );
 
-      BOOST_TEST_MESSAGE( " -- Failure SMT contribution phase has ended" );
+      BOOST_TEST_MESSAGE( " -- Failure SST contribution phase has ended" );
       alice_op.contribution_id = alice_contribution_counter;
       FAIL_WITH_OP( alice_op, alice_private_key, fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure SMT contribution phase has ended" );
+      BOOST_TEST_MESSAGE( " -- Failure SST contribution phase has ended" );
       bob_op.contribution_id = bob_contribution_counter;
       FAIL_WITH_OP( bob_op, bob_private_key, fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure SMT contribution phase has ended" );
+      BOOST_TEST_MESSAGE( " -- Failure SST contribution phase has ended" );
       sam_op.contribution_id = sam_contribution_counter;
       FAIL_WITH_OP( sam_op, sam_private_key, fc::assert_exception );
 
-      auto alices_contributions = asset( 0, STEEM_SYMBOL );
-      auto bobs_contributions = asset( 0, STEEM_SYMBOL );
-      auto sams_contributions = asset( 0, STEEM_SYMBOL );
+      auto alices_contributions = asset( 0, freezone_SYMBOL );
+      auto bobs_contributions = asset( 0, freezone_SYMBOL );
+      auto sams_contributions = asset( 0, freezone_SYMBOL );
 
       auto alices_num_contributions = 0;
       auto bobs_num_contributions = 0;
       auto sams_num_contributions = 0;
 
-      const auto& idx = db->get_index< smt_contribution_index, by_symbol_contributor >();
+      const auto& idx = db->get_index< SST_contribution_index, by_symbol_contributor >();
 
       auto itr = idx.lower_bound( boost::make_tuple( alice_symbol, account_name_type( "alice" ), 0 ) );
       while( itr != idx.end() && itr->contributor == account_name_type( "alice" ) )
@@ -3185,12 +3185,12 @@ BOOST_AUTO_TEST_CASE( smt_contribute_apply )
       BOOST_REQUIRE( sams_num_contributions == sam_contribution_counter );
 
       BOOST_TEST_MESSAGE( " -- Checking account balances" );
-      BOOST_REQUIRE( db->get_balance( "alice", STEEM_SYMBOL ) == ASSET( "1000.000 TESTS" ) - alice_asset_accumulator );
-      BOOST_REQUIRE( db->get_balance( "bob", STEEM_SYMBOL ) == ASSET( "1000.000 TESTS" ) - bob_asset_accumulator );
-      BOOST_REQUIRE( db->get_balance( "sam", STEEM_SYMBOL ) == ASSET( "1000.000 TESTS" ) - sam_asset_accumulator );
+      BOOST_REQUIRE( db->get_balance( "alice", freezone_SYMBOL ) == ASSET( "1000.000 TESTS" ) - alice_asset_accumulator );
+      BOOST_REQUIRE( db->get_balance( "bob", freezone_SYMBOL ) == ASSET( "1000.000 TESTS" ) - bob_asset_accumulator );
+      BOOST_REQUIRE( db->get_balance( "sam", freezone_SYMBOL ) == ASSET( "1000.000 TESTS" ) - sam_asset_accumulator );
 
       BOOST_TEST_MESSAGE( " -- Checking ICO total contributions" );
-      const auto* ico_obj = db->find< smt_ico_object, by_symbol >( alice_symbol );
+      const auto* ico_obj = db->find< SST_ico_object, by_symbol >( alice_symbol );
       BOOST_REQUIRE( ico_obj->contributed == alice_asset_accumulator + bob_asset_accumulator + sam_asset_accumulator );
 
       validate_database();
@@ -3198,13 +3198,13 @@ BOOST_AUTO_TEST_CASE( smt_contribute_apply )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_transfer_validate )
+BOOST_AUTO_TEST_CASE( SST_transfer_validate )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_transfer_validate" );
+      BOOST_TEST_MESSAGE( "Testing: SST_transfer_validate" );
       ACTORS( (alice) )
-      auto symbol = create_smt( "alice", alice_private_key, 3 );
+      auto symbol = create_SST( "alice", alice_private_key, 3 );
 
       transfer_operation op;
       op.from = "alice";
@@ -3215,30 +3215,30 @@ BOOST_AUTO_TEST_CASE( smt_transfer_validate )
 
       BOOST_TEST_MESSAGE( " --- Invalid from account" );
       op.from = "alice-";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.from = "alice";
 
       BOOST_TEST_MESSAGE( " --- Invalid to account" );
       op.to = "bob-";
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.to = "bob";
 
       BOOST_TEST_MESSAGE( " --- Memo too long" );
       std::string memo;
-      for ( int i = 0; i < STEEM_MAX_MEMO_SIZE + 1; i++ )
+      for ( int i = 0; i < freezone_MAX_MEMO_SIZE + 1; i++ )
          memo += "x";
       op.memo = memo;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.memo = "Memo";
 
       BOOST_TEST_MESSAGE( " --- Negative amount" );
       op.amount = -op.amount;
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.amount = -op.amount;
 
       BOOST_TEST_MESSAGE( " --- Transferring vests" );
       op.amount = asset( 100, symbol.get_paired_symbol() );
-      STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+      freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.amount = asset( 100, symbol );
 
       op.validate();
@@ -3246,16 +3246,16 @@ BOOST_AUTO_TEST_CASE( smt_transfer_validate )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_transfer_apply )
+BOOST_AUTO_TEST_CASE( SST_transfer_apply )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_transfer_apply" );
+      BOOST_TEST_MESSAGE( "Testing: SST_transfer_apply" );
 
       ACTORS( (alice)(bob) )
       generate_block();
 
-      auto symbol = create_smt( "alice", alice_private_key, 3 );
+      auto symbol = create_SST( "alice", alice_private_key, 3 );
 
       fund( "alice", asset( 10000, symbol ) );
 
@@ -3271,7 +3271,7 @@ BOOST_AUTO_TEST_CASE( smt_transfer_apply )
 
       BOOST_TEST_MESSAGE( "--- Test normal transaction" );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
@@ -3290,7 +3290,7 @@ BOOST_AUTO_TEST_CASE( smt_transfer_apply )
       tx.signatures.clear();
       tx.operations.clear();
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, database::skip_transaction_dupe_check );
 
@@ -3302,9 +3302,9 @@ BOOST_AUTO_TEST_CASE( smt_transfer_apply )
       tx.signatures.clear();
       tx.operations.clear();
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), fc::exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, database::skip_transaction_dupe_check ), fc::exception );
 
       BOOST_REQUIRE( db->get_balance( "alice", symbol ) == asset( 0, symbol ) );
       BOOST_REQUIRE( db->get_balance( "bob", symbol ) == asset( 10000, symbol ) );
@@ -3313,25 +3313,25 @@ BOOST_AUTO_TEST_CASE( smt_transfer_apply )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_validate )
+BOOST_AUTO_TEST_CASE( SST_setup_validate )
 {
    ACTORS( (alice) )
    generate_block();
 
-   BOOST_TEST_MESSAGE( "Testing: smt_setup_operation validate" );
+   BOOST_TEST_MESSAGE( "Testing: SST_setup_operation validate" );
 
-   smt_setup_operation op;
+   SST_setup_operation op;
    op.control_account = "alice";
-   op.symbol = create_smt( "alice", alice_private_key, 3 );
+   op.symbol = create_SST( "alice", alice_private_key, 3 );
 
    op.contribution_begin_time = fc::variant( "2020-12-21T00:00:00" ).as< fc::time_point_sec >();
    op.contribution_end_time   = op.contribution_begin_time + fc::days( 365 );
 
    op.launch_time = op.contribution_end_time + fc::days( 1 );
-   op.max_supply  = STEEM_MAX_SHARE_SUPPLY;
+   op.max_supply  = freezone_MAX_SHARE_SUPPLY;
    op.min_unit_ratio  = 50;
    op.max_unit_ratio  = 100;
-   op.steem_satoshi_min = 0;
+   op.freezone_satoshi_min = 0;
 
    op.validate();
 
@@ -3350,19 +3350,19 @@ BOOST_AUTO_TEST_CASE( smt_setup_validate )
    BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
    op.launch_time = op.contribution_end_time + fc::days( 1 );
 
-   BOOST_TEST_MESSAGE( " -- Failure on max_supply > STEEM_MAX_SHARE_SUPPLY" );
-   op.max_supply = STEEM_MAX_SHARE_SUPPLY + 1;
+   BOOST_TEST_MESSAGE( " -- Failure on max_supply > freezone_MAX_SHARE_SUPPLY" );
+   op.max_supply = freezone_MAX_SHARE_SUPPLY + 1;
    BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
-   op.max_supply = STEEM_MAX_SHARE_SUPPLY;
+   op.max_supply = freezone_MAX_SHARE_SUPPLY;
 
    BOOST_TEST_MESSAGE( " -- Successful sanity check" );
    op.validate();
 }
 
 
-BOOST_AUTO_TEST_CASE( smt_setup_authorities )
+BOOST_AUTO_TEST_CASE( SST_setup_authorities )
 {
-   smt_setup_operation op;
+   SST_setup_operation op;
    op.control_account = "alice";
 
    flat_set< account_name_type > auths;
@@ -3379,35 +3379,35 @@ BOOST_AUTO_TEST_CASE( smt_setup_authorities )
    BOOST_REQUIRE( auths == expected );
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_apply )
+BOOST_AUTO_TEST_CASE( SST_setup_apply )
 {
-   BOOST_TEST_MESSAGE( "Testing: smt_setup_operation apply" );
+   BOOST_TEST_MESSAGE( "Testing: SST_setup_operation apply" );
    ACTORS( (alice)(bob)(sam)(dave) )
 
    generate_block();
 
-   BOOST_TEST_MESSAGE( " -- SMT creation" );
-   auto symbol = create_smt( "alice", alice_private_key, 3 );
+   BOOST_TEST_MESSAGE( " -- SST creation" );
+   auto symbol = create_SST( "alice", alice_private_key, 3 );
 
-   BOOST_TEST_MESSAGE( " -- SMT setup" );
+   BOOST_TEST_MESSAGE( " -- SST setup" );
    signed_transaction tx;
-   smt_setup_operation setup_op;
+   SST_setup_operation setup_op;
 
    setup_op.control_account = "alice";
    setup_op.symbol = symbol;
-   setup_op.contribution_begin_time = db->head_block_time() + STEEM_BLOCK_INTERVAL;
+   setup_op.contribution_begin_time = db->head_block_time() + freezone_BLOCK_INTERVAL;
    setup_op.contribution_end_time   = setup_op.contribution_begin_time + fc::days( 30 );
-   setup_op.steem_satoshi_min       = 0;
+   setup_op.freezone_satoshi_min       = 0;
    setup_op.min_unit_ratio = 50;
    setup_op.max_unit_ratio = 100;
-   setup_op.max_supply = STEEM_MAX_SHARE_SUPPLY;
+   setup_op.max_supply = freezone_MAX_SHARE_SUPPLY;
    setup_op.launch_time = setup_op.contribution_end_time + fc::days( 1 );
 
    setup_op.control_account = "alice";
 
-   BOOST_TEST_MESSAGE( " -- Success on valid SMT setup" );
+   BOOST_TEST_MESSAGE( " -- Success on valid SST setup" );
    tx.operations.push_back( setup_op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
 
@@ -3423,11 +3423,11 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_validate )
 
       generate_block();
 
-      std::array< asset_symbol_type, SMT_MAX_VOTABLE_ASSETS + 1 > smts;
+      std::array< asset_symbol_type, SST_MAX_VOTABLE_ASSETS + 1 > SSTs;
       /// Create one more than limit to test negative cases
-      for( size_t i = 0; i < SMT_MAX_VOTABLE_ASSETS + 1; ++i )
+      for( size_t i = 0; i < SST_MAX_VOTABLE_ASSETS + 1; ++i )
       {
-         smts[i] = create_smt( "alice", alice_private_key, 0 );
+         SSTs[i] = create_SST( "alice", alice_private_key, 0 );
       }
 
       {
@@ -3450,9 +3450,9 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_validate )
 
          BOOST_TEST_MESSAGE( "--- Testing valid configuration of votable_assets" );
          allowed_vote_assets ava;
-         for( size_t i = 0; i < SMT_MAX_VOTABLE_ASSETS; ++i )
+         for( size_t i = 0; i < SST_MAX_VOTABLE_ASSETS; ++i )
          {
-            ava.add_votable_asset( smts[i], 10 + i, (i & 2) != 0 );
+            ava.add_votable_asset( SSTs[i], 10 + i, (i & 2) != 0 );
          }
 
          op.extensions.insert( ava );
@@ -3467,13 +3467,13 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_validate )
 
          BOOST_TEST_MESSAGE( "--- Testing invalid configuration of votable_assets - too much assets specified" );
          allowed_vote_assets ava;
-         for( size_t i = 0; i < smts.size(); ++i )
+         for( size_t i = 0; i < SSTs.size(); ++i )
          {
-            ava.add_votable_asset( smts[i], 20 + i, (i & 2) != 0 );
+            ava.add_votable_asset( SSTs[i], 20 + i, (i & 2) != 0 );
          }
 
          op.extensions.insert( ava );
-         STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+         freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       }
 
       {
@@ -3482,12 +3482,12 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_validate )
          op.author = "alice";
          op.permlink = "test";
 
-         BOOST_TEST_MESSAGE( "--- Testing invalid configuration of votable_assets - STEEM added to container" );
+         BOOST_TEST_MESSAGE( "--- Testing invalid configuration of votable_assets - freezone added to container" );
          allowed_vote_assets ava;
-         ava.add_votable_asset( smts.front(), 20, false);
-         ava.add_votable_asset( STEEM_SYMBOL, 20, true);
+         ava.add_votable_asset( SSTs.front(), 20, false);
+         ava.add_votable_asset( freezone_SYMBOL, 20, true);
          op.extensions.insert( ava );
-         STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+         freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
       }
 
       {
@@ -3498,21 +3498,21 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_validate )
 
          BOOST_TEST_MESSAGE( "--- Testing more than 100% weight on a single route" );
          allowed_vote_assets ava;
-         ava.add_votable_asset( smts[0], 10, true );
+         ava.add_votable_asset( SSTs[0], 10, true );
 
-         auto& b = ava.votable_assets[smts[0]].beneficiaries;
+         auto& b = ava.votable_assets[SSTs[0]].beneficiaries;
 
-         b.beneficiaries.push_back( beneficiary_route_type( account_name_type( "bob" ), STEEM_100_PERCENT + 1 ) );
+         b.beneficiaries.push_back( beneficiary_route_type( account_name_type( "bob" ), freezone_100_PERCENT + 1 ) );
          op.extensions.insert( ava );
-         STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+         freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
          BOOST_TEST_MESSAGE( "--- Testing more than 100% total weight" );
          b.beneficiaries.clear();
-         b.beneficiaries.push_back( beneficiary_route_type( account_name_type( "bob" ), STEEM_1_PERCENT * 75 ) );
-         b.beneficiaries.push_back( beneficiary_route_type( account_name_type( "sam" ), STEEM_1_PERCENT * 75 ) );
+         b.beneficiaries.push_back( beneficiary_route_type( account_name_type( "bob" ), freezone_1_PERCENT * 75 ) );
+         b.beneficiaries.push_back( beneficiary_route_type( account_name_type( "sam" ), freezone_1_PERCENT * 75 ) );
          op.extensions.clear();
          op.extensions.insert( ava );
-         STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+         freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
          BOOST_TEST_MESSAGE( "--- Testing maximum number of routes" );
          b.beneficiaries.clear();
@@ -3531,29 +3531,29 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_validate )
          std::sort( b.beneficiaries.begin(), b.beneficiaries.end() );
          op.extensions.clear();
          op.extensions.insert( ava );
-         STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+         freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
 
          BOOST_TEST_MESSAGE( "--- Testing duplicate accounts" );
          b.beneficiaries.clear();
-         b.beneficiaries.push_back( beneficiary_route_type( "bob", STEEM_1_PERCENT * 2 ) );
-         b.beneficiaries.push_back( beneficiary_route_type( "bob", STEEM_1_PERCENT ) );
+         b.beneficiaries.push_back( beneficiary_route_type( "bob", freezone_1_PERCENT * 2 ) );
+         b.beneficiaries.push_back( beneficiary_route_type( "bob", freezone_1_PERCENT ) );
          op.extensions.clear();
          op.extensions.insert( ava );
-         STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+         freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
          BOOST_TEST_MESSAGE( "--- Testing incorrect account sort order" );
          b.beneficiaries.clear();
-         b.beneficiaries.push_back( beneficiary_route_type( "bob", STEEM_1_PERCENT ) );
-         b.beneficiaries.push_back( beneficiary_route_type( "alice", STEEM_1_PERCENT ) );
+         b.beneficiaries.push_back( beneficiary_route_type( "bob", freezone_1_PERCENT ) );
+         b.beneficiaries.push_back( beneficiary_route_type( "alice", freezone_1_PERCENT ) );
          op.extensions.clear();
          op.extensions.insert( ava );
-         STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+         freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
          BOOST_TEST_MESSAGE( "--- Testing correct account sort order" );
          b.beneficiaries.clear();
-         b.beneficiaries.push_back( beneficiary_route_type( "alice", STEEM_1_PERCENT ) );
-         b.beneficiaries.push_back( beneficiary_route_type( "bob", STEEM_1_PERCENT ) );
+         b.beneficiaries.push_back( beneficiary_route_type( "alice", freezone_1_PERCENT ) );
+         b.beneficiaries.push_back( beneficiary_route_type( "bob", freezone_1_PERCENT ) );
          op.extensions.clear();
          op.extensions.insert( ava );
          op.validate();
@@ -3569,7 +3569,7 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       BOOST_TEST_MESSAGE( "Testing: comment votable assets apply" );
       ACTORS( (alice)(bob) );
 
-      SMT_SYMBOL( alice, 3, db );
+      SST_SYMBOL( alice, 3, db );
       generate_block();
 
       comment_operation comment;
@@ -3585,12 +3585,12 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       comment.body = "foobar";
 
       tx.operations.push_back( comment );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx );
 
 
-      BOOST_TEST_MESSAGE( "--- Failure when SMT does not exist" );
+      BOOST_TEST_MESSAGE( "--- Failure when SST does not exist" );
 
       op.author = "alice";
       op.permlink = "test";
@@ -3599,30 +3599,30 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
 
-      BOOST_TEST_MESSAGE( "--- Failure when SMT is not launched" );
+      BOOST_TEST_MESSAGE( "--- Failure when SST is not launched" );
 
-      alice_symbol = create_smt( "alice", alice_private_key, 3 );
+      alice_symbol = create_SST( "alice", alice_private_key, 3 );
       ava.votable_assets.clear();
       ava.votable_assets[ alice_symbol ] = opts;
       op.extensions.clear();
       op.extensions.insert( ava );
       tx.clear();
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
       BOOST_TEST_MESSAGE( "--- Success" );
 
       generate_block();
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( alice_symbol ), [=]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( alice_symbol ), [=]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::launch_success;
+            SST.phase = SST_phase::launch_success;
          });
       });
       generate_block();
@@ -3645,14 +3645,14 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
          BOOST_REQUIRE( va_opts->second.max_accepted_payout == opts.max_accepted_payout );
          BOOST_REQUIRE( va_opts->second.allow_curation_rewards == opts.allow_curation_rewards );
 
-         const auto beneficiaries = db->find< comment_smt_beneficiaries_object, by_comment_symbol >( boost::make_tuple( alice_comment.id, alice_symbol ) );
+         const auto beneficiaries = db->find< comment_SST_beneficiaries_object, by_comment_symbol >( boost::make_tuple( alice_comment.id, alice_symbol ) );
          BOOST_REQUIRE( beneficiaries == nullptr );
       }
 
 
       BOOST_TEST_MESSAGE( "--- Failure with non-existent beneficiary" );
 
-      opts.beneficiaries.beneficiaries.push_back( beneficiary_route_type{ "charlie", STEEM_100_PERCENT } );
+      opts.beneficiaries.beneficiaries.push_back( beneficiary_route_type{ "charlie", freezone_100_PERCENT } );
       ava.votable_assets.clear();
       ava.votable_assets[ alice_symbol ] = opts;
       op.extensions.clear();
@@ -3660,13 +3660,13 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
 
       BOOST_TEST_MESSAGE( "--- Success changing when rshares are 0" );
 
       opts.beneficiaries.beneficiaries.clear();
-      opts.beneficiaries.beneficiaries.push_back( beneficiary_route_type{ "bob", STEEM_100_PERCENT } );
+      opts.beneficiaries.beneficiaries.push_back( beneficiary_route_type{ "bob", freezone_100_PERCENT } );
       opts.max_accepted_payout = 100;
       opts.allow_curation_rewards = false;
       ava.votable_assets.clear();
@@ -3685,7 +3685,7 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
          BOOST_REQUIRE( va_opts->second.max_accepted_payout == opts.max_accepted_payout );
          BOOST_REQUIRE( va_opts->second.allow_curation_rewards == opts.allow_curation_rewards );
 
-         const auto beneficiaries = db->find< comment_smt_beneficiaries_object, by_comment_symbol >( boost::make_tuple( alice_comment.id, alice_symbol ) );
+         const auto beneficiaries = db->find< comment_SST_beneficiaries_object, by_comment_symbol >( boost::make_tuple( alice_comment.id, alice_symbol ) );
          BOOST_REQUIRE( beneficiaries != nullptr );
          BOOST_REQUIRE( beneficiaries->beneficiaries.size() == 1 );
       }
@@ -3712,19 +3712,19 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, alice_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
 
       BOOST_TEST_MESSAGE( "--- Failure specifying non-inherited votable asset" );
 
       generate_block();
-      auto bob_symbol = create_smt( "bob", bob_private_key, 3 );
+      auto bob_symbol = create_SST( "bob", bob_private_key, 3 );
       generate_block();
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( bob_symbol ), [=]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( bob_symbol ), [=]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::launch_success;
+            SST.phase = SST_phase::launch_success;
          });
       });
       generate_block();
@@ -3734,7 +3734,7 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       comment.author = "bob";
       tx.clear();
       tx.operations.push_back( comment );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, bob_private_key );
       db->push_transaction( tx, 0 );
 
@@ -3746,7 +3746,7 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       tx.clear();
       tx.operations.push_back( op );
       sign( tx, bob_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
 
       BOOST_TEST_MESSAGE( "--- Success specifying inherited votable asset" );
@@ -3761,14 +3761,14 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       db->push_transaction( tx, 0 );
 
 
-      BOOST_TEST_MESSAGE( "--- Failure specifying an SMT that disallows voting" );
+      BOOST_TEST_MESSAGE( "--- Failure specifying an SST that disallows voting" );
 
       generate_block();
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( bob_symbol ), [=]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( bob_symbol ), [=]( SST_token_object& SST )
          {
-            smt.allow_voting = false;
+            SST.allow_voting = false;
          });
       });
       generate_block();
@@ -3786,16 +3786,16 @@ BOOST_AUTO_TEST_CASE( comment_votable_assets_apply )
       tx.operations.push_back( comment );
       tx.operations.push_back( op );
       sign( tx, bob_private_key );
-      STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
+      freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_validate )
+BOOST_AUTO_TEST_CASE( SST_delegate_vesting_shares_validate )
 {
-   BOOST_TEST_MESSAGE( "Testing: smt_delegate_vesting_shares_validate" );
+   BOOST_TEST_MESSAGE( "Testing: SST_delegate_vesting_shares_validate" );
    ACTORS( (alice) )
-   auto symbol = create_smt( "alice", alice_private_key, 3 );
+   auto symbol = create_SST( "alice", alice_private_key, 3 );
 
    delegate_vesting_shares_operation op;
 
@@ -3806,36 +3806,36 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_validate )
 
    BOOST_TEST_MESSAGE( " --- Invalid vesting_shares amount" );
    op.vesting_shares = asset( -1, symbol.get_paired_symbol() );
-   STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+   freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
    BOOST_TEST_MESSAGE( " --- Invalid vesting_shares symbol (non-vesting)" );
    op.vesting_shares = asset( 0, symbol );
-   STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+   freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
    op.vesting_shares = asset( 0, symbol.get_paired_symbol() );
 
    BOOST_TEST_MESSAGE( " --- Invalid delegator account" );
    op.delegator = "alice-";
-   STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+   freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
    op.delegator = "alice";
 
    BOOST_TEST_MESSAGE( " --- Invalid to account" );
    op.delegatee = "bob-";
-   STEEM_REQUIRE_THROW( op.validate(), fc::assert_exception );
+   freezone_REQUIRE_THROW( op.validate(), fc::assert_exception );
    op.delegatee = "bob";
 
    op.validate();
 }
 
-BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
+BOOST_AUTO_TEST_CASE( SST_delegate_vesting_shares_apply )
 {
-   BOOST_TEST_MESSAGE( "Testing: smt_delegate_vesting_shares_apply" );
+   BOOST_TEST_MESSAGE( "Testing: SST_delegate_vesting_shares_apply" );
    signed_transaction tx;
    ACTORS( (alice)(bob)(charlie)(creator) )
    generate_block();
 
-   auto symbol = create_smt( "creator", creator_private_key, 3 );
-   fund( STEEM_INIT_MINER_NAME, asset( 10000000, symbol ) );
-   vest( STEEM_INIT_MINER_NAME, "alice", asset( 10000000, symbol ) );
+   auto symbol = create_SST( "creator", creator_private_key, 3 );
+   fund( freezone_INIT_MINER_NAME, asset( 10000000, symbol ) );
+   vest( freezone_INIT_MINER_NAME, "alice", asset( 10000000, symbol ) );
 
    generate_block();
 
@@ -3844,7 +3844,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    op.delegator = "alice";
    op.delegatee = "bob";
 
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    tx.operations.push_back( op );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
@@ -3865,7 +3865,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    validate_database();
    tx.clear();
    op.vesting_shares = asset( 2000000000000, symbol.get_paired_symbol() );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    tx.operations.push_back( op );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
@@ -3893,15 +3893,15 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
 
    db_plugin->debug_update( [=]( database& db )
    {
-      db.modify( db.get< smt_token_object, by_symbol >( symbol ), [=]( smt_token_object& smt )
+      db.modify( db.get< SST_token_object, by_symbol >( symbol ), [=]( SST_token_object& SST )
       {
-         smt.phase = smt_phase::launch_success;
+         SST.phase = SST_phase::launch_success;
       } );
    } );
    generate_block();
 
    util::manabar old_manabar = bob_acc.voting_manabar;
-   util::manabar_params params( util::get_effective_vesting_shares( bob_acc ), STEEM_VOTING_MANA_REGENERATION_SECONDS );
+   util::manabar_params params( util::get_effective_vesting_shares( bob_acc ), freezone_VOTING_MANA_REGENERATION_SECONDS );
    old_manabar.regenerate_mana( params, db->head_block_time() );
 
    comment_operation comment_op;
@@ -3920,7 +3920,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    comment_opts.extensions.insert( ava );
    tx.operations.push_back( comment_opts );
 
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
    tx.signatures.clear();
@@ -3930,7 +3930,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    vote_op.author = "alice";
    vote_op.permlink = "foo";
    vote_op.rshares[ symbol ] = util::get_effective_vesting_shares( bob_acc ) / 50;
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    tx.operations.push_back( vote_op );
    sign( tx, bob_private_key );
 
@@ -3941,8 +3941,8 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
 
    auto& alice_comment = db->get_comment( "alice", string( "foo" ) );
    auto itr = vote_idx.find( boost::make_tuple( alice_comment.id, db->get_account("bob").id, symbol ) );
-   BOOST_REQUIRE( alice_comment.smt_rshares.find( symbol )->second.net_rshares.value == old_manabar.current_mana - bob_acc.voting_manabar.current_mana - STEEM_VOTE_DUST_THRESHOLD );
-   BOOST_REQUIRE( itr->rshares == old_manabar.current_mana - bob_acc.voting_manabar.current_mana - STEEM_VOTE_DUST_THRESHOLD );
+   BOOST_REQUIRE( alice_comment.SST_rshares.find( symbol )->second.net_rshares.value == old_manabar.current_mana - bob_acc.voting_manabar.current_mana - freezone_VOTE_DUST_THRESHOLD );
+   BOOST_REQUIRE( itr->rshares == old_manabar.current_mana - bob_acc.voting_manabar.current_mana - freezone_VOTE_DUST_THRESHOLD );
 
    generate_block();
    ACTORS( (sam)(dave) )
@@ -3959,9 +3959,9 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    tx.clear();
    op.delegator = "sam";
    op.delegatee = "dave";
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, sam_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
 
 
    BOOST_TEST_MESSAGE( "--- Testing failure delegating more vesting shares than account has." );
@@ -3969,7 +3969,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    op.vesting_shares = asset( sam_vest.amount + 1, symbol.get_paired_symbol() );
    tx.operations.push_back( op );
    sign( tx, sam_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
 
 
    BOOST_TEST_MESSAGE( "--- Test failure delegating vesting shares that are part of a power down" );
@@ -3986,7 +3986,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    op.vesting_shares = asset( sam_vest.amount + 2, symbol.get_paired_symbol() );
    tx.operations.push_back( op );
    sign( tx, sam_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
 
    tx.clear();
    withdraw.vesting_shares = asset( 0, symbol.get_paired_symbol() );
@@ -4007,7 +4007,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    withdraw.vesting_shares = asset( sam_vest.amount, symbol.get_paired_symbol() );
    tx.operations.push_back( withdraw );
    sign( tx, sam_private_key );
-   STEEM_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
+   freezone_REQUIRE_THROW( db->push_transaction( tx ), fc::assert_exception );
 
 
    BOOST_TEST_MESSAGE( "--- Remove a delegation and ensure it is returned after 1 week" );
@@ -4024,7 +4024,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    const auto& sam_acc = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", symbol ) );
    const auto& dave_acc = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "dave", symbol ) );
 
-   BOOST_REQUIRE( gpo.delegation_return_period == STEEM_DELEGATION_RETURN_PERIOD_HF20 );
+   BOOST_REQUIRE( gpo.delegation_return_period == freezone_DELEGATION_RETURN_PERIOD_HF20 );
 
    BOOST_REQUIRE( exp_obj != end );
    BOOST_REQUIRE( exp_obj->delegator == "sam" );
@@ -4035,7 +4035,7 @@ BOOST_AUTO_TEST_CASE( smt_delegate_vesting_shares_apply )
    delegation = db->find< vesting_delegation_object, by_delegation >( boost::make_tuple( op.delegator, op.delegatee, op.vesting_shares.symbol.get_paired_symbol() ) );
    BOOST_REQUIRE( delegation == nullptr );
 
-   generate_blocks( exp_obj->expiration + STEEM_BLOCK_INTERVAL );
+   generate_blocks( exp_obj->expiration + freezone_BLOCK_INTERVAL );
 
    exp_obj = db->get_index< vesting_delegation_expiration_index, by_id >().begin();
    end = db->get_index< vesting_delegation_expiration_index, by_id >().end();
@@ -4078,14 +4078,14 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
       ACTORS( (alice)(bob)(sam)(dave) )
       generate_block();
 
-      auto alice_symbol = create_smt( "alice", alice_private_key, 3 );
-      auto bob_symbol   = create_smt( "bob", bob_private_key, 3 );
+      auto alice_symbol = create_SST( "alice", alice_private_key, 3 );
+      auto bob_symbol   = create_SST( "bob", bob_private_key, 3 );
 
-      vest( STEEM_INIT_MINER_NAME, "alice", ASSET( "10.000 TESTS" ) );
+      vest( freezone_INIT_MINER_NAME, "alice", ASSET( "10.000 TESTS" ) );
       validate_database();
-      vest( STEEM_INIT_MINER_NAME, "bob" , ASSET( "10.000 TESTS" ) );
-      vest( STEEM_INIT_MINER_NAME, "sam" , ASSET( "10.000 TESTS" ) );
-      vest( STEEM_INIT_MINER_NAME, "dave" , ASSET( "10.000 TESTS" ) );
+      vest( freezone_INIT_MINER_NAME, "bob" , ASSET( "10.000 TESTS" ) );
+      vest( freezone_INIT_MINER_NAME, "sam" , ASSET( "10.000 TESTS" ) );
+      vest( freezone_INIT_MINER_NAME, "dave" , ASSET( "10.000 TESTS" ) );
 
       db_plugin->debug_update( [=]( database& db )
       {
@@ -4096,22 +4096,22 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
 
          auto bob_vests = db.create_vesting( db.get_account( "alice" ), asset( 100000, bob_symbol ), false );
 
-         db.modify( db.get< smt_token_object, by_symbol >( alice_symbol ), [=]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( alice_symbol ), [=]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::launch_success;
-            smt.current_supply = 40000;
-            smt.total_vesting_shares = alice_vests.amount;
-            smt.total_vesting_fund_smt = 40000;
-            smt.votes_per_regeneration_period = 50;
-            smt.vote_regeneration_period_seconds = 5*24*60*60;
+            SST.phase = SST_phase::launch_success;
+            SST.current_supply = 40000;
+            SST.total_vesting_shares = alice_vests.amount;
+            SST.total_vesting_fund_SST = 40000;
+            SST.votes_per_regeneration_period = 50;
+            SST.vote_regeneration_period_seconds = 5*24*60*60;
          });
 
-         db.modify( db.get< smt_token_object, by_symbol >( bob_symbol ), [=]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( bob_symbol ), [=]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::launch_success;
-            smt.current_supply = 10000;
-            smt.total_vesting_shares = bob_vests.amount;
-            smt.total_vesting_fund_smt = 10000;
+            SST.phase = SST_phase::launch_success;
+            SST.current_supply = 10000;
+            SST.total_vesting_shares = bob_vests.amount;
+            SST.total_vesting_fund_SST = 10000;
          });
       });
       generate_block();
@@ -4120,7 +4120,7 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
 
       {
          const auto& alice = db->get_account( "alice" );
-         const auto& alice_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
+         const auto& alice_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
 
          signed_transaction tx;
          comment_operation comment_op;
@@ -4137,7 +4137,7 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
          comment_opts.extensions.insert( ava );
          tx.operations.push_back( comment_op );
          tx.operations.push_back( comment_opts );
-         tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+         tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
          sign( tx, alice_private_key );
          db->push_transaction( tx, 0 );
 
@@ -4151,39 +4151,39 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
          op.voter = "alice";
          op.author = "bob";
          op.permlink = "foo";
-         op.rshares[ STEEM_SYMBOL ] = alice.vesting_shares.amount.value / 50;
+         op.rshares[ freezone_SYMBOL ] = alice.vesting_shares.amount.value / 50;
          tx.operations.push_back( op );
          sign( tx, alice_private_key );
 
-         STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+         freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
          validate_database();
 
 
          BOOST_TEST_MESSAGE( "--- Testing voting with 0 rshares" );
 
-         op.rshares[ STEEM_SYMBOL ] = 0;
+         op.rshares[ freezone_SYMBOL ] = 0;
          tx.operations.clear();
          tx.signatures.clear();
          tx.operations.push_back( op );
          sign( tx, alice_private_key );
 
-         STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+         freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
          validate_database();
 
 
-         BOOST_TEST_MESSAGE( "--- Testing voting with a non-existent SMT" );
+         BOOST_TEST_MESSAGE( "--- Testing voting with a non-existent SST" );
 
-         SMT_SYMBOL( sam, 3, db );
-         op.rshares[ STEEM_SYMBOL ] = alice.vesting_shares.amount.value / 50;
+         SST_SYMBOL( sam, 3, db );
+         op.rshares[ freezone_SYMBOL ] = alice.vesting_shares.amount.value / 50;
          op.author = "alice";
          op.rshares[ sam_symbol ] = 1;
          tx.clear();
          tx.operations.push_back( op );
          sign( tx, alice_private_key );
 
-         STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+         freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
          validate_database();
 
@@ -4195,24 +4195,24 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
          tx.operations.push_back( op );
          sign( tx, alice_private_key );
 
-         STEEM_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
+         freezone_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
          validate_database();
 
 
          BOOST_TEST_MESSAGE( "--- Testing success" );
 
-         util::manabar_params params( util::get_effective_vesting_shares( alice ), STEEM_VOTING_MANA_REGENERATION_SECONDS );
+         util::manabar_params params( util::get_effective_vesting_shares( alice ), freezone_VOTING_MANA_REGENERATION_SECONDS );
          util::manabar old_manabar = alice.voting_manabar;
          old_manabar.regenerate_mana( params, db->head_block_time() );
 
-         util::manabar old_smt_manabar = alice_smt.voting_manabar;
-         params.max_mana = util::get_effective_vesting_shares( alice_smt );
-         old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+         util::manabar old_SST_manabar = alice_SST.voting_manabar;
+         params.max_mana = util::get_effective_vesting_shares( alice_SST );
+         old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
          op.rshares.clear();
-         op.rshares[ STEEM_SYMBOL ] = alice.vesting_shares.amount.value / 50;
-         op.rshares[ alice_symbol ] = alice_smt.vesting_shares.amount.value / 50;
+         op.rshares[ freezone_SYMBOL ] = alice.vesting_shares.amount.value / 50;
+         op.rshares[ alice_symbol ] = alice_SST.vesting_shares.amount.value / 50;
          tx.operations.clear();
          tx.signatures.clear();
          tx.operations.push_back( op );
@@ -4221,38 +4221,38 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
          db->push_transaction( tx, 0 );
 
          auto& alice_comment = db->get_comment( "alice", string( "foo" ) );
-         auto itr = vote_idx.find( boost::make_tuple( alice_comment.id, alice.id, STEEM_SYMBOL ) );
+         auto itr = vote_idx.find( boost::make_tuple( alice_comment.id, alice.id, freezone_SYMBOL ) );
 
          BOOST_REQUIRE( alice.last_vote_time == db->head_block_time() );
-         BOOST_REQUIRE( old_manabar.current_mana - op.rshares[ STEEM_SYMBOL ] == alice.voting_manabar.current_mana );
-         BOOST_REQUIRE( alice_comment.net_rshares.value == op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD );
-         BOOST_REQUIRE( alice_comment.cashout_time == alice_comment.created + STEEM_CASHOUT_WINDOW_SECONDS );
-         BOOST_REQUIRE( itr->rshares == op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD );
+         BOOST_REQUIRE( old_manabar.current_mana - op.rshares[ freezone_SYMBOL ] == alice.voting_manabar.current_mana );
+         BOOST_REQUIRE( alice_comment.net_rshares.value == op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD );
+         BOOST_REQUIRE( alice_comment.cashout_time == alice_comment.created + freezone_CASHOUT_WINDOW_SECONDS );
+         BOOST_REQUIRE( itr->rshares == op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD );
          BOOST_REQUIRE( itr != vote_idx.end() );
 
          itr = vote_idx.find( boost::make_tuple( alice_comment.id, alice.id, alice_symbol ) );
 
-         BOOST_REQUIRE( old_smt_manabar.current_mana - op.rshares[ alice_symbol ] == alice_smt.voting_manabar.current_mana );
-         BOOST_REQUIRE( alice_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value == op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD );
+         BOOST_REQUIRE( old_SST_manabar.current_mana - op.rshares[ alice_symbol ] == alice_SST.voting_manabar.current_mana );
+         BOOST_REQUIRE( alice_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value == op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD );
          BOOST_REQUIRE( itr != vote_idx.end() );
-         BOOST_REQUIRE( itr->rshares == op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD );
+         BOOST_REQUIRE( itr->rshares == op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD );
 
          validate_database();
 
 
          BOOST_TEST_MESSAGE( "--- Test reduced power for quick voting" );
 
-         generate_blocks( db->head_block_time() + STEEM_MIN_VOTE_INTERVAL_SEC );
+         generate_blocks( db->head_block_time() + freezone_MIN_VOTE_INTERVAL_SEC );
          {
             const auto& alice = db->get_account( "alice" );
             params.max_mana = util::get_effective_vesting_shares( alice );
             old_manabar = alice.voting_manabar;
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& alice_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
-            params.max_mana = util::get_effective_vesting_shares( alice_smt );
-            old_smt_manabar = alice_smt.voting_manabar;
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& alice_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
+            params.max_mana = util::get_effective_vesting_shares( alice_SST );
+            old_SST_manabar = alice_SST.voting_manabar;
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
             comment_op.author = "bob";
             comment_op.permlink = "foo";
@@ -4267,19 +4267,19 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             sign( tx, bob_private_key );
             db->push_transaction( tx, 0 );
 
-            op.rshares[ STEEM_SYMBOL ] = old_manabar.current_mana / 50;
-            op.rshares[ alice_symbol ] = old_smt_manabar.current_mana / 50;
+            op.rshares[ freezone_SYMBOL ] = old_manabar.current_mana / 50;
+            op.rshares[ alice_symbol ] = old_SST_manabar.current_mana / 50;
             op.voter = "alice";
             op.author = "bob";
             op.permlink = "foo";
 
-            op.rshares[ STEEM_SYMBOL ] += 10;
+            op.rshares[ freezone_SYMBOL ] += 10;
             tx.clear();
             tx.operations.push_back( op );
             sign( tx, alice_private_key );
             BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
 
-            op.rshares[ STEEM_SYMBOL ] -= 10;
+            op.rshares[ freezone_SYMBOL ] -= 10;
             op.rshares[ alice_symbol ] += 10;
             tx.clear();
             tx.operations.push_back( op );
@@ -4293,16 +4293,16 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             db->push_transaction( tx, 0 );
 
             const auto& bob_comment = db->get_comment( "bob", string( "foo" ) );
-            itr = vote_idx.find( boost::make_tuple( bob_comment.id, alice.id, STEEM_SYMBOL ) );
+            itr = vote_idx.find( boost::make_tuple( bob_comment.id, alice.id, freezone_SYMBOL ) );
 
-            BOOST_REQUIRE( bob_comment.net_rshares.value == op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD );
-            BOOST_REQUIRE( bob_comment.cashout_time == bob_comment.created + STEEM_CASHOUT_WINDOW_SECONDS );
-            BOOST_REQUIRE( alice.voting_manabar.current_mana == old_manabar.current_mana - op.rshares[ STEEM_SYMBOL ] );
+            BOOST_REQUIRE( bob_comment.net_rshares.value == op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD );
+            BOOST_REQUIRE( bob_comment.cashout_time == bob_comment.created + freezone_CASHOUT_WINDOW_SECONDS );
+            BOOST_REQUIRE( alice.voting_manabar.current_mana == old_manabar.current_mana - op.rshares[ freezone_SYMBOL ] );
             BOOST_REQUIRE( itr != vote_idx.end() );
 
             itr = vote_idx.find( boost::make_tuple( bob_comment.id, alice.id, alice_symbol ) );
-            BOOST_REQUIRE( bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value == op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD );
-            BOOST_REQUIRE( alice_smt.voting_manabar.current_mana == old_smt_manabar.current_mana - op.rshares[ alice_symbol ] );
+            BOOST_REQUIRE( bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value == op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD );
+            BOOST_REQUIRE( alice_SST.voting_manabar.current_mana == old_SST_manabar.current_mana - op.rshares[ alice_symbol ] );
             BOOST_REQUIRE( itr != vote_idx.end() );
 
             validate_database();
@@ -4315,40 +4315,40 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "bob" ) );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& bob_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "bob", alice_symbol ) );
-            params.max_mana = util::get_effective_vesting_shares( bob_smt );
-            old_smt_manabar = bob_smt.voting_manabar;
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& bob_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "bob", alice_symbol ) );
+            params.max_mana = util::get_effective_vesting_shares( bob_SST );
+            old_SST_manabar = bob_SST.voting_manabar;
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
             auto old_abs_rshares = db->get_comment( "alice", string( "foo" ) ).abs_rshares.value;
-            auto old_smt_abs_rshares = db->get_comment( "alice", string( "foo" ) ).smt_rshares.find( alice_symbol )->second.abs_rshares.value;
+            auto old_SST_abs_rshares = db->get_comment( "alice", string( "foo" ) ).SST_rshares.find( alice_symbol )->second.abs_rshares.value;
 
-            generate_blocks( db->head_block_time() + fc::seconds( ( STEEM_CASHOUT_WINDOW_SECONDS / 2 ) ), true );
+            generate_blocks( db->head_block_time() + fc::seconds( ( freezone_CASHOUT_WINDOW_SECONDS / 2 ) ), true );
 
             const auto& new_bob = db->get_account( "bob" );
-            const auto& new_bob_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "bob", alice_symbol ) );
+            const auto& new_bob_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "bob", alice_symbol ) );
             const auto& new_alice_comment = db->get_comment( "alice", string( "foo" ) );
 
-            op.rshares[ STEEM_SYMBOL ] = old_manabar.current_mana / 50;
-            op.rshares[ alice_symbol ] = old_smt_manabar.current_mana / 50;
+            op.rshares[ freezone_SYMBOL ] = old_manabar.current_mana / 50;
+            op.rshares[ alice_symbol ] = old_SST_manabar.current_mana / 50;
             op.voter = "bob";
             op.author = "alice";
             op.permlink = "foo";
             tx.operations.clear();
             tx.signatures.clear();
             tx.operations.push_back( op );
-            tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+            tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
             sign( tx, bob_private_key );
             db->push_transaction( tx, 0 );
 
-            itr = vote_idx.find( boost::make_tuple( new_alice_comment.id, new_bob.id, STEEM_SYMBOL ) );
+            itr = vote_idx.find( boost::make_tuple( new_alice_comment.id, new_bob.id, freezone_SYMBOL ) );
 
-            BOOST_REQUIRE( new_alice_comment.net_rshares.value == old_abs_rshares + ( old_manabar.current_mana - new_bob.voting_manabar.current_mana ) - STEEM_VOTE_DUST_THRESHOLD );
-            BOOST_REQUIRE( new_alice_comment.cashout_time == new_alice_comment.created + STEEM_CASHOUT_WINDOW_SECONDS );
+            BOOST_REQUIRE( new_alice_comment.net_rshares.value == old_abs_rshares + ( old_manabar.current_mana - new_bob.voting_manabar.current_mana ) - freezone_VOTE_DUST_THRESHOLD );
+            BOOST_REQUIRE( new_alice_comment.cashout_time == new_alice_comment.created + freezone_CASHOUT_WINDOW_SECONDS );
             BOOST_REQUIRE( itr != vote_idx.end() );
 
             itr = vote_idx.find( boost::make_tuple( new_alice_comment.id, new_bob.id, alice_symbol ) );
-            BOOST_REQUIRE( new_alice_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value == old_smt_abs_rshares + ( old_smt_manabar.current_mana - new_bob_smt.voting_manabar.current_mana ) - STEEM_VOTE_DUST_THRESHOLD );
+            BOOST_REQUIRE( new_alice_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value == old_SST_abs_rshares + ( old_SST_manabar.current_mana - new_bob_SST.voting_manabar.current_mana ) - freezone_VOTE_DUST_THRESHOLD );
             BOOST_REQUIRE( itr != vote_idx.end() );
 
             validate_database();
@@ -4357,27 +4357,27 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
 
          BOOST_TEST_MESSAGE( "--- Test negative vote" );
          util::manabar old_downvote_manabar;
-         util::manabar old_smt_downvote_manabar;
+         util::manabar old_SST_downvote_manabar;
 
          {
             const auto& new_sam = db->get_account( "sam" );
-            const auto& new_sam_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            const auto& new_sam_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
             const auto& new_bob_comment = db->get_comment( "bob", string( "foo" ) );
 
             auto old_abs_rshares = new_bob_comment.abs_rshares.value;
-            auto old_smt_abs_rshares = new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares.value;
+            auto old_SST_abs_rshares = new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares.value;
 
             old_manabar = new_sam.voting_manabar;
             params.max_mana = util::get_effective_vesting_shares( new_sam );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& sam_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
-            params.max_mana = util::get_effective_vesting_shares( sam_smt );
-            old_smt_manabar = sam_smt.voting_manabar;
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& sam_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            params.max_mana = util::get_effective_vesting_shares( sam_SST );
+            old_SST_manabar = sam_SST.voting_manabar;
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
-            op.rshares[ STEEM_SYMBOL ] = -1 * old_manabar.current_mana / 50 / 2;
-            op.rshares[ alice_symbol ] = -1 * old_smt_manabar.current_mana / 50 / 2;
+            op.rshares[ freezone_SYMBOL ] = -1 * old_manabar.current_mana / 50 / 2;
+            op.rshares[ alice_symbol ] = -1 * old_SST_manabar.current_mana / 50 / 2;
             op.voter = "sam";
             op.author = "bob";
             op.permlink = "foo";
@@ -4387,25 +4387,25 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             sign( tx, sam_private_key );
             db->push_transaction( tx, 0 );
 
-            itr = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_sam.id, STEEM_SYMBOL ) );
+            itr = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_sam.id, freezone_SYMBOL ) );
 
             params.max_mana = util::get_effective_vesting_shares( new_sam ) / 4;
             old_downvote_manabar.regenerate_mana( params, db->head_block_time() );
-            int64_t sam_rshares = old_downvote_manabar.current_mana - new_sam.downvote_manabar.current_mana - STEEM_VOTE_DUST_THRESHOLD;
+            int64_t sam_rshares = old_downvote_manabar.current_mana - new_sam.downvote_manabar.current_mana - freezone_VOTE_DUST_THRESHOLD;
 
-            params.max_mana = util::get_effective_vesting_shares( new_sam_smt ) / 4;
-            old_smt_downvote_manabar.regenerate_mana( params, db->head_block_time() );
-            int64_t sam_smt_rshares = old_smt_downvote_manabar.current_mana - new_sam_smt.downvote_manabar.current_mana - STEEM_VOTE_DUST_THRESHOLD;
+            params.max_mana = util::get_effective_vesting_shares( new_sam_SST ) / 4;
+            old_SST_downvote_manabar.regenerate_mana( params, db->head_block_time() );
+            int64_t sam_SST_rshares = old_SST_downvote_manabar.current_mana - new_sam_SST.downvote_manabar.current_mana - freezone_VOTE_DUST_THRESHOLD;
 
             BOOST_REQUIRE( new_bob_comment.net_rshares.value == old_abs_rshares - sam_rshares );
             BOOST_REQUIRE( new_bob_comment.abs_rshares.value == old_abs_rshares + sam_rshares );
-            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + STEEM_CASHOUT_WINDOW_SECONDS );
+            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + freezone_CASHOUT_WINDOW_SECONDS );
             BOOST_REQUIRE( itr != vote_idx.end() );
 
             itr = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_sam.id, alice_symbol ) );
 
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value == old_smt_abs_rshares - sam_smt_rshares );
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares.value == old_smt_abs_rshares + sam_smt_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value == old_SST_abs_rshares - sam_SST_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares.value == old_SST_abs_rshares + sam_SST_rshares );
             BOOST_REQUIRE( itr != vote_idx.end() );
             validate_database();
          }
@@ -4417,10 +4417,10 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "alice" ) );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& alice_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
-            params.max_mana = util::get_effective_vesting_shares( alice_smt );
-            old_smt_manabar = alice_smt.voting_manabar;
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& alice_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
+            params.max_mana = util::get_effective_vesting_shares( alice_SST );
+            old_SST_manabar = alice_SST.voting_manabar;
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
             comment_op.author = "sam";
             comment_op.permlink = "foo";
@@ -4434,8 +4434,8 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             sign( tx, sam_private_key );
             db->push_transaction( tx, 0 );
 
-            op.rshares[ STEEM_SYMBOL ] = old_manabar.current_mana / 50;
-            op.rshares[ alice_symbol ] = old_smt_manabar.current_mana / 50;
+            op.rshares[ freezone_SYMBOL ] = old_manabar.current_mana / 50;
+            op.rshares[ alice_symbol ] = old_SST_manabar.current_mana / 50;
             op.voter = "alice";
             op.author = "sam";
             op.permlink = "foo";
@@ -4445,7 +4445,7 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             sign( tx, alice_private_key );
             db->push_transaction( tx, 0 );
 
-            BOOST_REQUIRE( db->get_comment( "alice", string( "foo" ) ).cashout_time == db->get_comment( "alice", string( "foo" ) ).created + STEEM_CASHOUT_WINDOW_SECONDS );
+            BOOST_REQUIRE( db->get_comment( "alice", string( "foo" ) ).cashout_time == db->get_comment( "alice", string( "foo" ) ).created + freezone_CASHOUT_WINDOW_SECONDS );
 
             validate_database();
          }
@@ -4453,32 +4453,32 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
 
          BOOST_TEST_MESSAGE( "--- Test increasing vote rshares" );
          {
-            generate_blocks( db->head_block_time() + STEEM_MIN_VOTE_INTERVAL_SEC );
+            generate_blocks( db->head_block_time() + freezone_MIN_VOTE_INTERVAL_SEC );
 
             const auto& new_alice = db->get_account( "alice" );
             const auto& new_bob_comment = db->get_comment( "bob", string( "foo" ) );
-            auto alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, STEEM_SYMBOL ) );
+            auto alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, freezone_SYMBOL ) );
             auto old_vote_rshares = alice_bob_vote->rshares;
             auto old_net_rshares = new_bob_comment.net_rshares.value;
             auto old_abs_rshares = new_bob_comment.abs_rshares.value;
 
             alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, alice_symbol ) );
-            auto old_smt_vote_rshares = alice_bob_vote->rshares;
-            auto old_smt_net_rshares = new_bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value;
-            auto old_smt_abs_rshares = new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares.value;
+            auto old_SST_vote_rshares = alice_bob_vote->rshares;
+            auto old_SST_net_rshares = new_bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value;
+            auto old_SST_abs_rshares = new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares.value;
 
             old_manabar = db->get_account( "alice" ).voting_manabar;
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "alice" ) );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& alice_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
-            params.max_mana = util::get_effective_vesting_shares( alice_smt );
-            old_smt_manabar = alice_smt.voting_manabar;
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& alice_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            params.max_mana = util::get_effective_vesting_shares( alice_SST );
+            old_SST_manabar = alice_SST.voting_manabar;
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
             op.voter = "alice";
-            op.rshares[ STEEM_SYMBOL ] = old_manabar.current_mana / 50 / 2;
-            op.rshares[ alice_symbol ] = old_smt_manabar.current_mana / 50 / 2;
+            op.rshares[ freezone_SYMBOL ] = old_manabar.current_mana / 50 / 2;
+            op.rshares[ alice_symbol ] = old_SST_manabar.current_mana / 50 / 2;
             op.author = "bob";
             op.permlink = "foo";
             tx.operations.clear();
@@ -4486,22 +4486,22 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             tx.operations.push_back( op );
             sign( tx, alice_private_key );
             db->push_transaction( tx, 0 );
-            alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, STEEM_SYMBOL ) );
+            alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, freezone_SYMBOL ) );
 
-            int64_t new_rshares = op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD;
-            int64_t new_smt_rshares = op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD;
+            int64_t new_rshares = op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD;
+            int64_t new_SST_rshares = op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD;
 
             BOOST_REQUIRE( new_bob_comment.net_rshares == old_net_rshares - old_vote_rshares + new_rshares );
             BOOST_REQUIRE( new_bob_comment.abs_rshares == old_abs_rshares + new_rshares );
-            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + STEEM_CASHOUT_WINDOW_SECONDS );
+            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + freezone_CASHOUT_WINDOW_SECONDS );
             BOOST_REQUIRE( alice_bob_vote->rshares == new_rshares );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
 
             alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, alice_symbol ) );
 
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares == old_smt_net_rshares - old_smt_vote_rshares + new_smt_rshares );
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares == old_smt_abs_rshares + new_smt_rshares );
-            BOOST_REQUIRE( alice_bob_vote->rshares == new_smt_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares == old_SST_net_rshares - old_SST_vote_rshares + new_SST_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares == old_SST_abs_rshares + new_SST_rshares );
+            BOOST_REQUIRE( alice_bob_vote->rshares == new_SST_rshares );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
 
             validate_database();
@@ -4510,49 +4510,49 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
 
          BOOST_TEST_MESSAGE( "--- Test decreasing vote rshares" );
          {
-            generate_blocks( db->head_block_time() + STEEM_MIN_VOTE_INTERVAL_SEC );
+            generate_blocks( db->head_block_time() + freezone_MIN_VOTE_INTERVAL_SEC );
 
             const auto& new_alice = db->get_account( "alice" );
             const auto& new_bob_comment = db->get_comment( "bob", string( "foo" ) );
-            int64_t old_vote_rshares = op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD;
+            int64_t old_vote_rshares = op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD;
             auto old_net_rshares = new_bob_comment.net_rshares.value;
             auto old_abs_rshares = new_bob_comment.abs_rshares.value;
 
-            int64_t old_smt_vote_rshares = op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD;
-            auto old_smt_net_rshares = new_bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value;
-            auto old_smt_abs_rshares = new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares.value;
+            int64_t old_SST_vote_rshares = op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD;
+            auto old_SST_net_rshares = new_bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value;
+            auto old_SST_abs_rshares = new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares.value;
 
             auto old_manabar = db->get_account( "alice" ).voting_manabar;
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "alice" ) );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& alice_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
-            old_smt_manabar = alice_smt.voting_manabar;
-            params.max_mana = util::get_effective_vesting_shares( alice_smt );
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& alice_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
+            old_SST_manabar = alice_SST.voting_manabar;
+            params.max_mana = util::get_effective_vesting_shares( alice_SST );
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
-            op.rshares[ STEEM_SYMBOL ] = old_manabar.current_mana / 50 / 3;
-            op.rshares[ alice_symbol ] = old_smt_manabar.current_mana / 50 / 3;
+            op.rshares[ freezone_SYMBOL ] = old_manabar.current_mana / 50 / 3;
+            op.rshares[ alice_symbol ] = old_SST_manabar.current_mana / 50 / 3;
             tx.operations.clear();
             tx.signatures.clear();
             tx.operations.push_back( op );
             sign( tx, alice_private_key );
             db->push_transaction( tx, 0 );
-            auto alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, STEEM_SYMBOL ) );
+            auto alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, freezone_SYMBOL ) );
 
-            int64_t new_rshares = op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD;
-            int64_t new_smt_rshares = op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD;
+            int64_t new_rshares = op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD;
+            int64_t new_SST_rshares = op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD;
 
             BOOST_REQUIRE( new_bob_comment.net_rshares == old_net_rshares - old_vote_rshares + new_rshares );
             BOOST_REQUIRE( new_bob_comment.abs_rshares == old_abs_rshares + new_rshares );
-            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + STEEM_CASHOUT_WINDOW_SECONDS );
+            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + freezone_CASHOUT_WINDOW_SECONDS );
             BOOST_REQUIRE( alice_bob_vote->rshares == new_rshares );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
 
             alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, alice_symbol ) );
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares == old_smt_net_rshares - old_smt_vote_rshares + new_smt_rshares );
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares == old_smt_abs_rshares + new_smt_rshares );
-            BOOST_REQUIRE( alice_bob_vote->rshares == new_smt_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares == old_SST_net_rshares - old_SST_vote_rshares + new_SST_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares == old_SST_abs_rshares + new_SST_rshares );
+            BOOST_REQUIRE( alice_bob_vote->rshares == new_SST_rshares );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
             validate_database();
          }
@@ -4560,36 +4560,36 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
 
          BOOST_TEST_MESSAGE( "--- Test changing a vote to 0 rshares (aka: removing a vote)" );
          {
-            generate_blocks( db->head_block_time() + STEEM_MIN_VOTE_INTERVAL_SEC );
+            generate_blocks( db->head_block_time() + freezone_MIN_VOTE_INTERVAL_SEC );
 
             const auto& new_alice = db->get_account( "alice" );
             const auto& new_bob_comment = db->get_comment( "bob", string( "foo" ) );
             auto old_net_rshares = new_bob_comment.net_rshares.value;
             auto old_abs_rshares = new_bob_comment.abs_rshares.value;
-            int64_t old_vote_rshares = op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD;
+            int64_t old_vote_rshares = op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD;
 
-            auto old_smt_net_rshares = new_bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value;
-            auto old_smt_abs_rshares = new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares.value;
-            int64_t old_smt_vote_rshares = op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD;
+            auto old_SST_net_rshares = new_bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value;
+            auto old_SST_abs_rshares = new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares.value;
+            int64_t old_SST_vote_rshares = op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD;
 
-            op.rshares[ STEEM_SYMBOL ] = 0;
+            op.rshares[ freezone_SYMBOL ] = 0;
             op.rshares[ alice_symbol ] = 0;
             tx.operations.clear();
             tx.signatures.clear();
             tx.operations.push_back( op );
             sign( tx, alice_private_key );
             db->push_transaction( tx, 0 );
-            auto alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, STEEM_SYMBOL ) );
+            auto alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, freezone_SYMBOL ) );
 
             BOOST_REQUIRE( new_bob_comment.net_rshares == old_net_rshares - old_vote_rshares );
             BOOST_REQUIRE( new_bob_comment.abs_rshares == old_abs_rshares );
-            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + STEEM_CASHOUT_WINDOW_SECONDS );
-            BOOST_REQUIRE( alice_bob_vote->rshares == op.rshares[ STEEM_SYMBOL ] );
+            BOOST_REQUIRE( new_bob_comment.cashout_time == new_bob_comment.created + freezone_CASHOUT_WINDOW_SECONDS );
+            BOOST_REQUIRE( alice_bob_vote->rshares == op.rshares[ freezone_SYMBOL ] );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
 
             alice_bob_vote = vote_idx.find( boost::make_tuple( new_bob_comment.id, new_alice.id, alice_symbol ) );
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares == old_smt_net_rshares - old_smt_vote_rshares );
-            BOOST_REQUIRE( new_bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares == old_smt_abs_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares == old_SST_net_rshares - old_SST_vote_rshares );
+            BOOST_REQUIRE( new_bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares == old_SST_abs_rshares );
             BOOST_REQUIRE( alice_bob_vote->rshares == op.rshares[ alice_symbol ] );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
 
@@ -4609,9 +4609,9 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
                   a.downvote_manabar.last_update_time = db.head_block_time().sec_since_epoch();
                });
 
-               const auto& alice_smt = db.get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
+               const auto& alice_SST = db.get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
 
-               db.modify( alice_smt, [&]( account_regular_balance_object& a )
+               db.modify( alice_SST, [&]( account_regular_balance_object& a )
                {
                   a.downvote_manabar.current_mana /= 30;
                   a.downvote_manabar.last_update_time = db.head_block_time().sec_since_epoch();
@@ -4623,8 +4623,8 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             auto old_net_rshares = bob_comment.net_rshares.value;
             auto old_abs_rshares = bob_comment.abs_rshares.value;
 
-            auto old_smt_net_rshares = bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares.value;
-            auto old_smt_abs_rshares = bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares.value;
+            auto old_SST_net_rshares = bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares.value;
+            auto old_SST_abs_rshares = bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares.value;
 
             old_manabar = db->get_account( "alice" ).voting_manabar;
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "alice" ) );
@@ -4634,43 +4634,43 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "alice" ) ) / 4;
             old_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& alice_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
+            const auto& alice_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "alice", alice_symbol ) );
 
-            old_smt_manabar = alice_smt.voting_manabar;
-            params.max_mana = util::get_effective_vesting_shares( alice_smt );
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            old_SST_manabar = alice_SST.voting_manabar;
+            params.max_mana = util::get_effective_vesting_shares( alice_SST );
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
-            old_smt_downvote_manabar = alice_smt.downvote_manabar;
-            params.max_mana = util::get_effective_vesting_shares( alice_smt ) / 4;
-            old_smt_downvote_manabar.regenerate_mana( params, db->head_block_time() );
+            old_SST_downvote_manabar = alice_SST.downvote_manabar;
+            params.max_mana = util::get_effective_vesting_shares( alice_SST ) / 4;
+            old_SST_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            op.rshares[ STEEM_SYMBOL ] = -1 * old_manabar.current_mana / 50;
-            op.rshares[ alice_symbol ] = -1 * old_smt_manabar.current_mana / 50;
+            op.rshares[ freezone_SYMBOL ] = -1 * old_manabar.current_mana / 50;
+            op.rshares[ alice_symbol ] = -1 * old_SST_manabar.current_mana / 50;
             tx.operations.clear();
             tx.signatures.clear();
             tx.operations.push_back( op );
             sign( tx, alice_private_key );
             db->push_transaction( tx, 0 );
-            auto alice_bob_vote = vote_idx.find( boost::make_tuple( bob_comment.id, new_alice.id, STEEM_SYMBOL ) );
+            auto alice_bob_vote = vote_idx.find( boost::make_tuple( bob_comment.id, new_alice.id, freezone_SYMBOL ) );
 
-            int64_t new_rshares = op.rshares[ STEEM_SYMBOL ] + STEEM_VOTE_DUST_THRESHOLD;
-            int64_t new_smt_rshares = op.rshares[ alice_symbol ] + STEEM_VOTE_DUST_THRESHOLD;
+            int64_t new_rshares = op.rshares[ freezone_SYMBOL ] + freezone_VOTE_DUST_THRESHOLD;
+            int64_t new_SST_rshares = op.rshares[ alice_symbol ] + freezone_VOTE_DUST_THRESHOLD;
 
             BOOST_REQUIRE( bob_comment.net_rshares == old_net_rshares + new_rshares );
             BOOST_REQUIRE( bob_comment.abs_rshares == old_abs_rshares - new_rshares );
             BOOST_REQUIRE( alice_bob_vote->rshares == new_rshares );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
             BOOST_REQUIRE( alice.downvote_manabar.current_mana == 0 );
-            BOOST_REQUIRE( alice.voting_manabar.current_mana == old_manabar.current_mana + op.rshares[ STEEM_SYMBOL ] + old_downvote_manabar.current_mana );
+            BOOST_REQUIRE( alice.voting_manabar.current_mana == old_manabar.current_mana + op.rshares[ freezone_SYMBOL ] + old_downvote_manabar.current_mana );
 
             alice_bob_vote = vote_idx.find( boost::make_tuple( bob_comment.id, new_alice.id, alice_symbol ) );
 
-            BOOST_REQUIRE( bob_comment.smt_rshares.find( alice_symbol )->second.net_rshares == old_smt_net_rshares + new_smt_rshares );
-            BOOST_REQUIRE( bob_comment.smt_rshares.find( alice_symbol )->second.abs_rshares == old_smt_abs_rshares - new_smt_rshares );
-            BOOST_REQUIRE( alice_bob_vote->rshares == new_smt_rshares );
+            BOOST_REQUIRE( bob_comment.SST_rshares.find( alice_symbol )->second.net_rshares == old_SST_net_rshares + new_SST_rshares );
+            BOOST_REQUIRE( bob_comment.SST_rshares.find( alice_symbol )->second.abs_rshares == old_SST_abs_rshares - new_SST_rshares );
+            BOOST_REQUIRE( alice_bob_vote->rshares == new_SST_rshares );
             BOOST_REQUIRE( alice_bob_vote->last_update == db->head_block_time() );
-            BOOST_REQUIRE( alice_smt.downvote_manabar.current_mana == 0 );
-            BOOST_REQUIRE( alice_smt.voting_manabar.current_mana == old_smt_manabar.current_mana + op.rshares[ alice_symbol ] + old_smt_downvote_manabar.current_mana );
+            BOOST_REQUIRE( alice_SST.downvote_manabar.current_mana == 0 );
+            BOOST_REQUIRE( alice_SST.voting_manabar.current_mana == old_SST_manabar.current_mana + op.rshares[ alice_symbol ] + old_SST_downvote_manabar.current_mana );
 
             validate_database();
          }
@@ -4679,43 +4679,43 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
          BOOST_TEST_MESSAGE( "--- Test reduced effectiveness when increasing rshares within lockout period" );
          {
             const auto& bob_comment = db->get_comment( "bob", string( "foo" ) );
-            generate_blocks( fc::time_point_sec( ( bob_comment.cashout_time - STEEM_UPVOTE_LOCKOUT_HF17 ).sec_since_epoch() + STEEM_BLOCK_INTERVAL ), true );
+            generate_blocks( fc::time_point_sec( ( bob_comment.cashout_time - freezone_UPVOTE_LOCKOUT_HF17 ).sec_since_epoch() + freezone_BLOCK_INTERVAL ), true );
 
             old_manabar = db->get_account( "dave" ).voting_manabar;
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "dave" ) );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& dave_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "dave", alice_symbol ) );
-            old_smt_manabar = dave_smt.voting_manabar;
-            params.max_mana = util::get_effective_vesting_shares( dave_smt );
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& dave_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "dave", alice_symbol ) );
+            old_SST_manabar = dave_SST.voting_manabar;
+            params.max_mana = util::get_effective_vesting_shares( dave_SST );
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
             op.voter = "dave";
-            op.rshares[ STEEM_SYMBOL ] = old_manabar.current_mana / 50;
-            op.rshares[ alice_symbol ] = old_smt_manabar.current_mana / 50;
+            op.rshares[ freezone_SYMBOL ] = old_manabar.current_mana / 50;
+            op.rshares[ alice_symbol ] = old_SST_manabar.current_mana / 50;
             tx.operations.clear();
             tx.signatures.clear();
             tx.operations.push_back( op );
             sign( tx, dave_private_key );
             db->push_transaction( tx, 0 );
 
-            int64_t new_rshares = op.rshares[ STEEM_SYMBOL ] - STEEM_VOTE_DUST_THRESHOLD;
-            new_rshares = ( new_rshares * ( STEEM_UPVOTE_LOCKOUT_SECONDS - STEEM_BLOCK_INTERVAL ) ) / STEEM_UPVOTE_LOCKOUT_SECONDS;
+            int64_t new_rshares = op.rshares[ freezone_SYMBOL ] - freezone_VOTE_DUST_THRESHOLD;
+            new_rshares = ( new_rshares * ( freezone_UPVOTE_LOCKOUT_SECONDS - freezone_BLOCK_INTERVAL ) ) / freezone_UPVOTE_LOCKOUT_SECONDS;
 
-            int64_t new_smt_rshares = op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD;
-            new_smt_rshares = ( new_smt_rshares * ( STEEM_UPVOTE_LOCKOUT_SECONDS - STEEM_BLOCK_INTERVAL ) ) / STEEM_UPVOTE_LOCKOUT_SECONDS;
+            int64_t new_SST_rshares = op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD;
+            new_SST_rshares = ( new_SST_rshares * ( freezone_UPVOTE_LOCKOUT_SECONDS - freezone_BLOCK_INTERVAL ) ) / freezone_UPVOTE_LOCKOUT_SECONDS;
 
             account_id_type dave_id = db->get_account( "dave" ).id;
             comment_id_type bob_comment_id = db->get_comment( "bob", string( "foo" ) ).id;
 
             {
-               auto dave_bob_vote = db->get< comment_vote_object, by_comment_voter_symbol >( boost::make_tuple( bob_comment_id, dave_id, STEEM_SYMBOL ) );
+               auto dave_bob_vote = db->get< comment_vote_object, by_comment_voter_symbol >( boost::make_tuple( bob_comment_id, dave_id, freezone_SYMBOL ) );
                BOOST_REQUIRE( dave_bob_vote.rshares = new_rshares );
             }
 
             {
                auto dave_bob_vote = db->get< comment_vote_object, by_comment_voter_symbol >( boost::make_tuple( bob_comment_id, dave_id, alice_symbol ) );
-               BOOST_REQUIRE( dave_bob_vote.rshares = new_smt_rshares );
+               BOOST_REQUIRE( dave_bob_vote.rshares = new_SST_rshares );
             }
             validate_database();
          }
@@ -4727,36 +4727,36 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( db->get_account( "dave" ) );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& dave_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "dave", alice_symbol ) );
-            old_smt_manabar = dave_smt.voting_manabar;
-            params.max_mana = util::get_effective_vesting_shares( dave_smt );
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& dave_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "dave", alice_symbol ) );
+            old_SST_manabar = dave_SST.voting_manabar;
+            params.max_mana = util::get_effective_vesting_shares( dave_SST );
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
-            op.rshares[ STEEM_SYMBOL ] = -1 * old_manabar.current_mana / 50;
-            op.rshares[ alice_symbol ] = -1 * old_smt_manabar.current_mana / 50;
+            op.rshares[ freezone_SYMBOL ] = -1 * old_manabar.current_mana / 50;
+            op.rshares[ alice_symbol ] = -1 * old_SST_manabar.current_mana / 50;
             tx.operations.clear();
             tx.signatures.clear();
             tx.operations.push_back( op );
             sign( tx, dave_private_key );
             db->push_transaction( tx, 0 );
 
-            int64_t new_rshares = op.rshares[ STEEM_SYMBOL ] + STEEM_VOTE_DUST_THRESHOLD;
-            new_rshares = ( new_rshares * ( STEEM_UPVOTE_LOCKOUT_SECONDS - STEEM_BLOCK_INTERVAL - STEEM_BLOCK_INTERVAL ) ) / STEEM_UPVOTE_LOCKOUT_SECONDS;
+            int64_t new_rshares = op.rshares[ freezone_SYMBOL ] + freezone_VOTE_DUST_THRESHOLD;
+            new_rshares = ( new_rshares * ( freezone_UPVOTE_LOCKOUT_SECONDS - freezone_BLOCK_INTERVAL - freezone_BLOCK_INTERVAL ) ) / freezone_UPVOTE_LOCKOUT_SECONDS;
 
-            int64_t new_smt_rshares = op.rshares[ alice_symbol ] - STEEM_VOTE_DUST_THRESHOLD;
-            new_smt_rshares = ( new_smt_rshares * ( STEEM_UPVOTE_LOCKOUT_SECONDS - STEEM_BLOCK_INTERVAL ) ) / STEEM_UPVOTE_LOCKOUT_SECONDS;
+            int64_t new_SST_rshares = op.rshares[ alice_symbol ] - freezone_VOTE_DUST_THRESHOLD;
+            new_SST_rshares = ( new_SST_rshares * ( freezone_UPVOTE_LOCKOUT_SECONDS - freezone_BLOCK_INTERVAL ) ) / freezone_UPVOTE_LOCKOUT_SECONDS;
 
             account_id_type dave_id = db->get_account( "dave" ).id;
             comment_id_type bob_comment_id = db->get_comment( "bob", string( "foo" ) ).id;
 
             {
-               auto dave_bob_vote = db->get< comment_vote_object, by_comment_voter_symbol >( boost::make_tuple( bob_comment_id, dave_id, STEEM_SYMBOL ) );
+               auto dave_bob_vote = db->get< comment_vote_object, by_comment_voter_symbol >( boost::make_tuple( bob_comment_id, dave_id, freezone_SYMBOL ) );
                BOOST_REQUIRE( dave_bob_vote.rshares = new_rshares );
             }
 
             {
                auto dave_bob_vote = db->get< comment_vote_object, by_comment_voter_symbol >( boost::make_tuple( bob_comment_id, dave_id, alice_symbol ) );
-               BOOST_REQUIRE( dave_bob_vote.rshares = new_smt_rshares );
+               BOOST_REQUIRE( dave_bob_vote.rshares = new_SST_rshares );
             }
             validate_database();
          }
@@ -4767,7 +4767,7 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             comment_opts.author = "dave";
             op.voter = "sam";
             op.author = "dave";
-            op.rshares[ STEEM_SYMBOL ] = db->get_account( "sam" ).voting_manabar.current_mana * 3 / 50 / 4;
+            op.rshares[ freezone_SYMBOL ] = db->get_account( "sam" ).voting_manabar.current_mana * 3 / 50 / 4;
             op.rshares[ alice_symbol ] = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) ).voting_manabar.current_mana * 3 / 50 / 4;
             tx.clear();
             tx.operations.push_back( comment_op );
@@ -4783,23 +4783,23 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( sam );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& sam_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
-            old_smt_manabar = sam_smt.voting_manabar;
-            params.max_mana = util::get_effective_vesting_shares( sam_smt );
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& sam_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            old_SST_manabar = sam_SST.voting_manabar;
+            params.max_mana = util::get_effective_vesting_shares( sam_SST );
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
-            auto delta = sam.voting_manabar.current_mana / 50 - op.rshares[ STEEM_SYMBOL ];
-            auto smt_delta = sam_smt.voting_manabar.current_mana / 50 - op.rshares[ alice_symbol ];
+            auto delta = sam.voting_manabar.current_mana / 50 - op.rshares[ freezone_SYMBOL ];
+            auto SST_delta = sam_SST.voting_manabar.current_mana / 50 - op.rshares[ alice_symbol ];
 
-            op.rshares[ STEEM_SYMBOL ] += delta;
-            op.rshares[ alice_symbol ] += smt_delta;
+            op.rshares[ freezone_SYMBOL ] += delta;
+            op.rshares[ alice_symbol ] += SST_delta;
             tx.clear();
             tx.operations.push_back( op );
             sign( tx, sam_private_key );
             db->push_transaction( tx, 0 );
 
             BOOST_REQUIRE( sam.voting_manabar.current_mana == old_manabar.current_mana - delta );
-            BOOST_REQUIRE( sam_smt.voting_manabar.current_mana == old_smt_manabar.current_mana - smt_delta );
+            BOOST_REQUIRE( sam_SST.voting_manabar.current_mana == old_SST_manabar.current_mana - SST_delta );
          }
 
          BOOST_TEST_MESSAGE( "--- Test mana charge when decreasing vote" );
@@ -4810,13 +4810,13 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( sam );
             old_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& sam_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
-            old_smt_manabar = sam_smt.voting_manabar;
-            params.max_mana = util::get_effective_vesting_shares( sam_smt );
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& sam_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            old_SST_manabar = sam_SST.voting_manabar;
+            params.max_mana = util::get_effective_vesting_shares( sam_SST );
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
-            op.rshares[ STEEM_SYMBOL ] = sam.voting_manabar.current_mana / 50 / 2;
-            op.rshares[ alice_symbol ] = sam_smt.voting_manabar.current_mana / 50 / 2;
+            op.rshares[ freezone_SYMBOL ] = sam.voting_manabar.current_mana / 50 / 2;
+            op.rshares[ alice_symbol ] = sam_SST.voting_manabar.current_mana / 50 / 2;
 
             tx.clear();
             tx.operations.push_back( op );
@@ -4824,7 +4824,7 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             db->push_transaction( tx, 0 );
 
             BOOST_REQUIRE( sam.voting_manabar.current_mana == old_manabar.current_mana );
-            BOOST_REQUIRE( sam_smt.voting_manabar.current_mana == old_smt_manabar.current_mana );
+            BOOST_REQUIRE( sam_SST.voting_manabar.current_mana == old_SST_manabar.current_mana );
          }
 
          BOOST_TEST_MESSAGE( "--- Test mana charge when changing to downvote" );
@@ -4839,26 +4839,26 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( sam ) / 4;
             old_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& sam_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
-            old_smt_manabar = sam_smt.voting_manabar;
-            params.max_mana = util::get_effective_vesting_shares( sam_smt );
-            old_smt_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& sam_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            old_SST_manabar = sam_SST.voting_manabar;
+            params.max_mana = util::get_effective_vesting_shares( sam_SST );
+            old_SST_manabar.regenerate_mana( params, db->head_block_time() );
 
-            old_smt_downvote_manabar = sam_smt.downvote_manabar;
-            params.max_mana = util::get_effective_vesting_shares( sam_smt ) / 4;
-            old_smt_downvote_manabar.regenerate_mana( params, db->head_block_time() );
+            old_SST_downvote_manabar = sam_SST.downvote_manabar;
+            params.max_mana = util::get_effective_vesting_shares( sam_SST ) / 4;
+            old_SST_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            op.rshares[ STEEM_SYMBOL ] = -1 * sam.downvote_manabar.current_mana * 4 / 50 / 2;
-            op.rshares[ alice_symbol ] = -1 * sam_smt.downvote_manabar.current_mana * 4 / 50 / 2;
+            op.rshares[ freezone_SYMBOL ] = -1 * sam.downvote_manabar.current_mana * 4 / 50 / 2;
+            op.rshares[ alice_symbol ] = -1 * sam_SST.downvote_manabar.current_mana * 4 / 50 / 2;
             tx.clear();
             tx.operations.push_back( op );
             sign( tx, sam_private_key );
             db->push_transaction( tx, 0 );
 
             BOOST_REQUIRE( sam.voting_manabar.current_mana == old_manabar.current_mana );
-            BOOST_REQUIRE( sam.downvote_manabar.current_mana == old_downvote_manabar.current_mana + op.rshares[ STEEM_SYMBOL ] );
-            BOOST_REQUIRE( sam_smt.voting_manabar.current_mana == old_smt_manabar.current_mana );
-            BOOST_REQUIRE( sam_smt.downvote_manabar.current_mana == old_smt_downvote_manabar.current_mana + op.rshares[ alice_symbol ] );
+            BOOST_REQUIRE( sam.downvote_manabar.current_mana == old_downvote_manabar.current_mana + op.rshares[ freezone_SYMBOL ] );
+            BOOST_REQUIRE( sam_SST.voting_manabar.current_mana == old_SST_manabar.current_mana );
+            BOOST_REQUIRE( sam_SST.downvote_manabar.current_mana == old_SST_downvote_manabar.current_mana + op.rshares[ alice_symbol ] );
          }
 
          BOOST_TEST_MESSAGE( "--- Test mana charge when increasing downvote" );
@@ -4869,23 +4869,23 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( sam ) / 4;
             old_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& sam_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
-            old_smt_downvote_manabar = sam_smt.downvote_manabar;
-            params.max_mana = util::get_effective_vesting_shares( sam_smt ) / 4;
-            old_smt_downvote_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& sam_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            old_SST_downvote_manabar = sam_SST.downvote_manabar;
+            params.max_mana = util::get_effective_vesting_shares( sam_SST ) / 4;
+            old_SST_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            auto delta = -1 * sam.downvote_manabar.current_mana * 4 / 50 - op.rshares[ STEEM_SYMBOL ];
-            auto smt_delta = -1 * sam_smt.downvote_manabar.current_mana * 4 / 50 - op.rshares[ alice_symbol ];
+            auto delta = -1 * sam.downvote_manabar.current_mana * 4 / 50 - op.rshares[ freezone_SYMBOL ];
+            auto SST_delta = -1 * sam_SST.downvote_manabar.current_mana * 4 / 50 - op.rshares[ alice_symbol ];
 
-            op.rshares[ STEEM_SYMBOL ] += delta;
-            op.rshares[ alice_symbol ] += smt_delta;
+            op.rshares[ freezone_SYMBOL ] += delta;
+            op.rshares[ alice_symbol ] += SST_delta;
             tx.clear();
             tx.operations.push_back( op );
             sign( tx, sam_private_key );
             db->push_transaction( tx, 0 );
 
             BOOST_REQUIRE( sam.downvote_manabar.current_mana == old_downvote_manabar.current_mana + delta );
-            BOOST_REQUIRE( sam_smt.downvote_manabar.current_mana == old_smt_downvote_manabar.current_mana + smt_delta );
+            BOOST_REQUIRE( sam_SST.downvote_manabar.current_mana == old_SST_downvote_manabar.current_mana + SST_delta );
          }
 
          BOOST_TEST_MESSAGE( "--- Test mana charge when decreasing downvote" );
@@ -4896,13 +4896,13 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             params.max_mana = util::get_effective_vesting_shares( sam ) / 4;
             old_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            const auto& sam_smt = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
-            old_smt_downvote_manabar = sam_smt.downvote_manabar;
-            params.max_mana = util::get_effective_vesting_shares( sam_smt ) / 4;
-            old_smt_downvote_manabar.regenerate_mana( params, db->head_block_time() );
+            const auto& sam_SST = db->get< account_regular_balance_object, by_name_liquid_symbol >( boost::make_tuple( "sam", alice_symbol ) );
+            old_SST_downvote_manabar = sam_SST.downvote_manabar;
+            params.max_mana = util::get_effective_vesting_shares( sam_SST ) / 4;
+            old_SST_downvote_manabar.regenerate_mana( params, db->head_block_time() );
 
-            op.rshares[ STEEM_SYMBOL ] = sam.downvote_manabar.current_mana * 4 / 50 / 8;
-            op.rshares[ alice_symbol ] = sam_smt.downvote_manabar.current_mana * 4 / 50 / 8;
+            op.rshares[ freezone_SYMBOL ] = sam.downvote_manabar.current_mana * 4 / 50 / 8;
+            op.rshares[ alice_symbol ] = sam_SST.downvote_manabar.current_mana * 4 / 50 / 8;
 
             tx.clear();
             tx.operations.push_back( op );
@@ -4910,38 +4910,38 @@ BOOST_AUTO_TEST_CASE( vote2_apply )
             db->push_transaction( tx, 0 );
 
             BOOST_REQUIRE( sam.downvote_manabar.current_mana == old_downvote_manabar.current_mana );
-            BOOST_REQUIRE( sam_smt.downvote_manabar.current_mana == old_smt_downvote_manabar.current_mana );
+            BOOST_REQUIRE( sam_SST.downvote_manabar.current_mana == old_SST_downvote_manabar.current_mana );
          }
       }
    }
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_validate )
+BOOST_AUTO_TEST_CASE( SST_setup_ico_tier_validate )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_setup_ico_tier_operation validate" );
+      BOOST_TEST_MESSAGE( "Testing: SST_setup_ico_tier_operation validate" );
 
       ACTORS( (alice) );
-      auto symbol = create_smt( "alice", alice_private_key, 3 );
+      auto symbol = create_SST( "alice", alice_private_key, 3 );
 
-      smt_setup_ico_tier_operation op;
+      SST_setup_ico_tier_operation op;
       op.control_account = "alice";
       op.symbol = symbol;
-      op.steem_satoshi_cap = 0;
+      op.freezone_satoshi_cap = 0;
 
-      smt_capped_generation_policy valid_capped_generation_policy;
-      valid_capped_generation_policy.generation_unit.steem_unit[ "alice" ] = 2;
-      valid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
-      valid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_MARKET_MAKER ] = 2;
+      SST_capped_generation_policy valid_capped_generation_policy;
+      valid_capped_generation_policy.generation_unit.freezone_unit[ "alice" ] = 2;
+      valid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
+      valid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_MARKET_MAKER ] = 2;
 
       valid_capped_generation_policy.generation_unit.token_unit[ "alice" ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_REWARDS ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_FROM ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_FROM_VESTING ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_REWARDS ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_FROM ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_FROM_VESTING ] = 2;
 
       op.generation_policy = valid_capped_generation_policy;
 
@@ -4952,67 +4952,67 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_validate )
       BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
       op.control_account = "alice";
 
-      BOOST_TEST_MESSAGE( " -- Failure on negative steem_satoshi_cap" );
-      op.steem_satoshi_cap = -1;
+      BOOST_TEST_MESSAGE( " -- Failure on negative freezone_satoshi_cap" );
+      op.freezone_satoshi_cap = -1;
       BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      op.steem_satoshi_cap = 0;
-      BOOST_TEST_MESSAGE( " -- Success on steem_satoshi_cap" );
+      op.freezone_satoshi_cap = 0;
+      BOOST_TEST_MESSAGE( " -- Success on freezone_satoshi_cap" );
       op.validate();
 
-      op.steem_satoshi_cap = 1000;
-      BOOST_TEST_MESSAGE( " -- Success on positive steem_satoshi_cap" );
+      op.freezone_satoshi_cap = 1000;
+      BOOST_TEST_MESSAGE( " -- Success on positive freezone_satoshi_cap" );
       op.validate();
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT_DESTINATION_REWARDS in steem_unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST_DESTINATION_REWARDS in freezone_unit" );
 
-      smt_capped_generation_policy invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_REWARDS ] = 1;
-
-      op.generation_policy = invalid_capped_generation_policy;
-
-      BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
-
-      BOOST_TEST_MESSAGE( " -- Failure on SMT_DESTINATION_FROM in steem_unit" );
-
-      invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_FROM ] = 1;
+      SST_capped_generation_policy invalid_capped_generation_policy = valid_capped_generation_policy;
+      invalid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_REWARDS ] = 1;
 
       op.generation_policy = invalid_capped_generation_policy;
 
       BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT_DESTINATION_FROM_VESTING in steem_unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST_DESTINATION_FROM in freezone_unit" );
 
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_FROM_VESTING ] = 1;
+      invalid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_FROM ] = 1;
 
       op.generation_policy = invalid_capped_generation_policy;
 
       BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT_DESTINATION_VESTING in steem_unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST_DESTINATION_FROM_VESTING in freezone_unit" );
 
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_VESTING ] = 1;
+      invalid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_FROM_VESTING ] = 1;
 
       op.generation_policy = invalid_capped_generation_policy;
 
       BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure on SMT_DESTINATION_VESTING in token_unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST_DESTINATION_VESTING in freezone_unit" );
 
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_VESTING ] = 1;
+      invalid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_VESTING ] = 1;
 
       op.generation_policy = invalid_capped_generation_policy;
 
       BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
-      BOOST_TEST_MESSAGE( " -- Failure on malformed special destination in steem unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on SST_DESTINATION_VESTING in token_unit" );
 
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit[ "$market_malformed" ] = 1;
+      invalid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_VESTING ] = 1;
+
+      op.generation_policy = invalid_capped_generation_policy;
+
+      BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
+
+      BOOST_TEST_MESSAGE( " -- Failure on malformed special destination in freezone unit" );
+
+      invalid_capped_generation_policy = valid_capped_generation_policy;
+      invalid_capped_generation_policy.generation_unit.freezone_unit[ "$market_malformed" ] = 1;
 
       op.generation_policy = invalid_capped_generation_policy;
 
@@ -5036,10 +5036,10 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_validate )
 
       op.validate();
 
-      BOOST_TEST_MESSAGE( " -- Failure on empty steem unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on empty freezone unit" );
 
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit.clear();
+      invalid_capped_generation_policy.generation_unit.freezone_unit.clear();
 
       op.generation_policy = invalid_capped_generation_policy;
 
@@ -5052,13 +5052,13 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_validate )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_authorities )
+BOOST_AUTO_TEST_CASE( SST_setup_ico_tier_authorities )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_setup_ico_tier_operation authorities" );
+      BOOST_TEST_MESSAGE( "Testing: SST_setup_ico_tier_operation authorities" );
 
-      smt_setup_ico_tier_operation op;
+      SST_setup_ico_tier_operation op;
       op.control_account = "alice";
 
       flat_set< account_name_type > auths;
@@ -5077,47 +5077,47 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_authorities )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_apply )
+BOOST_AUTO_TEST_CASE( SST_setup_ico_tier_apply )
 {
    try
    {
-      BOOST_TEST_MESSAGE( "Testing: smt_setup_ico_tier_operation apply" );
+      BOOST_TEST_MESSAGE( "Testing: SST_setup_ico_tier_operation apply" );
       ACTORS( (alice)(bob)(sam)(dave) )
 
       generate_block();
 
-      BOOST_TEST_MESSAGE( " -- SMT creation" );
-      auto symbol = create_smt( "alice", alice_private_key, 3 );
+      BOOST_TEST_MESSAGE( " -- SST creation" );
+      auto symbol = create_SST( "alice", alice_private_key, 3 );
       signed_transaction tx;
 
       generate_block();
 
-      smt_setup_ico_tier_operation op;
+      SST_setup_ico_tier_operation op;
       op.control_account = "alice";
       op.symbol = symbol;
-      op.steem_satoshi_cap = 0;
+      op.freezone_satoshi_cap = 0;
 
-      smt_capped_generation_policy valid_capped_generation_policy;
-      valid_capped_generation_policy.generation_unit.steem_unit[ "alice" ] = 2;
-      valid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
-      valid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_MARKET_MAKER ] = 2;
+      SST_capped_generation_policy valid_capped_generation_policy;
+      valid_capped_generation_policy.generation_unit.freezone_unit[ "alice" ] = 2;
+      valid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
+      valid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_MARKET_MAKER ] = 2;
 
       valid_capped_generation_policy.generation_unit.token_unit[ "alice" ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_MARKET_MAKER ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_REWARDS ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_FROM ] = 2;
-      valid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_FROM_VESTING ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_ACCOUNT_VESTING( "alice" ) ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_MARKET_MAKER ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_REWARDS ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_FROM ] = 2;
+      valid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_FROM_VESTING ] = 2;
 
-      smt_capped_generation_policy invalid_capped_generation_policy;
+      SST_capped_generation_policy invalid_capped_generation_policy;
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit[ "elaine" ] = 2;
+      invalid_capped_generation_policy.generation_unit.freezone_unit[ "elaine" ] = 2;
 
       op.generation_policy = invalid_capped_generation_policy;
 
-      BOOST_TEST_MESSAGE( " -- Failure on non-existent account (elaine) in steem unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on non-existent account (elaine) in freezone unit" );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
       tx.operations.clear();
@@ -5130,34 +5130,34 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_apply )
 
       BOOST_TEST_MESSAGE( " -- Failure on non-existent account (elaine) in token unit" );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
       tx.operations.clear();
       tx.signatures.clear();
 
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.steem_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "elaine" ) ] = 2;
+      invalid_capped_generation_policy.generation_unit.freezone_unit[ SST_DESTINATION_ACCOUNT_VESTING( "elaine" ) ] = 2;
 
       op.generation_policy = invalid_capped_generation_policy;
 
 
-      BOOST_TEST_MESSAGE( " -- Failure on non-existent founder vesting account (elaine) in steem unit" );
+      BOOST_TEST_MESSAGE( " -- Failure on non-existent founder vesting account (elaine) in freezone unit" );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
       tx.operations.clear();
       tx.signatures.clear();
 
       invalid_capped_generation_policy = valid_capped_generation_policy;
-      invalid_capped_generation_policy.generation_unit.token_unit[ SMT_DESTINATION_ACCOUNT_VESTING( "elaine" ) ] = 2;
+      invalid_capped_generation_policy.generation_unit.token_unit[ SST_DESTINATION_ACCOUNT_VESTING( "elaine" ) ] = 2;
 
       op.generation_policy = invalid_capped_generation_policy;
 
       BOOST_TEST_MESSAGE( " -- Failure on non-existent founder vesting account (elaine) in token unit" );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
       tx.operations.clear();
@@ -5166,9 +5166,9 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_apply )
       op.generation_policy = valid_capped_generation_policy;
       op.control_account = "sam";
 
-      BOOST_TEST_MESSAGE( " -- Failure to setup SMT ICO tier with non controlling account" );
+      BOOST_TEST_MESSAGE( " -- Failure to setup SST ICO tier with non controlling account" );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, sam_private_key );
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::assert_exception );
       tx.operations.clear();
@@ -5176,58 +5176,58 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_apply )
 
       op.control_account = "alice";
 
-      BOOST_TEST_MESSAGE( " -- Success while setting up SMT ICO tier with valid generation policy and control account" );
+      BOOST_TEST_MESSAGE( " -- Success while setting up SST ICO tier with valid generation policy and control account" );
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
       tx.operations.clear();
       tx.signatures.clear();
 
-      BOOST_REQUIRE( util::smt::ico::ico_tier_size( *db, symbol ) == 1 );
+      BOOST_REQUIRE( util::SST::ico::ico_tier_size( *db, symbol ) == 1 );
 
-      BOOST_TEST_MESSAGE( " -- Success while removing an SMT ICO tier" );
+      BOOST_TEST_MESSAGE( " -- Success while removing an SST ICO tier" );
 
       op.remove = true;
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
       tx.operations.clear();
       tx.signatures.clear();
 
-      BOOST_REQUIRE( util::smt::ico::ico_tier_size( *db, symbol ) == 0 );
+      BOOST_REQUIRE( util::SST::ico::ico_tier_size( *db, symbol ) == 0 );
 
-      BOOST_TEST_MESSAGE( " -- Success re-adding an SMT ICO tier" );
+      BOOST_TEST_MESSAGE( " -- Success re-adding an SST ICO tier" );
 
       op.remove = false;
       tx.operations.push_back( op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION - 1 );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION - 1 );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
       tx.operations.clear();
       tx.signatures.clear();
 
-      BOOST_REQUIRE( util::smt::ico::ico_tier_size( *db, symbol ) == 1 );
+      BOOST_REQUIRE( util::SST::ico::ico_tier_size( *db, symbol ) == 1 );
 
-      BOOST_TEST_MESSAGE( " -- SMT setup" );
-      smt_setup_operation setup_op;
+      BOOST_TEST_MESSAGE( " -- SST setup" );
+      SST_setup_operation setup_op;
 
       setup_op.control_account = "alice";
       setup_op.symbol = symbol;
-      setup_op.contribution_begin_time = db->head_block_time() + STEEM_BLOCK_INTERVAL;
+      setup_op.contribution_begin_time = db->head_block_time() + freezone_BLOCK_INTERVAL;
       setup_op.contribution_end_time   = setup_op.contribution_begin_time + fc::days( 30 );
-      setup_op.steem_satoshi_min       = 0;
+      setup_op.freezone_satoshi_min       = 0;
       setup_op.min_unit_ratio = 50;
       setup_op.max_unit_ratio = 100;
-      setup_op.max_supply = STEEM_MAX_SHARE_SUPPLY;
+      setup_op.max_supply = freezone_MAX_SHARE_SUPPLY;
       setup_op.launch_time = setup_op.contribution_end_time + fc::days( 1 );
 
       setup_op.control_account = "alice";
 
-      BOOST_TEST_MESSAGE( " -- Success on valid SMT setup" );
+      BOOST_TEST_MESSAGE( " -- Success on valid SST setup" );
       tx.operations.push_back( setup_op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
       tx.operations.clear();
@@ -5236,35 +5236,35 @@ BOOST_AUTO_TEST_CASE( smt_setup_ico_tier_apply )
    FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( smt_max_share_ico )
+BOOST_AUTO_TEST_CASE( SST_max_share_ico )
 { try {
-   BOOST_TEST_MESSAGE( "Testing SMT contribution refunds" );
+   BOOST_TEST_MESSAGE( "Testing SST contribution refunds" );
    ACTORS( (alice)(bob)(charlie)(dave)(ellie)(francis)(george)(helen)(ivan)(julia) )
 
    generate_block();
 
-   BOOST_TEST_MESSAGE( " --- SMT creation" );
-   auto symbol = create_smt( "alice", alice_private_key, 3 );
+   BOOST_TEST_MESSAGE( " --- SST creation" );
+   auto symbol = create_SST( "alice", alice_private_key, 3 );
 
    generate_block();
 
-   BOOST_TEST_MESSAGE( " --- Good SMT ICO config" );
+   BOOST_TEST_MESSAGE( " --- Good SST ICO config" );
    signed_transaction tx;
-   smt_setup_operation setup_op;
+   SST_setup_operation setup_op;
 
    uint64_t contribution_window_blocks = 10;
    setup_op.control_account = "alice";
    setup_op.symbol = symbol;
-   setup_op.contribution_begin_time = db->head_block_time() + STEEM_BLOCK_INTERVAL;
-   setup_op.contribution_end_time = setup_op.contribution_begin_time + ( STEEM_BLOCK_INTERVAL * contribution_window_blocks );
-   setup_op.steem_satoshi_min     = 0;
-   setup_op.max_supply = STEEM_MAX_SHARE_SUPPLY;
+   setup_op.contribution_begin_time = db->head_block_time() + freezone_BLOCK_INTERVAL;
+   setup_op.contribution_end_time = setup_op.contribution_begin_time + ( freezone_BLOCK_INTERVAL * contribution_window_blocks );
+   setup_op.freezone_satoshi_min     = 0;
+   setup_op.max_supply = freezone_MAX_SHARE_SUPPLY;
    setup_op.min_unit_ratio = std::numeric_limits< uint32_t >::max() / 28147068;
    setup_op.max_unit_ratio = std::numeric_limits< uint32_t >::max();
-   setup_op.launch_time = setup_op.contribution_end_time + STEEM_BLOCK_INTERVAL;
+   setup_op.launch_time = setup_op.contribution_end_time + freezone_BLOCK_INTERVAL;
 
-   smt_capped_generation_policy capped_generation_policy;
-   capped_generation_policy.generation_unit.steem_unit[ "alice" ]    = 1;
+   SST_capped_generation_policy capped_generation_policy;
+   capped_generation_policy.generation_unit.freezone_unit[ "alice" ]    = 1;
    capped_generation_policy.generation_unit.token_unit[ "alice" ]    = std::numeric_limits< uint16_t >::max();
    capped_generation_policy.generation_unit.token_unit[ "bob" ]      = std::numeric_limits< uint16_t >::max();
    capped_generation_policy.generation_unit.token_unit[ "charlie" ]  = std::numeric_limits< uint16_t >::max();
@@ -5276,18 +5276,18 @@ BOOST_AUTO_TEST_CASE( smt_max_share_ico )
    capped_generation_policy.generation_unit.token_unit[ "ivan" ]     = std::numeric_limits< uint16_t >::max();
    capped_generation_policy.generation_unit.token_unit[ "julia" ]    = std::numeric_limits< uint16_t >::max();
 
-   for( int i = 0; i < SMT_MAX_ICO_TIERS; i++ )
+   for( int i = 0; i < SST_MAX_ICO_TIERS; i++ )
    {
-      smt_setup_ico_tier_operation ico_tier_op;
+      SST_setup_ico_tier_operation ico_tier_op;
       ico_tier_op.control_account = "alice";
       ico_tier_op.symbol = symbol;
       ico_tier_op.generation_policy = capped_generation_policy;
-      ico_tier_op.steem_satoshi_cap = 1000000 * (i + 1);
+      ico_tier_op.freezone_satoshi_cap = 1000000 * (i + 1);
       tx.operations.push_back( ico_tier_op );
    }
 
    tx.operations.push_back( setup_op );
-   tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+   tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
    sign( tx, alice_private_key );
    db->push_transaction( tx, 0 );
 
@@ -5298,13 +5298,13 @@ BOOST_AUTO_TEST_CASE( smt_max_share_ico )
    tx.clear();
    setup_op.min_unit_ratio++;
 
-   for( int i = 0; i < SMT_MAX_ICO_TIERS; i++ )
+   for( int i = 0; i < SST_MAX_ICO_TIERS; i++ )
    {
-      smt_setup_ico_tier_operation ico_tier_op;
+      SST_setup_ico_tier_operation ico_tier_op;
       ico_tier_op.control_account = "alice";
       ico_tier_op.symbol = symbol;
       ico_tier_op.generation_policy = capped_generation_policy;
-      ico_tier_op.steem_satoshi_cap = 1000000 * (i + 1);
+      ico_tier_op.freezone_satoshi_cap = 1000000 * (i + 1);
       tx.operations.push_back( ico_tier_op );
    }
 
@@ -5322,11 +5322,11 @@ BOOST_AUTO_TEST_CASE( smt_max_share_ico )
    capped_generation_policy.generation_unit.token_unit.clear();
    capped_generation_policy.generation_unit.token_unit[ "alice" ] = 1;
 
-   smt_setup_ico_tier_operation ico_tier_op;
+   SST_setup_ico_tier_operation ico_tier_op;
    ico_tier_op.control_account = "alice";
    ico_tier_op.symbol = symbol;
    ico_tier_op.generation_policy = capped_generation_policy;
-   ico_tier_op.steem_satoshi_cap = 2147483649;
+   ico_tier_op.freezone_satoshi_cap = 2147483649;
    tx.operations.push_back( ico_tier_op );
 
    tx.operations.push_back( setup_op );
@@ -5339,7 +5339,7 @@ BOOST_AUTO_TEST_CASE( smt_max_share_ico )
 
    tx.clear();
 
-   ico_tier_op.steem_satoshi_cap = 232830;
+   ico_tier_op.freezone_satoshi_cap = 232830;
    tx.operations.push_back( ico_tier_op );
 
    tx.operations.push_back( setup_op );

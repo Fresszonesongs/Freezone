@@ -1,13 +1,13 @@
-#include <steem/protocol/types_fwd.hpp>
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/protocol/types_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/schema/schema.hpp>
-#include <steem/schema/schema_impl.hpp>
-#include <steem/schema/schema_types.hpp>
+#include <freezone/schema/schema.hpp>
+#include <freezone/schema/schema_impl.hpp>
+#include <freezone/schema/schema_types.hpp>
 
-#include <steem/chain/schema_types/oid.hpp>
-#include <steem/protocol/schema_types/account_name_type.hpp>
-#include <steem/protocol/schema_types/asset_symbol_type.hpp>
+#include <freezone/chain/schema_types/oid.hpp>
+#include <freezone/protocol/schema_types/account_name_type.hpp>
+#include <freezone/protocol/schema_types/asset_symbol_type.hpp>
 
 #include <iostream>
 #include <map>
@@ -15,12 +15,12 @@
 #include <string>
 #include <vector>
 
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/steem_objects.hpp>
-#include <steem/chain/database.hpp>
-#include <steem/chain/index.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/freezone_objects.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/index.hpp>
 
-using steem::schema::abstract_schema;
+using freezone::schema::abstract_schema;
 
 struct schema_info
 {
@@ -64,19 +64,19 @@ void add_to_schema_map(
       add_to_schema_map( m, ds, follow_deps );
 }
 
-struct steem_schema
+struct freezone_schema
 {
    std::map< std::string, schema_info >     schema_map;
    std::vector< std::string >               chain_object_types;
 };
 
 FC_REFLECT( schema_info, (deps)(schema) )
-FC_REFLECT( steem_schema, (schema_map)(chain_object_types) )
+FC_REFLECT( freezone_schema, (schema_map)(chain_object_types) )
 
 int main( int argc, char** argv, char** envp )
 {
-   steem::chain::database db;
-   steem::chain::database::open_args db_args;
+   freezone::chain::database db;
+   freezone::chain::database::open_args db_args;
 
    db_args.data_dir = "tempdata";
    db_args.shared_mem_dir = "tempdata/blockchain";
@@ -86,12 +86,12 @@ int main( int argc, char** argv, char** envp )
 
    db.open( db_args );
 
-   steem_schema ss;
+   freezone_schema ss;
 
    std::vector< std::string > chain_objects;
    /*
-   db.for_each_index_extension< steem::chain::index_info >(
-      [&]( std::shared_ptr< steem::chain::index_info > info )
+   db.for_each_index_extension< freezone::chain::index_info >(
+      [&]( std::shared_ptr< freezone::chain::index_info > info )
       {
          std::string name;
          info->get_schema()->get_name( name );
@@ -101,7 +101,7 @@ int main( int argc, char** argv, char** envp )
          ss.chain_object_types.push_back( name );
       } );
    */
-   add_to_schema_map( ss.schema_map, steem::schema::get_schema_for_type< steem::protocol::signed_block >() );
+   add_to_schema_map( ss.schema_map, freezone::schema::get_schema_for_type< freezone::protocol::signed_block >() );
 
    std::cout << fc::json::to_string( ss ) << std::endl;
 

@@ -1,11 +1,11 @@
-#ifndef STEEM_HARDFORK_0_12
-#define STEEM_HARDFORK_0_12 12
-#define STEEM_HARDFORK_0_12__176 (STEEM_HARDFORK_0_12)
-#define STEEM_HARDFORK_0_12__177 (STEEM_HARDFORK_0_12)
-#define STEEM_HARDFORK_0_12__178 (STEEM_HARDFORK_0_12)
-#define STEEM_HARDFORK_0_12__179 (STEEM_HARDFORK_0_12)
+#ifndef freezone_HARDFORK_0_12
+#define freezone_HARDFORK_0_12 12
+#define freezone_HARDFORK_0_12__176 (freezone_HARDFORK_0_12)
+#define freezone_HARDFORK_0_12__177 (freezone_HARDFORK_0_12)
+#define freezone_HARDFORK_0_12__178 (freezone_HARDFORK_0_12)
+#define freezone_HARDFORK_0_12__179 (freezone_HARDFORK_0_12)
 
-#define STEEM_HARDFORK_0_12_TIME 1469545200 // 2016-07-26T15:00:00 UTC (11:00:00 EDT)
-#define STEEM_HARDFORK_0_12_VERSION hardfork_version( 0, 12 )
+#define freezone_HARDFORK_0_12_TIME 1469545200 // 2016-07-26T15:00:00 UTC (11:00:00 EDT)
+#define freezone_HARDFORK_0_12_VERSION hardfork_version( 0, 12 )
 
 #endif

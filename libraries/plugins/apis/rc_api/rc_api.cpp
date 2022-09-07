@@ -1,17 +1,17 @@
-#include <steem/plugins/rc_api/rc_api_plugin.hpp>
-#include <steem/plugins/rc_api/rc_api.hpp>
+#include <freezone/plugins/rc_api/rc_api_plugin.hpp>
+#include <freezone/plugins/rc_api/rc_api.hpp>
 
-#include <steem/plugins/rc/rc_objects.hpp>
-#include <steem/plugins/rc/resource_sizes.hpp>
+#include <freezone/plugins/rc/rc_objects.hpp>
+#include <freezone/plugins/rc/resource_sizes.hpp>
 
-#include <steem/chain/account_object.hpp>
+#include <freezone/chain/account_object.hpp>
 
-#include <steem/plugins/database_api/util/iterate_results.hpp>
+#include <freezone/plugins/database_api/util/iterate_results.hpp>
 
 #include <fc/variant_object.hpp>
 #include <fc/reflect/variant.hpp>
 
-namespace steem { namespace plugins { namespace rc {
+namespace freezone { namespace plugins { namespace rc {
 
 namespace detail {
 
@@ -20,7 +20,7 @@ using namespace database_api::util;
 class rc_api_impl
 {
    public:
-      rc_api_impl() : _db( appbase::app().get_plugin< steem::plugins::chain::chain_plugin >().db() ) {}
+      rc_api_impl() : _db( appbase::app().get_plugin< freezone::plugins::chain::chain_plugin >().db() ) {}
 
       DECLARE_API_IMPL
       (
@@ -43,7 +43,7 @@ DEFINE_API_IMPL( rc_api_impl, get_resource_params )
    const rc_resource_param_object& params_obj = _db.get< rc_resource_param_object, by_id >( rc_resource_param_object::id_type() );
    fc::mutable_variant_object resource_params_mvo;
 
-   for( size_t i=0; i<STEEM_NUM_RESOURCE_TYPES; i++ )
+   for( size_t i=0; i<freezone_NUM_RESOURCE_TYPES; i++ )
    {
       std::string resource_name = fc::reflector< rc_resource_types >::to_string( i );
       result.resource_names.push_back( resource_name );
@@ -76,7 +76,7 @@ DEFINE_API_IMPL( rc_api_impl, get_resource_pool )
    fc::mutable_variant_object mvo;
    const rc_pool_object& pool_obj = _db.get< rc_pool_object, by_id >( rc_pool_object::id_type() );
 
-   for( size_t i=0; i<STEEM_NUM_RESOURCE_TYPES; i++ )
+   for( size_t i=0; i<freezone_NUM_RESOURCE_TYPES; i++ )
    {
       resource_pool_api_object api_pool;
       api_pool.pool = pool_obj.pool_array[i];
@@ -183,10 +183,10 @@ DEFINE_API_IMPL( rc_api_impl, list_rc_delegation_pools )
 
 DEFINE_API_IMPL( rc_api_impl, find_rc_delegations )
 {
-   static_assert( STEEM_RC_MAX_INDEL <= RC_API_SINGLE_QUERY_LIMIT, "STEEM_RC_MAX_INDEL exceeds RC_API_SINGLE_QUERY_LIMIT" );
+   static_assert( freezone_RC_MAX_INDEL <= RC_API_SINGLE_QUERY_LIMIT, "freezone_RC_MAX_INDEL exceeds RC_API_SINGLE_QUERY_LIMIT" );
 
    find_rc_delegations_return result;
-   result.rc_delegations.reserve( STEEM_RC_MAX_INDEL );
+   result.rc_delegations.reserve( freezone_RC_MAX_INDEL );
 
    const auto& del_idx = _db.get_index< rc_indel_edge_index, by_edge >();
 
@@ -246,7 +246,7 @@ DEFINE_API_IMPL( rc_api_impl, list_rc_delegations )
 
 rc_api::rc_api(): my( new detail::rc_api_impl() )
 {
-   JSON_RPC_REGISTER_API( STEEM_RC_API_PLUGIN_NAME );
+   JSON_RPC_REGISTER_API( freezone_RC_API_PLUGIN_NAME );
 }
 
 rc_api::~rc_api() {}
@@ -262,4 +262,4 @@ DEFINE_READ_APIS( rc_api,
    (list_rc_delegations)
    )
 
-} } } // steem::plugins::rc
+} } } // freezone::plugins::rc

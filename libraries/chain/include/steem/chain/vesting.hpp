@@ -1,11 +1,11 @@
 #pragma once
 
-#include <steem/protocol/asset.hpp>
+#include <freezone/protocol/asset.hpp>
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/account_object.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/account_object.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 // Create vesting, then a caller-supplied callback after determining how many shares to create, but before
 // we modify the database.
@@ -18,7 +18,7 @@ asset create_vesting2( database& db, const account_object& to_account, asset liq
       auto calculate_new_vesting = [ liquid ] ( price vesting_share_price ) -> asset
          {
          /**
-          *  The ratio of total_vesting_shares / total_vesting_fund_steem should not
+          *  The ratio of total_vesting_shares / total_vesting_fund_freezone should not
           *  change as the result of the user adding funds
           *
           *  V / C  = (V+Vn) / (C+Cn)
@@ -34,11 +34,11 @@ asset create_vesting2( database& db, const account_object& to_account, asset liq
          return new_vesting;
          };
 
-      if( liquid.symbol.space() == asset_symbol_type::smt_nai_space )
+      if( liquid.symbol.space() == asset_symbol_type::SST_nai_space )
       {
          FC_ASSERT( liquid.symbol.is_vesting() == false );
 
-         if( to_account.name == STEEM_NULL_ACCOUNT )
+         if( to_account.name == freezone_NULL_ACCOUNT )
          {
             asset new_vesting = asset( 0, liquid.symbol.get_paired_symbol() );
             before_vesting_callback( new_vesting );
@@ -46,7 +46,7 @@ asset create_vesting2( database& db, const account_object& to_account, asset liq
             return new_vesting;
          }
 
-         const auto& token = db.get< smt_token_object, by_symbol >( liquid.symbol );
+         const auto& token = db.get< SST_token_object, by_symbol >( liquid.symbol );
 
          if ( to_reward_balance )
             FC_ASSERT( token.allow_voting == true, "Cannot create vests for the reward balance when voting is disabled. Please report this as it should not be triggered." );
@@ -64,26 +64,26 @@ asset create_vesting2( database& db, const account_object& to_account, asset liq
             db.adjust_balance( to_account, new_vesting );
 
          // Update global vesting pool numbers.
-         db.modify( token, [&]( smt_token_object& smt_object )
+         db.modify( token, [&]( SST_token_object& SST_object )
          {
             if( to_reward_balance )
             {
-               smt_object.pending_rewarded_vesting_shares += new_vesting.amount;
-               smt_object.pending_rewarded_vesting_smt += liquid.amount;
+               SST_object.pending_rewarded_vesting_shares += new_vesting.amount;
+               SST_object.pending_rewarded_vesting_SST += liquid.amount;
             }
             else
             {
-               smt_object.total_vesting_fund_smt += liquid.amount;
-               smt_object.total_vesting_shares += new_vesting.amount;
+               SST_object.total_vesting_fund_SST += liquid.amount;
+               SST_object.total_vesting_shares += new_vesting.amount;
             }
          } );
 
-         // Note: SMT vesting does not impact witness voting.
+         // Note: SST vesting does not impact witness voting.
 
          return new_vesting;
       }
 
-      FC_ASSERT( liquid.symbol == STEEM_SYMBOL );
+      FC_ASSERT( liquid.symbol == freezone_SYMBOL );
       // ^ A novelty, needed but risky in case someone managed to slip SBD/TESTS here in blockchain history.
       // Get share price.
       const auto& cprops = db.get_dynamic_global_properties();
@@ -98,15 +98,15 @@ asset create_vesting2( database& db, const account_object& to_account, asset liq
       }
       else
       {
-         if( db.has_hardfork( STEEM_HARDFORK_0_20__2539 ) )
+         if( db.has_hardfork( freezone_HARDFORK_0_20__2539 ) )
          {
             db.modify( to_account, [&]( account_object& a )
             {
                util::update_manabar(
                   cprops,
                   a,
-                  STEEM_VOTING_MANA_REGENERATION_SECONDS,
-                  db.has_hardfork( STEEM_HARDFORK_0_21__3336 ),
+                  freezone_VOTING_MANA_REGENERATION_SECONDS,
+                  db.has_hardfork( freezone_HARDFORK_0_21__3336 ),
                   new_vesting.amount.value );
             });
          }
@@ -119,11 +119,11 @@ asset create_vesting2( database& db, const account_object& to_account, asset liq
          if( to_reward_balance )
          {
             props.pending_rewarded_vesting_shares += new_vesting;
-            props.pending_rewarded_vesting_steem += liquid;
+            props.pending_rewarded_vesting_freezone += liquid;
          }
          else
          {
-            props.total_vesting_fund_steem += liquid;
+            props.total_vesting_fund_freezone += liquid;
             props.total_vesting_shares += new_vesting;
          }
       } );
@@ -136,4 +136,4 @@ asset create_vesting2( database& db, const account_object& to_account, asset liq
    FC_CAPTURE_AND_RETHROW( (to_account.name)(liquid) )
 }
 
-} } // steem::chain
+} } // freezone::chain

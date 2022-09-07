@@ -3,19 +3,19 @@
 
 #include <memory>
 
-#include <steem/protocol/types.hpp>
+#include <freezone/protocol/types.hpp>
 
-namespace steem { namespace schema {
+namespace freezone { namespace schema {
    struct abstract_schema;
 } }
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
    struct custom_json_operation;
 } }
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-using steem::protocol::custom_id_type;
+using freezone::protocol::custom_id_type;
 
 class custom_operation_interpreter
 {
@@ -23,7 +23,7 @@ class custom_operation_interpreter
       virtual void apply( const protocol::custom_json_operation& op ) = 0;
       virtual void apply( const protocol::custom_binary_operation & op ) = 0;
       virtual custom_id_type get_custom_id() = 0;
-      virtual std::shared_ptr< steem::schema::abstract_schema > get_operation_schema() = 0;
+      virtual std::shared_ptr< freezone::schema::abstract_schema > get_operation_schema() = 0;
 };
 
 class custom_operation_notification
@@ -46,4 +46,4 @@ class custom_operation_notification
       uint32_t              op_in_custom = 0;
 };
 
-} } // steem::chain
+} } // freezone::chain

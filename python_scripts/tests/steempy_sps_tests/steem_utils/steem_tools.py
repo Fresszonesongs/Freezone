@@ -13,7 +13,7 @@ import uuid
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)-15s - %(name)s - %(levelname)s - %(message)s"
 
-MODULE_NAME = "SPS-Tester-via-steempy.Tools-Py"
+MODULE_NAME = "SPS-Tester-via-freezonepy.Tools-Py"
 logger = logging.getLogger(MODULE_NAME)
 logger.setLevel(LOG_LEVEL)
 

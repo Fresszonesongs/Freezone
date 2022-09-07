@@ -1,11 +1,11 @@
 
 
-#include <steem/plugins/raw_block/raw_block_api.hpp>
-#include <steem/plugins/raw_block/raw_block_plugin.hpp>
+#include <freezone/plugins/raw_block/raw_block_api.hpp>
+#include <freezone/plugins/raw_block/raw_block_plugin.hpp>
 
 #include <string>
 
-namespace steem { namespace plugin { namespace raw_block {
+namespace freezone { namespace plugin { namespace raw_block {
 
 raw_block_plugin::raw_block_plugin( application* app ) : plugin( app ) {}
 raw_block_plugin::~raw_block_plugin() {}
@@ -28,6 +28,6 @@ void raw_block_plugin::plugin_shutdown()
 {
 }
 
-} } } // steem::plugin::raw_block
+} } } // freezone::plugin::raw_block
 
-STEEM_DEFINE_PLUGIN( raw_block, steem::plugin::raw_block::raw_block_plugin )
+freezone_DEFINE_PLUGIN( raw_block, freezone::plugin::raw_block::raw_block_plugin )

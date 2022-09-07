@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steem/plugins/database_api/*.hpp" "include/steem/plugins/database_api/util/*.hpp")
+file(GLOB HEADERS "include/freezone/plugins/database_api/*.hpp" "include/freezone/plugins/database_api/util/*.hpp")
 
 add_library( database_api_plugin
              database_api.cpp
@@ -25,4 +25,4 @@ INSTALL( TARGETS
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
-INSTALL( FILES ${HEADERS} DESTINATION "include/steem/plugins/database_api" )
+INSTALL( FILES ${HEADERS} DESTINATION "include/freezone/plugins/database_api" )

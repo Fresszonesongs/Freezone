@@ -1,17 +1,17 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/protocol/version.hpp>
+#include <freezone/protocol/version.hpp>
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
    using chainbase::t_vector;
 
    class hardfork_property_object : public object< hardfork_property_object_type, hardfork_property_object >
    {
-      STEEM_STD_ALLOCATOR_CONSTRUCTOR( hardfork_property_object )
+      freezone_STD_ALLOCATOR_CONSTRUCTOR( hardfork_property_object )
 
       public:
          template< typename Constructor, typename Allocator >
@@ -40,9 +40,9 @@ namespace steem { namespace chain {
       allocator< hardfork_property_object >
    > hardfork_property_index;
 
-} } // steem::chain
+} } // freezone::chain
 
-FC_REFLECT( steem::chain::hardfork_property_object,
+FC_REFLECT( freezone::chain::hardfork_property_object,
    (id)(processed_hardforks)(last_hardfork)(current_hardfork_version)
    (next_hardfork)(next_hardfork_time) )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::hardfork_property_object, steem::chain::hardfork_property_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::hardfork_property_object, freezone::chain::hardfork_property_index )

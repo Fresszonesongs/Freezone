@@ -1,14 +1,14 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/plugins/follow/follow_plugin.hpp>
-#include <steem/plugins/json_rpc/json_rpc_plugin.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/plugins/follow/follow_plugin.hpp>
+#include <freezone/plugins/json_rpc/json_rpc_plugin.hpp>
 
 #include <appbase/application.hpp>
 
-#define STEEM_FOLLOW_API_PLUGIN_NAME "follow_api"
+#define freezone_FOLLOW_API_PLUGIN_NAME "follow_api"
 
 
-namespace steem { namespace plugins { namespace follow {
+namespace freezone { namespace plugins { namespace follow {
 
 using namespace appbase;
 
@@ -16,14 +16,14 @@ class follow_api_plugin : public appbase::plugin< follow_api_plugin >
 {
 public:
    APPBASE_PLUGIN_REQUIRES(
-      (steem::plugins::follow::follow_plugin)
-      (steem::plugins::json_rpc::json_rpc_plugin)
+      (freezone::plugins::follow::follow_plugin)
+      (freezone::plugins::json_rpc::json_rpc_plugin)
    )
 
    follow_api_plugin();
    virtual ~follow_api_plugin();
 
-   static const std::string& name() { static std::string name = STEEM_FOLLOW_API_PLUGIN_NAME; return name; }
+   static const std::string& name() { static std::string name = freezone_FOLLOW_API_PLUGIN_NAME; return name; }
 
    virtual void set_program_options( options_description& cli, options_description& cfg ) override;
 
@@ -34,4 +34,4 @@ public:
    std::shared_ptr< class follow_api > api;
 };
 
-} } } // steem::plugins::follow
+} } } // freezone::plugins::follow

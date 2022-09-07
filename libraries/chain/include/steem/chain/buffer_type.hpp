@@ -5,11 +5,11 @@
 #include <fc/io/datastream.hpp>
 #include <fc/io/raw.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 typedef chainbase::t_vector< char > buffer_type;
 
-} } // steem::chain
+} } // freezone::chain
 
 namespace fc { namespace raw {
 
@@ -37,4 +37,4 @@ template< typename T, typename B > inline T unpack_from_buffer( const B& raw )
 
 } } // fc::raw
 
-FC_REFLECT_TYPENAME( steem::chain::buffer_type )
+FC_REFLECT_TYPENAME( freezone::chain::buffer_type )

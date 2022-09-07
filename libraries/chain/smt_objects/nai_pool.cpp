@@ -1,13 +1,13 @@
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/chain/database.hpp>
-#include <steem/protocol/asset_symbol.hpp>
-#include <steem/chain/smt_objects.hpp>
-#include <steem/chain/util/nai_generator.hpp>
-#include <steem/chain/util/smt_token.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/protocol/asset_symbol.hpp>
+#include <freezone/chain/SST_objects.hpp>
+#include <freezone/chain/util/nai_generator.hpp>
+#include <freezone/chain/util/SST_token.hpp>
 
 #define NAI_GENERATION_SEED_BLOCK_ID_HASH_INDEX 4
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 static void refill_nais(
    database& db,
@@ -21,8 +21,8 @@ static void refill_nais(
  * Refill the NAI pool with newly generated values
  *
  * We will attempt to fill the pool with randomly generated NAIs up until
- * the pool is full (SMT_MAX_NAI_POOL_COUNT) or we encounter the maximum
- * acceptable collisions (SMT_MAX_NAI_GENERATION_TRIES). If we hit the
+ * the pool is full (SST_MAX_NAI_POOL_COUNT) or we encounter the maximum
+ * acceptable collisions (SST_MAX_NAI_GENERATION_TRIES). If we hit the
  * maximum acceptable collisions, the pool will once again attempt to
  * replenish when called during the next block.
  */
@@ -51,7 +51,7 @@ void replenish_nai_pool( database& db )
        * No reason to attempt NAI generation or inform the user again if we have already
        * reached the maximum acceptable collisions for this particular block.
        */
-      if ( collisions_per_block < SMT_MAX_NAI_GENERATION_TRIES )
+      if ( collisions_per_block < SST_MAX_NAI_GENERATION_TRIES )
       {
          refill_nais( db, last_block_id, collisions_per_block, attempts_per_block, num_available_nais, nais );
 
@@ -76,12 +76,12 @@ static void refill_nais(
    uint8_t& num_available_nais,
    nai_pool_object::pool_type& nais )
 {
-   while ( num_available_nais < SMT_MAX_NAI_POOL_COUNT )
+   while ( num_available_nais < SST_MAX_NAI_POOL_COUNT )
    {
       asset_symbol_type next_sym;
       for (;;)
       {
-         if ( collisions_per_block >= SMT_MAX_NAI_GENERATION_TRIES )
+         if ( collisions_per_block >= SST_MAX_NAI_GENERATION_TRIES )
          {
             ilog( "Encountered ${collisions} collisions while attempting to generate NAI, generation will resume at the next block",
                ("collisions", collisions_per_block) );
@@ -92,8 +92,8 @@ static void refill_nais(
 
          attempts_per_block++;
 
-         // We must ensure the NAI is not an SMT, and it is not already contained within the NAI pool
-         if ( !util::smt::find_token( db, next_sym, true ) && std::find( std::begin( nais ), std::begin( nais ) + num_available_nais, next_sym ) != std::end( nais ) )
+         // We must ensure the NAI is not an SST, and it is not already contained within the NAI pool
+         if ( !util::SST::find_token( db, next_sym, true ) && std::find( std::begin( nais ), std::begin( nais ) + num_available_nais, next_sym ) != std::end( nais ) )
             break;
 
          collisions_per_block++;
@@ -109,7 +109,7 @@ void remove_from_nai_pool( database &db, const asset_symbol_type& a )
    const nai_pool_object& npo = db.get< nai_pool_object >();
    const auto& nais = npo.nais;
    const auto end = nais.begin() + npo.num_available_nais;
-   auto it = std::find( nais.begin(), end, asset_symbol_type::from_asset_num( a.get_stripped_precision_smt_num() ) );
+   auto it = std::find( nais.begin(), end, asset_symbol_type::from_asset_num( a.get_stripped_precision_SST_num() ) );
    if ( it != end )
    {
       auto index = std::distance( nais.begin(), it );
@@ -123,5 +123,5 @@ void remove_from_nai_pool( database &db, const asset_symbol_type& a )
    }
 }
 
-} } // steem::chain
+} } // freezone::chain
 

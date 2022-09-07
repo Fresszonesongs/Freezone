@@ -1,17 +1,17 @@
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/utilities/git_revision.hpp>
-#include <steem/utilities/key_conversion.hpp>
-#include <steem/utilities/words.hpp>
+#include <freezone/utilities/git_revision.hpp>
+#include <freezone/utilities/key_conversion.hpp>
+#include <freezone/utilities/words.hpp>
 
-#include <steem/protocol/base.hpp>
-#include <steem/protocol/sps_operations.hpp>
-#include <steem/wallet/wallet.hpp>
-#include <steem/wallet/api_documentation.hpp>
-#include <steem/wallet/reflect_util.hpp>
-#include <steem/wallet/remote_node_api.hpp>
+#include <freezone/protocol/base.hpp>
+#include <freezone/protocol/sps_operations.hpp>
+#include <freezone/wallet/wallet.hpp>
+#include <freezone/wallet/api_documentation.hpp>
+#include <freezone/wallet/reflect_util.hpp>
+#include <freezone/wallet/remote_node_api.hpp>
 
-#include <steem/plugins/follow/follow_operations.hpp>
+#include <freezone/plugins/follow/follow_operations.hpp>
 
 #include <algorithm>
 #include <cctype>
@@ -62,9 +62,9 @@
 
 #define BRAIN_KEY_WORD_COUNT 16
 
-namespace steem { namespace wallet {
+namespace freezone { namespace wallet {
 
-using steem::plugins::condenser_api::legacy_asset;
+using freezone::plugins::condenser_api::legacy_asset;
 
 namespace detail {
 
@@ -222,14 +222,14 @@ class wallet_api_impl
 
 public:
    wallet_api& self;
-   wallet_api_impl( wallet_api& s, const wallet_data& initial_data, const steem::protocol::chain_id_type& _steem_chain_id, fc::api< remote_node_api > rapi )
+   wallet_api_impl( wallet_api& s, const wallet_data& initial_data, const freezone::protocol::chain_id_type& _freezone_chain_id, fc::api< remote_node_api > rapi )
       : self( s ),
         _remote_api( rapi )
    {
       init_prototype_ops();
 
       _wallet.ws_server = initial_data.ws_server;
-      steem_chain_id = _steem_chain_id;
+      freezone_chain_id = _freezone_chain_id;
    }
    virtual ~wallet_api_impl()
    {}
@@ -298,22 +298,22 @@ public:
       result["participation"] = (100*dynamic_props.recent_slots_filled.popcount()) / 128.0;
       result["median_sbd_price"] = _remote_api->get_current_median_history_price();
       result["account_creation_fee"] = _remote_api->get_chain_properties().account_creation_fee;
-      result["post_reward_fund"] = fc::variant(_remote_api->get_reward_fund( STEEM_POST_REWARD_FUND_NAME )).get_object();
+      result["post_reward_fund"] = fc::variant(_remote_api->get_reward_fund( freezone_POST_REWARD_FUND_NAME )).get_object();
       return result;
    }
 
    variant_object about() const
    {
-      string client_version( steem::utilities::git_revision_description );
+      string client_version( freezone::utilities::git_revision_description );
       const size_t pos = client_version.find( '/' );
       if( pos != string::npos && client_version.size() > pos )
          client_version = client_version.substr( pos + 1 );
 
       fc::mutable_variant_object result;
-      result["blockchain_version"]       = STEEM_BLOCKCHAIN_VERSION;
+      result["blockchain_version"]       = freezone_BLOCKCHAIN_VERSION;
       result["client_version"]           = client_version;
-      result["steem_revision"]           = steem::utilities::git_revision_sha;
-      result["steem_revision_age"]       = fc::get_approximate_relative_time_string( fc::time_point_sec( steem::utilities::git_revision_unix_timestamp ) );
+      result["freezone_revision"]           = freezone::utilities::git_revision_sha;
+      result["freezone_revision_age"]       = fc::get_approximate_relative_time_string( fc::time_point_sec( freezone::utilities::git_revision_unix_timestamp ) );
       result["fc_revision"]              = fc::git_revision_sha;
       result["fc_revision_age"]          = fc::get_approximate_relative_time_string( fc::time_point_sec( fc::git_revision_unix_timestamp ) );
       result["compile_date"]             = "compiled on " __DATE__ " at " __TIME__;
@@ -336,7 +336,7 @@ public:
       {
          auto v = _remote_api->get_version();
          result["server_blockchain_version"] = v.blockchain_version;
-         result["server_steem_revision"] = v.steem_revision;
+         result["server_freezone_revision"] = v.freezone_revision;
          result["server_fc_revision"] = v.fc_revision;
       }
       catch( fc::exception& )
@@ -354,10 +354,10 @@ public:
       return accounts.front();
    }
 
-   database_api::api_smt_account_balance_object get_smt_balance( string account_name, string nai ) const
+   database_api::api_SST_account_balance_object get_SST_balance( string account_name, string nai ) const
    {
-      auto balances = _remote_api->get_smt_balances( { std::make_pair( account_name, nai ) } );
-      FC_ASSERT( !balances.empty(), "Could not find SMT balance (${n}) for account ${a}", ("n", nai)("a", account_name) );
+      auto balances = _remote_api->get_SST_balances( { std::make_pair( account_name, nai ) } );
+      FC_ASSERT( !balances.empty(), "Could not find SST balance (${n}) for account ${a}", ("n", nai)("a", account_name) );
       return balances.front();
    }
 
@@ -396,7 +396,7 @@ public:
       fc::optional<fc::ecc::private_key> optional_private_key = wif_to_key(wif_key);
       if (!optional_private_key)
          FC_THROW("Invalid private key");
-      steem::chain::public_key_type wif_pub_key = optional_private_key->get_public_key();
+      freezone::chain::public_key_type wif_pub_key = optional_private_key->get_public_key();
 
       _keys[wif_pub_key] = wif_key;
       return true;
@@ -467,7 +467,7 @@ public:
       for (int key_index = 0; ; ++key_index)
       {
          fc::ecc::private_key derived_private_key = derive_private_key(key_to_wif(parent_key), key_index);
-         steem::chain::public_key_type derived_public_key = derived_private_key.get_public_key();
+         freezone::chain::public_key_type derived_public_key = derived_private_key.get_public_key();
          if( _keys.find(derived_public_key) == _keys.end() )
          {
             if (number_of_consecutive_unused_keys)
@@ -503,9 +503,9 @@ public:
          int memo_key_index = find_first_unused_derived_key_index(active_privkey);
          fc::ecc::private_key memo_privkey = derive_private_key( key_to_wif(active_privkey), memo_key_index);
 
-         steem::chain::public_key_type owner_pubkey = owner_privkey.get_public_key();
-         steem::chain::public_key_type active_pubkey = active_privkey.get_public_key();
-         steem::chain::public_key_type memo_pubkey = memo_privkey.get_public_key();
+         freezone::chain::public_key_type owner_pubkey = owner_privkey.get_public_key();
+         freezone::chain::public_key_type active_pubkey = active_privkey.get_public_key();
+         freezone::chain::public_key_type memo_pubkey = memo_privkey.get_public_key();
 
          account_create_operation account_create_op;
 
@@ -552,9 +552,9 @@ public:
 
    void set_transaction_expiration( uint32_t tx_expiration_seconds )
    {
-      FC_ASSERT( tx_expiration_seconds <= STEEM_MAX_TIME_UNTIL_EXPIRATION,
+      FC_ASSERT( tx_expiration_seconds <= freezone_MAX_TIME_UNTIL_EXPIRATION,
          "Transaction expiration cannot exceed ${m}",
-         ("m", STEEM_MAX_TIME_UNTIL_EXPIRATION) );
+         ("m", freezone_MAX_TIME_UNTIL_EXPIRATION) );
       _tx_expiration_seconds = tx_expiration_seconds;
    }
 
@@ -736,7 +736,7 @@ public:
       }
 
       auto minimal_signing_keys = tx.minimize_required_signatures(
-         steem_chain_id,
+         freezone_chain_id,
          available_keys,
          [&]( const string& account_name ) -> const authority&
          {
@@ -762,9 +762,9 @@ public:
 
             return null_auth;
          },
-         STEEM_MAX_SIG_CHECK_DEPTH,
-         STEEM_MAX_AUTHORITY_MEMBERSHIP,
-         STEEM_MAX_SIG_CHECK_ACCOUNTS,
+         freezone_MAX_SIG_CHECK_DEPTH,
+         freezone_MAX_AUTHORITY_MEMBERSHIP,
+         freezone_MAX_SIG_CHECK_ACCOUNTS,
          fc::ecc::fc_canonical
          );
 
@@ -772,7 +772,7 @@ public:
       {
          auto it = available_private_keys.find(k);
          FC_ASSERT( it != available_private_keys.end() );
-         tx.sign( it->second, steem_chain_id, fc::ecc::fc_canonical );
+         tx.sign( it->second, freezone_chain_id, fc::ecc::fc_canonical );
       }
 
       if( broadcast )
@@ -800,7 +800,7 @@ public:
       fc::optional<fc::ecc::private_key> optional_private_key = wif_to_key(it->second);
       FC_ASSERT( optional_private_key.valid(), "Could not convert wif to private key" );
 
-      tx.sign( *optional_private_key, steem_chain_id, fc::ecc::fc_canonical );
+      tx.sign( *optional_private_key, freezone_chain_id, fc::ecc::fc_canonical );
 
       if( broadcast )
       {
@@ -835,11 +835,11 @@ public:
          std::stringstream out;
 
          auto accounts = result.as<vector<condenser_api::api_account_object>>();
-         asset total_steem;
+         asset total_freezone;
          asset total_vest(0, VESTS_SYMBOL );
          asset total_sbd(0, SBD_SYMBOL );
          for( const auto& a : accounts ) {
-            total_steem += a.balance.to_asset();
+            total_freezone += a.balance.to_asset();
             total_vest  += a.vesting_shares.to_asset();
             total_sbd  += a.sbd_balance.to_asset();
             out << std::left << std::setw( 17 ) << std::string(a.name)
@@ -849,7 +849,7 @@ public:
          }
          out << "-------------------------------------------------------------------------\n";
             out << std::left << std::setw( 17 ) << "TOTAL"
-                << std::right << std::setw(18) << legacy_asset::from_asset(total_steem).to_string() <<" "
+                << std::right << std::setw(18) << legacy_asset::from_asset(total_freezone).to_string() <<" "
                 << std::right << std::setw(26) << legacy_asset::from_asset(total_vest).to_string() <<" "
                 << std::right << std::setw(16) << legacy_asset::from_asset(total_sbd).to_string() <<"\n";
          return out.str();
@@ -889,7 +889,7 @@ public:
              ss << ' ' << setw( 10 ) << o.orderid;
              ss << ' ' << setw( 10 ) << o.real_price;
              ss << ' ' << setw( 10 ) << fc::variant( asset( o.for_sale, o.sell_price.base.symbol ) ).as_string();
-             ss << ' ' << setw( 10 ) << (o.sell_price.base.symbol == STEEM_SYMBOL ? "SELL" : "BUY");
+             ss << ' ' << setw( 10 ) << (o.sell_price.base.symbol == freezone_SYMBOL ? "SELL" : "BUY");
              ss << "\n";
           }
           return ss.str();
@@ -907,10 +907,10 @@ public:
             << ' '
             << setw( spacing + 3 ) << "Sum(SBD)"
             << setw( spacing + 1) << "SBD"
-            << setw( spacing + 1 ) << "STEEM"
+            << setw( spacing + 1 ) << "freezone"
             << setw( spacing + 1 ) << "Price"
             << setw( spacing + 1 ) << "Price"
-            << setw( spacing + 1 ) << "STEEM "
+            << setw( spacing + 1 ) << "freezone "
             << setw( spacing + 1 ) << "SBD " << "Sum(SBD)"
             << "\n====================================================================================================="
             << "|=====================================================================================================\n";
@@ -923,7 +923,7 @@ public:
                ss
                   << ' ' << setw( spacing ) << legacy_asset::from_asset( bid_sum ).to_string()
                   << ' ' << setw( spacing ) << legacy_asset::from_asset( asset( orders.bids[i].sbd, SBD_SYMBOL ) ).to_string()
-                  << ' ' << setw( spacing ) << legacy_asset::from_asset( asset( orders.bids[i].steem, STEEM_SYMBOL ) ).to_string()
+                  << ' ' << setw( spacing ) << legacy_asset::from_asset( asset( orders.bids[i].freezone, freezone_SYMBOL ) ).to_string()
                   << ' ' << setw( spacing ) << orders.bids[i].real_price;
             }
             else
@@ -937,7 +937,7 @@ public:
             {
                ask_sum += asset( orders.asks[i].sbd, SBD_SYMBOL );
                ss << ' ' << setw( spacing ) << orders.asks[i].real_price
-                  << ' ' << setw( spacing ) << legacy_asset::from_asset( asset( orders.asks[i].steem, STEEM_SYMBOL ) ).to_string()
+                  << ' ' << setw( spacing ) << legacy_asset::from_asset( asset( orders.asks[i].freezone, freezone_SYMBOL ) ).to_string()
                   << ' ' << setw( spacing ) << legacy_asset::from_asset( asset( orders.asks[i].sbd, SBD_SYMBOL ) ).to_string()
                   << ' ' << setw( spacing ) << legacy_asset::from_asset( ask_sum ).to_string();
             }
@@ -972,9 +972,9 @@ public:
 
          return ss.str();
       };
-      m["get_smt_balance"] = []( variant result, const fc::variants& a )
+      m["get_SST_balance"] = []( variant result, const fc::variants& a )
       {
-         auto balance = result.as< database_api::api_smt_account_balance_object >();
+         auto balance = result.as< database_api::api_SST_account_balance_object >();
          std::stringstream ss;
 
          ss << ' ' << std::left  << std::setw( 17 ) << "Account";
@@ -1008,7 +1008,7 @@ public:
 
    string                                  _wallet_filename;
    wallet_data                             _wallet;
-   steem::protocol::chain_id_type          steem_chain_id;
+   freezone::protocol::chain_id_type          freezone_chain_id;
 
    map<public_key_type,string>             _keys;
    fc::sha512                              _checksum;
@@ -1025,14 +1025,14 @@ public:
    const string _wallet_filename_extension = ".wallet";
 };
 
-} } } // steem::wallet::detail
+} } } // freezone::wallet::detail
 
 
 
-namespace steem { namespace wallet {
+namespace freezone { namespace wallet {
 
-wallet_api::wallet_api(const wallet_data& initial_data, const steem::protocol::chain_id_type& _steem_chain_id, fc::api< remote_node_api > rapi, std::shared_ptr<fc::rpc::cli> _cli )
-   : my(new detail::wallet_api_impl(*this, initial_data, _steem_chain_id, rapi)), cli(_cli)
+wallet_api::wallet_api(const wallet_data& initial_data, const freezone::protocol::chain_id_type& _freezone_chain_id, fc::api< remote_node_api > rapi, std::shared_ptr<fc::rpc::cli> _cli )
+   : my(new detail::wallet_api_impl(*this, initial_data, _freezone_chain_id, rapi)), cli(_cli)
 {}
 
 wallet_api::~wallet_api(){}
@@ -1101,11 +1101,11 @@ brain_key_info wallet_api::suggest_brain_key()const
 
    for( int i=0; i<BRAIN_KEY_WORD_COUNT; i++ )
    {
-      fc::bigint choice = entropy % steem::words::word_list_size;
-      entropy /= steem::words::word_list_size;
+      fc::bigint choice = entropy % freezone::words::word_list_size;
+      entropy /= freezone::words::word_list_size;
       if( i > 0 )
          brain_key += " ";
-      brain_key += steem::words::word_list[ choice.to_int64() ];
+      brain_key += freezone::words::word_list[ choice.to_int64() ];
    }
 
    brain_key = normalize_brain_key(brain_key);
@@ -1132,9 +1132,9 @@ condenser_api::api_account_object wallet_api::get_account( string account_name )
    return my->get_account( account_name );
 }
 
-database_api::api_smt_account_balance_object wallet_api::get_smt_balance( string account_name, string nai ) const
+database_api::api_SST_account_balance_object wallet_api::get_SST_balance( string account_name, string nai ) const
 {
-   return my->get_smt_balance( account_name, nai );
+   return my->get_SST_balance( account_name, nai );
 }
 
 bool wallet_api::import_key(string wif_key)
@@ -1379,7 +1379,7 @@ condenser_api::legacy_signed_transaction wallet_api::create_account_with_keys(
  */
 condenser_api::legacy_signed_transaction wallet_api::create_account_with_keys_delegated(
    string creator,
-   condenser_api::legacy_asset steem_fee,
+   condenser_api::legacy_asset freezone_fee,
    condenser_api::legacy_asset delegated_vests,
    string new_account_name,
    string json_meta,
@@ -1398,7 +1398,7 @@ condenser_api::legacy_signed_transaction wallet_api::create_account_with_keys_de
    op.posting = authority( 1, posting, 1 );
    op.memo_key = memo;
    op.json_metadata = json_meta;
-   op.fee = steem_fee.to_asset();
+   op.fee = freezone_fee.to_asset();
    op.delegation = delegated_vests.to_asset();
 
    signed_transaction tx;
@@ -1795,7 +1795,7 @@ condenser_api::legacy_signed_transaction wallet_api::create_account(
  */
 condenser_api::legacy_signed_transaction wallet_api::create_account_delegated(
    string creator,
-   condenser_api::legacy_asset steem_fee,
+   condenser_api::legacy_asset freezone_fee,
    condenser_api::legacy_asset delegated_vests,
    string new_account_name,
    string json_meta,
@@ -1810,7 +1810,7 @@ condenser_api::legacy_signed_transaction wallet_api::create_account_delegated(
    import_key( active.wif_priv_key );
    import_key( posting.wif_priv_key );
    import_key( memo.wif_priv_key );
-   return create_account_with_keys_delegated( creator, steem_fee, delegated_vests, new_account_name, json_meta,  owner.pub_key, active.pub_key, posting.pub_key, memo.pub_key, broadcast );
+   return create_account_with_keys_delegated( creator, freezone_fee, delegated_vests, new_account_name, json_meta,  owner.pub_key, active.pub_key, posting.pub_key, memo.pub_key, broadcast );
 } FC_CAPTURE_AND_RETHROW( (creator)(new_account_name)(json_meta) ) }
 
 
@@ -1989,7 +1989,7 @@ condenser_api::legacy_signed_transaction wallet_api::escrow_transfer(
    string agent,
    uint32_t escrow_id,
    condenser_api::legacy_asset sbd_amount,
-   condenser_api::legacy_asset steem_amount,
+   condenser_api::legacy_asset freezone_amount,
    condenser_api::legacy_asset fee,
    time_point_sec ratification_deadline,
    time_point_sec escrow_expiration,
@@ -2003,7 +2003,7 @@ condenser_api::legacy_signed_transaction wallet_api::escrow_transfer(
    op.agent = agent;
    op.escrow_id = escrow_id;
    op.sbd_amount = sbd_amount.to_asset();
-   op.steem_amount = steem_amount.to_asset();
+   op.freezone_amount = freezone_amount.to_asset();
    op.fee = fee.to_asset();
    op.ratification_deadline = ratification_deadline;
    op.escrow_expiration = escrow_expiration;
@@ -2071,7 +2071,7 @@ condenser_api::legacy_signed_transaction wallet_api::escrow_release(
    string receiver,
    uint32_t escrow_id,
    condenser_api::legacy_asset sbd_amount,
-   condenser_api::legacy_asset steem_amount,
+   condenser_api::legacy_asset freezone_amount,
    bool broadcast )
 {
    FC_ASSERT( !is_locked() );
@@ -2083,7 +2083,7 @@ condenser_api::legacy_signed_transaction wallet_api::escrow_release(
    op.receiver = receiver;
    op.escrow_id = escrow_id;
    op.sbd_amount = sbd_amount.to_asset();
-   op.steem_amount = steem_amount.to_asset();
+   op.freezone_amount = freezone_amount.to_asset();
 
    signed_transaction tx;
    tx.operations.push_back( op );
@@ -2321,7 +2321,7 @@ condenser_api::legacy_signed_transaction wallet_api::decline_voting_rights(
 
 condenser_api::legacy_signed_transaction wallet_api::claim_reward_balance(
    string account,
-   condenser_api::legacy_asset reward_steem,
+   condenser_api::legacy_asset reward_freezone,
    condenser_api::legacy_asset reward_sbd,
    condenser_api::legacy_asset reward_vests,
    bool broadcast )
@@ -2329,7 +2329,7 @@ condenser_api::legacy_signed_transaction wallet_api::claim_reward_balance(
    FC_ASSERT( !is_locked() );
    claim_reward_balance_operation op;
    op.account = account;
-   op.reward_steem = reward_steem.to_asset();
+   op.reward_freezone = reward_freezone.to_asset();
    op.reward_sbd = reward_sbd.to_asset();
    op.reward_vests = reward_vests.to_asset();
 
@@ -2471,7 +2471,7 @@ condenser_api::legacy_signed_transaction wallet_api::vote(
    op.voter = voter;
    op.author = author;
    op.permlink = permlink;
-   op.weight = weight * STEEM_1_PERCENT;
+   op.weight = weight * freezone_1_PERCENT;
 
    signed_transaction tx;
    tx.operations.push_back( op );
@@ -2609,19 +2609,19 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->sign_transaction( trx, broadcast );
    }
 
-   condenser_api::legacy_signed_transaction wallet_api::create_smt(
+   condenser_api::legacy_signed_transaction wallet_api::create_SST(
       account_name_type control_account,
       asset_symbol_type symbol,
-      asset smt_creation_fee,
+      asset SST_creation_fee,
       uint8_t precision,
       bool broadcast )
    {
       FC_ASSERT( !is_locked() );
 
-      smt_create_operation op;
+      SST_create_operation op;
       op.control_account = control_account;
       op.symbol = symbol;
-      op.smt_creation_fee = smt_creation_fee;
+      op.SST_creation_fee = SST_creation_fee;
       op.precision = precision;
 
       signed_transaction trx;
@@ -2630,7 +2630,7 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->sign_transaction( trx, broadcast );
    }
 
-   condenser_api::legacy_signed_transaction wallet_api::smt_set_setup_parameters(
+   condenser_api::legacy_signed_transaction wallet_api::SST_set_setup_parameters(
       account_name_type control_account,
       asset_symbol_type symbol,
       string json_setup_parameters,
@@ -2638,10 +2638,10 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
    {
       FC_ASSERT( !is_locked() );
 
-      smt_set_setup_parameters_operation op;
+      SST_set_setup_parameters_operation op;
       op.control_account = control_account;
       op.symbol = symbol;
-      op.setup_parameters = fc::json::from_string( json_setup_parameters ).as< flat_set< smt_setup_parameter > >();
+      op.setup_parameters = fc::json::from_string( json_setup_parameters ).as< flat_set< SST_setup_parameter > >();
 
       signed_transaction trx;
       trx.operations.push_back( op );
@@ -2649,7 +2649,7 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->sign_transaction( trx, broadcast );
    }
 
-   condenser_api::legacy_signed_transaction wallet_api::smt_set_runtime_parameters(
+   condenser_api::legacy_signed_transaction wallet_api::SST_set_runtime_parameters(
       account_name_type control_account,
       asset_symbol_type symbol,
       string json_runtime_parameters,
@@ -2657,10 +2657,10 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
    {
       FC_ASSERT( !is_locked() );
 
-      smt_set_runtime_parameters_operation op;
+      SST_set_runtime_parameters_operation op;
       op.control_account = control_account;
       op.symbol = symbol;
-      op.runtime_parameters = fc::json::from_string( json_runtime_parameters ).as< flat_set< smt_runtime_parameter > >();
+      op.runtime_parameters = fc::json::from_string( json_runtime_parameters ).as< flat_set< SST_runtime_parameter > >();
 
       signed_transaction trx;
       trx.operations.push_back( op );
@@ -2668,7 +2668,7 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->sign_transaction( trx, broadcast );
    }
 
-   condenser_api::legacy_signed_transaction wallet_api::smt_setup_emissions(
+   condenser_api::legacy_signed_transaction wallet_api::SST_setup_emissions(
       account_name_type control_account,
       asset_symbol_type symbol,
       time_point_sec schedule_time,
@@ -2688,11 +2688,11 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
    {
       FC_ASSERT( !is_locked() );
 
-      smt_setup_emissions_operation op;
+      SST_setup_emissions_operation op;
       op.control_account = control_account;
       op.symbol = symbol;
       op.schedule_time = schedule_time;
-      op.emissions_unit = fc::json::from_string( json_emission_unit ).as < smt_emissions_unit >();
+      op.emissions_unit = fc::json::from_string( json_emission_unit ).as < SST_emissions_unit >();
       op.interval_seconds = interval_seconds;
       op.emission_count = emission_count;
       op.lep_time = lep_time;
@@ -2711,20 +2711,20 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->sign_transaction( trx, broadcast );
    }
 
-   condenser_api::legacy_signed_transaction wallet_api::smt_setup_ico_tier(
+   condenser_api::legacy_signed_transaction wallet_api::SST_setup_ico_tier(
       account_name_type control_account,
       asset_symbol_type symbol,
-      share_type steem_satoshi_cap,
+      share_type freezone_satoshi_cap,
       string json_generation_policy,
       bool broadcast )
    {
       FC_ASSERT( !is_locked() );
 
-      smt_setup_ico_tier_operation op;
+      SST_setup_ico_tier_operation op;
       op.control_account = control_account;
       op.symbol = symbol;
-      op.generation_policy = fc::json::from_string( json_generation_policy ).as< smt_generation_policy >();
-      op.steem_satoshi_cap = steem_satoshi_cap;
+      op.generation_policy = fc::json::from_string( json_generation_policy ).as< SST_generation_policy >();
+      op.freezone_satoshi_cap = freezone_satoshi_cap;
 
       signed_transaction trx;
       trx.operations.push_back( op );
@@ -2732,28 +2732,28 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->sign_transaction( trx, broadcast );
    }
 
-   condenser_api::legacy_signed_transaction wallet_api::smt_setup(
+   condenser_api::legacy_signed_transaction wallet_api::SST_setup(
       account_name_type control_account,
       asset_symbol_type symbol,
       int64_t max_supply,
       time_point_sec contribution_begin_time,
       time_point_sec contribution_end_time,
       time_point_sec launch_time,
-      share_type steem_satoshi_min,
+      share_type freezone_satoshi_min,
       uint32_t min_unit_ratio,
       uint32_t max_unit_ratio,
       bool broadcast )
    {
       FC_ASSERT( !is_locked() );
 
-      smt_setup_operation op;
+      SST_setup_operation op;
       op.control_account = control_account;
       op.symbol = symbol;
       op.max_supply = max_supply;
       op.contribution_begin_time = contribution_begin_time;
       op.contribution_end_time = contribution_end_time;
       op.launch_time = launch_time;
-      op.steem_satoshi_min = steem_satoshi_min;
+      op.freezone_satoshi_min = freezone_satoshi_min;
       op.min_unit_ratio = min_unit_ratio;
       op.max_unit_ratio = max_unit_ratio;
 
@@ -2763,7 +2763,7 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->sign_transaction( trx, broadcast );
    }
 
-   condenser_api::legacy_signed_transaction wallet_api::smt_contribute(
+   condenser_api::legacy_signed_transaction wallet_api::SST_contribute(
       account_name_type contributor,
       asset_symbol_type symbol,
       uint32_t contribution_id,
@@ -2772,7 +2772,7 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
    {
       FC_ASSERT( !is_locked() );
 
-      smt_contribute_operation op;
+      SST_contribute_operation op;
       op.contributor = contributor;
       op.symbol = symbol;
       op.contribution_id = contribution_id;
@@ -2789,4 +2789,4 @@ condenser_api::legacy_signed_transaction wallet_api::follow( string follower, st
       return my->_remote_api->get_nai_pool();
    }
 
-} } // steem::wallet
+} } // freezone::wallet

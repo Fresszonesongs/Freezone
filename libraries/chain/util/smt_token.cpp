@@ -1,13 +1,13 @@
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/chain/util/smt_token.hpp>
-#include <steem/chain/steem_object_types.hpp>
-#include <steem/protocol/smt_util.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/chain/util/SST_token.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
+#include <freezone/protocol/SST_util.hpp>
 
-namespace steem { namespace chain { namespace util { namespace smt {
+namespace freezone { namespace chain { namespace util { namespace SST {
 
-const smt_token_object* find_token( const database& db, uint32_t nai )
+const SST_token_object* find_token( const database& db, uint32_t nai )
 {
-   const auto& idx = db.get_index< smt_token_index >().indices().get< by_symbol >();
+   const auto& idx = db.get_index< SST_token_index >().indices().get< by_symbol >();
 
    auto itr = idx.lower_bound( asset_symbol_type::from_nai( nai, 0 ) );
    for (; itr != idx.end(); ++itr )
@@ -20,20 +20,20 @@ const smt_token_object* find_token( const database& db, uint32_t nai )
    return nullptr;
 }
 
-const smt_token_object* find_token( const database& db, asset_symbol_type symbol, bool precision_agnostic )
+const SST_token_object* find_token( const database& db, asset_symbol_type symbol, bool precision_agnostic )
 {
-   // Only liquid symbols are stored in the smt token index
+   // Only liquid symbols are stored in the SST token index
    auto s = symbol.is_vesting() ? symbol.get_paired_symbol() : symbol;
 
    if ( precision_agnostic )
       return find_token( db, s.to_nai() );
    else
-      return db.find< smt_token_object, by_symbol >( s );
+      return db.find< SST_token_object, by_symbol >( s );
 }
 
-const smt_token_emissions_object* last_emission( const database& db, const asset_symbol_type& symbol )
+const SST_token_emissions_object* last_emission( const database& db, const asset_symbol_type& symbol )
 {
-   const auto& idx = db.get_index< smt_token_emissions_index, by_symbol_time >();
+   const auto& idx = db.get_index< SST_token_emissions_index, by_symbol_time >();
 
    const auto range = idx.equal_range( symbol );
 
@@ -63,7 +63,7 @@ fc::optional< time_point_sec > last_emission_time( const database& db, const ass
 
 fc::optional< time_point_sec > next_emission_time( const database& db, const asset_symbol_type& symbol, time_point_sec last_emission )
 {
-   const auto& idx = db.get_index< smt_token_emissions_index, by_symbol_end_time >();
+   const auto& idx = db.get_index< SST_token_emissions_index, by_symbol_end_time >();
    auto emission = idx.lower_bound( boost::make_tuple( symbol, last_emission ) );
 
    if( emission != idx.end() && emission->symbol == symbol )
@@ -85,9 +85,9 @@ fc::optional< time_point_sec > next_emission_time( const database& db, const ass
    return {};
 }
 
-const smt_token_emissions_object* get_emission_object( const database& db, const asset_symbol_type& symbol, time_point_sec t )
+const SST_token_emissions_object* get_emission_object( const database& db, const asset_symbol_type& symbol, time_point_sec t )
 {
-   const auto& idx = db.get_index< smt_token_emissions_index, by_symbol_end_time >();
+   const auto& idx = db.get_index< SST_token_emissions_index, by_symbol_end_time >();
    auto emission = idx.lower_bound( boost::make_tuple( symbol, t ) );
 
    if ( emission != idx.end() && emission->symbol == symbol )
@@ -97,7 +97,7 @@ const smt_token_emissions_object* get_emission_object( const database& db, const
    return nullptr;
 }
 
-flat_map< unit_target_type, share_type > generate_emissions( const smt_token_object& token, const smt_token_emissions_object& emission, time_point_sec emission_time )
+flat_map< unit_target_type, share_type > generate_emissions( const SST_token_object& token, const SST_token_emissions_object& emission, time_point_sec emission_time )
 {
    flat_map< unit_target_type, share_type > emissions;
 
@@ -168,7 +168,7 @@ share_type payout( database& db, const asset_symbol_type& symbol, const account_
       else
          db.adjust_balance( account, p.payout );
 
-      if ( p.payout.symbol.space() == asset_symbol_type::smt_nai_space )
+      if ( p.payout.symbol.space() == asset_symbol_type::SST_nai_space )
          additional_token_supply += p.payout.amount;
    }
 
@@ -178,12 +178,12 @@ share_type payout( database& db, const asset_symbol_type& symbol, const account_
 bool schedule_next_refund( database& db, const asset_symbol_type& a )
 {
    bool action_scheduled = false;
-   auto& idx = db.get_index< smt_contribution_index, by_symbol_id >();
+   auto& idx = db.get_index< SST_contribution_index, by_symbol_id >();
    auto itr = idx.lower_bound( a );
 
    if ( itr != idx.end() && itr->symbol == a )
    {
-      smt_refund_action refund_action;
+      SST_refund_action refund_action;
       refund_action.symbol = itr->symbol;
       refund_action.contributor = itr->contributor;
       refund_action.contribution_id = itr->contribution_id;
@@ -198,28 +198,28 @@ bool schedule_next_refund( database& db, const asset_symbol_type& a )
 
 struct payout_vars
 {
-   share_type steem_units_sent;
+   share_type freezone_units_sent;
    share_type unit_ratio;
 };
 
-static payout_vars calculate_payout_vars( database& db, const smt_ico_object& ico, const smt_generation_unit& generation_unit, share_type contribution_amount )
+static payout_vars calculate_payout_vars( database& db, const SST_ico_object& ico, const SST_generation_unit& generation_unit, share_type contribution_amount )
 {
    payout_vars vars;
 
-   auto hard_cap = util::smt::ico::get_ico_steem_hard_cap( db, ico.symbol );
+   auto hard_cap = util::SST::ico::get_ico_freezone_hard_cap( db, ico.symbol );
    FC_ASSERT( hard_cap.valid(), "Unable to find ICO hard cap." );
-   share_type steem_hard_cap = *hard_cap;
+   share_type freezone_hard_cap = *hard_cap;
 
-   vars.steem_units_sent = contribution_amount / generation_unit.steem_unit_sum();
-   auto total_contributed_steem_units = ico.contributed.amount / generation_unit.steem_unit_sum();
-   auto steem_units_hard_cap = steem_hard_cap / generation_unit.steem_unit_sum();
+   vars.freezone_units_sent = contribution_amount / generation_unit.freezone_unit_sum();
+   auto total_contributed_freezone_units = ico.contributed.amount / generation_unit.freezone_unit_sum();
+   auto freezone_units_hard_cap = freezone_hard_cap / generation_unit.freezone_unit_sum();
 
    auto total_generated_token_units = std::min(
-      total_contributed_steem_units * ico.max_unit_ratio,
-      steem_units_hard_cap * ico.min_unit_ratio
+      total_contributed_freezone_units * ico.max_unit_ratio,
+      freezone_units_hard_cap * ico.min_unit_ratio
    );
 
-   vars.unit_ratio = total_generated_token_units / total_contributed_steem_units;
+   vars.unit_ratio = total_generated_token_units / total_contributed_freezone_units;
 
    return vars;
 }
@@ -227,21 +227,21 @@ static payout_vars calculate_payout_vars( database& db, const smt_ico_object& ic
 bool schedule_next_contributor_payout( database& db, const asset_symbol_type& a )
 {
    bool action_scheduled = false;
-   auto& idx = db.get_index< smt_contribution_index, by_symbol_id >();
+   auto& idx = db.get_index< SST_contribution_index, by_symbol_id >();
    auto itr = idx.lower_bound( a );
 
    if ( itr != idx.end() && itr->symbol == a )
    {
-      smt_contributor_payout_action payout_action;
+      SST_contributor_payout_action payout_action;
       payout_action.contributor = itr->contributor;
       payout_action.contribution_id = itr->contribution_id;
       payout_action.contribution = itr->contribution;
       payout_action.symbol = itr->symbol;
 
-      const auto& ico = db.get< smt_ico_object, by_symbol >( itr->symbol );
-      const auto& ico_tier_idx = db.get_index< smt_ico_tier_index, by_symbol_steem_satoshi_cap >();
+      const auto& ico = db.get< SST_ico_object, by_symbol >( itr->symbol );
+      const auto& ico_tier_idx = db.get_index< SST_ico_tier_index, by_symbol_freezone_satoshi_cap >();
 
-      using generation_unit_share = std::tuple< smt_generation_unit, share_type >;
+      using generation_unit_share = std::tuple< SST_generation_unit, share_type >;
 
       std::vector< generation_unit_share > generation_unit_shares;
 
@@ -251,8 +251,8 @@ bool schedule_next_contributor_payout( database& db, const asset_symbol_type& a 
       {
          auto tier_contributions = unprocessed_contributions;
 
-         if ( ico.processed_contributions + unprocessed_contributions > ico_tier->steem_satoshi_cap )
-            tier_contributions = ico_tier->steem_satoshi_cap - ico.processed_contributions;
+         if ( ico.processed_contributions + unprocessed_contributions > ico_tier->freezone_satoshi_cap )
+            tier_contributions = ico_tier->freezone_satoshi_cap - ico.processed_contributions;
 
          generation_unit_shares.push_back( std::make_tuple( ico_tier->generation_unit, tier_contributions ) );
 
@@ -267,20 +267,20 @@ bool schedule_next_contributor_payout( database& db, const asset_symbol_type& a 
          const auto& contributed_amount        = std::get< 1 >( effective_generation_unit_shares );
 
          const auto& token_unit = effective_generation_unit.token_unit;
-         const auto& steem_unit = effective_generation_unit.steem_unit;
+         const auto& freezone_unit = effective_generation_unit.freezone_unit;
 
          auto vars = calculate_payout_vars( db, ico, effective_generation_unit, contributed_amount );
 
          for ( auto& e : token_unit )
          {
-            if ( !protocol::smt::unit_target::is_contributor( e.first ) )
+            if ( !protocol::SST::unit_target::is_contributor( e.first ) )
                continue;
 
-            auto token_shares = e.second * vars.steem_units_sent * vars.unit_ratio;
+            auto token_shares = e.second * vars.freezone_units_sent * vars.unit_ratio;
 
             asset_symbol_type symbol = itr->symbol;
 
-            if ( protocol::smt::unit_target::is_vesting_type( e.first ) )
+            if ( protocol::SST::unit_target::is_vesting_type( e.first ) )
                symbol = symbol.get_paired_symbol();
 
             if ( payout_map.count( symbol ) )
@@ -289,22 +289,22 @@ bool schedule_next_contributor_payout( database& db, const asset_symbol_type& a 
                payout_map[ symbol ] = token_shares;
          }
 
-         for ( auto& e : steem_unit )
+         for ( auto& e : freezone_unit )
          {
-            if ( !protocol::smt::unit_target::is_contributor( e.first ) )
+            if ( !protocol::SST::unit_target::is_contributor( e.first ) )
                continue;
 
-            auto steem_shares = e.second * vars.steem_units_sent;
+            auto freezone_shares = e.second * vars.freezone_units_sent;
 
-            asset_symbol_type symbol = STEEM_SYMBOL;
+            asset_symbol_type symbol = freezone_SYMBOL;
 
-            if ( protocol::smt::unit_target::is_vesting_type( e.first ) )
+            if ( protocol::SST::unit_target::is_vesting_type( e.first ) )
                symbol = symbol.get_paired_symbol();
 
             if ( payout_map.count( symbol ) )
-               payout_map[ symbol ] += steem_shares;
+               payout_map[ symbol ] += freezone_shares;
             else
-               payout_map[ symbol ] = steem_shares;
+               payout_map[ symbol ] = freezone_shares;
          }
       }
 
@@ -321,10 +321,10 @@ bool schedule_next_contributor_payout( database& db, const asset_symbol_type& a 
 bool schedule_founder_payout( database& db, const asset_symbol_type& a )
 {
    bool action_scheduled = false;
-   const auto& ico = db.get< smt_ico_object, by_symbol >( a );
-   const auto& ico_tier_idx = db.get_index< smt_ico_tier_index, by_symbol_steem_satoshi_cap >();
+   const auto& ico = db.get< SST_ico_object, by_symbol >( a );
+   const auto& ico_tier_idx = db.get_index< SST_ico_tier_index, by_symbol_freezone_satoshi_cap >();
 
-   using generation_unit_share = std::tuple< smt_generation_unit, share_type >;
+   using generation_unit_share = std::tuple< SST_generation_unit, share_type >;
 
    std::vector< generation_unit_share > generation_unit_shares;
 
@@ -334,12 +334,12 @@ bool schedule_founder_payout( database& db, const asset_symbol_type& a )
    {
       auto tier_contributions = unprocessed_contributions;
 
-      if ( ico.contributed.amount > ico_tier->steem_satoshi_cap )
+      if ( ico.contributed.amount > ico_tier->freezone_satoshi_cap )
       {
          if ( last_ico_tier != ico_tier_idx.end() )
-            tier_contributions = last_ico_tier->steem_satoshi_cap - ico_tier->steem_satoshi_cap;
+            tier_contributions = last_ico_tier->freezone_satoshi_cap - ico_tier->freezone_satoshi_cap;
          else
-            tier_contributions = ico_tier->steem_satoshi_cap;
+            tier_contributions = ico_tier->freezone_satoshi_cap;
       }
 
       generation_unit_shares.push_back( std::make_tuple( ico_tier->generation_unit, tier_contributions ) );
@@ -352,7 +352,7 @@ bool schedule_founder_payout( database& db, const asset_symbol_type& a )
    using account_asset_symbol_type = std::tuple< account_name_type, asset_symbol_type >;
    std::map< account_asset_symbol_type, share_type > account_payout_map;
    share_type                                        market_maker_tokens = 0;
-   share_type                                        market_maker_steem  = 0;
+   share_type                                        market_maker_freezone  = 0;
    share_type                                        rewards             = 0;
 
    for ( auto& effective_generation_unit_shares : generation_unit_shares )
@@ -361,22 +361,22 @@ bool schedule_founder_payout( database& db, const asset_symbol_type& a )
       const auto& contributed_amount        = std::get< 1 >( effective_generation_unit_shares );
 
       const auto& token_unit = effective_generation_unit.token_unit;
-      const auto& steem_unit = effective_generation_unit.steem_unit;
+      const auto& freezone_unit = effective_generation_unit.freezone_unit;
 
       auto vars = calculate_payout_vars( db, ico, effective_generation_unit, contributed_amount );
 
       for ( auto& e : token_unit )
       {
-         if ( protocol::smt::unit_target::is_contributor( e.first ) )
+         if ( protocol::SST::unit_target::is_contributor( e.first ) )
             continue;
 
-         auto token_shares = e.second * vars.steem_units_sent * vars.unit_ratio;
+         auto token_shares = e.second * vars.freezone_units_sent * vars.unit_ratio;
 
-         if ( protocol::smt::unit_target::is_market_maker( e.first ) )
+         if ( protocol::SST::unit_target::is_market_maker( e.first ) )
          {
             market_maker_tokens += token_shares;
          }
-         else if ( protocol::smt::unit_target::is_rewards( e.first ) )
+         else if ( protocol::SST::unit_target::is_rewards( e.first ) )
          {
             rewards += token_shares;
          }
@@ -384,10 +384,10 @@ bool schedule_founder_payout( database& db, const asset_symbol_type& a )
          {
             asset_symbol_type symbol = a;
 
-            if ( protocol::smt::unit_target::is_vesting_type( e.first ) )
+            if ( protocol::SST::unit_target::is_vesting_type( e.first ) )
                symbol = symbol.get_paired_symbol();
 
-            account_name_type account_name = protocol::smt::unit_target::get_unit_target_account( e.first );
+            account_name_type account_name = protocol::SST::unit_target::get_unit_target_account( e.first );
             auto map_key = std::make_tuple( account_name, symbol );
             if ( account_payout_map.count( map_key ) )
                account_payout_map[ map_key ] += token_shares;
@@ -396,44 +396,44 @@ bool schedule_founder_payout( database& db, const asset_symbol_type& a )
          }
       }
 
-      for ( auto& e : steem_unit )
+      for ( auto& e : freezone_unit )
       {
-         if ( protocol::smt::unit_target::is_contributor( e.first ) )
+         if ( protocol::SST::unit_target::is_contributor( e.first ) )
             continue;
 
-         auto steem_shares = e.second * vars.steem_units_sent;
+         auto freezone_shares = e.second * vars.freezone_units_sent;
 
-         if ( protocol::smt::unit_target::is_market_maker( e.first ) )
+         if ( protocol::SST::unit_target::is_market_maker( e.first ) )
          {
-            market_maker_steem += steem_shares;
+            market_maker_freezone += freezone_shares;
          }
          else
          {
-            asset_symbol_type symbol = STEEM_SYMBOL;
+            asset_symbol_type symbol = freezone_SYMBOL;
 
-            if ( protocol::smt::unit_target::is_vesting_type( e.first ) )
+            if ( protocol::SST::unit_target::is_vesting_type( e.first ) )
                symbol = symbol.get_paired_symbol();
 
-            account_name_type account_name = protocol::smt::unit_target::get_unit_target_account( e.first );
+            account_name_type account_name = protocol::SST::unit_target::get_unit_target_account( e.first );
             auto map_key = std::make_tuple( account_name, symbol );
             if ( account_payout_map.count( map_key ) )
-               account_payout_map[ map_key ] += steem_shares;
+               account_payout_map[ map_key ] += freezone_shares;
             else
-               account_payout_map[ map_key ] = steem_shares;
+               account_payout_map[ map_key ] = freezone_shares;
          }
       }
    }
 
-   if ( account_payout_map.size() > 0 || market_maker_steem > 0 || market_maker_tokens > 0 || rewards > 0 )
+   if ( account_payout_map.size() > 0 || market_maker_freezone > 0 || market_maker_tokens > 0 || rewards > 0 )
    {
-      smt_founder_payout_action payout_action;
+      SST_founder_payout_action payout_action;
       payout_action.symbol = a;
 
       for ( auto it = account_payout_map.begin(); it != account_payout_map.end(); ++it )
          payout_action.account_payouts[ std::get< 0 >( it->first ) ].push_back( { asset( it->second, std::get< 1 >( it->first ).get_liquid_symbol() ), std::get< 1 >( it->first ).is_vesting() } );
 
       payout_action.market_maker_tokens = market_maker_tokens;
-      payout_action.market_maker_steem  = market_maker_steem;
+      payout_action.market_maker_freezone  = market_maker_freezone;
       payout_action.reward_balance = rewards;
 
       db.push_required_action( payout_action );
@@ -443,9 +443,9 @@ bool schedule_founder_payout( database& db, const asset_symbol_type& a )
    return action_scheduled;
 }
 
-fc::optional< share_type > get_ico_steem_hard_cap( database& db, const asset_symbol_type& a )
+fc::optional< share_type > get_ico_freezone_hard_cap( database& db, const asset_symbol_type& a )
 {
-   const auto& idx = db.get_index< smt_ico_tier_index, by_symbol_steem_satoshi_cap >();
+   const auto& idx = db.get_index< SST_ico_tier_index, by_symbol_freezone_satoshi_cap >();
 
    const auto range = idx.equal_range( a );
 
@@ -453,7 +453,7 @@ fc::optional< share_type > get_ico_steem_hard_cap( database& db, const asset_sym
    while ( itr != range.first )
    {
       --itr;
-      return itr->steem_satoshi_cap;
+      return itr->freezone_satoshi_cap;
    }
 
    return {};
@@ -461,9 +461,9 @@ fc::optional< share_type > get_ico_steem_hard_cap( database& db, const asset_sym
 
 void remove_ico_objects( database& db, const asset_symbol_type& symbol )
 {
-   db.remove( db.get< smt_ico_object, by_symbol >( symbol ) );
+   db.remove( db.get< SST_ico_object, by_symbol >( symbol ) );
 
-   const auto& ico_tier_idx = db.get_index< smt_ico_tier_index, by_symbol_steem_satoshi_cap >();
+   const auto& ico_tier_idx = db.get_index< SST_ico_tier_index, by_symbol_freezone_satoshi_cap >();
    auto itr = ico_tier_idx.lower_bound( symbol );
    while( itr != ico_tier_idx.end() && itr->symbol == symbol )
    {
@@ -473,12 +473,12 @@ void remove_ico_objects( database& db, const asset_symbol_type& symbol )
    }
 }
 
-// If we increase the value of SMT_MAX_ICO_TIERS, we should track the size in the ICO object
+// If we increase the value of SST_MAX_ICO_TIERS, we should track the size in the ICO object
 std::size_t ico_tier_size( database& db, const asset_symbol_type& symbol )
 {
    std::size_t num_ico_tiers = 0;
 
-   const auto& ico_tier_idx = db.get_index< smt_ico_tier_index, by_symbol_steem_satoshi_cap >();
+   const auto& ico_tier_idx = db.get_index< SST_ico_tier_index, by_symbol_freezone_satoshi_cap >();
    auto ico_tier_itr = ico_tier_idx.lower_bound( symbol );
    while ( ico_tier_itr != ico_tier_idx.end() && ico_tier_itr->symbol == symbol )
    {
@@ -489,7 +489,7 @@ std::size_t ico_tier_size( database& db, const asset_symbol_type& symbol )
    return num_ico_tiers;
 }
 
-} // steem::chain::util::smt::ico
+} // freezone::chain::util::SST::ico
 
-} } } } // steem::chain::util::smt
+} } } } // freezone::chain::util::SST
 

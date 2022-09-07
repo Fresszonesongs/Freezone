@@ -1,8 +1,8 @@
 #pragma once
 
-#include <steem/protocol/asset_symbol.hpp>
+#include <freezone/protocol/asset_symbol.hpp>
 
-namespace steem { namespace chain { namespace util {
+namespace freezone { namespace chain { namespace util {
 
 class nai_generator {
    nai_generator() = delete;
@@ -35,14 +35,14 @@ public:
    // 3. Max 27 bit decimal is 134,217,727 but only 8 characters are available to represent it as string so we are left
    //    with [0 : 99,999,999] range.
    // 4. The numbers starting with 0 decimal digit are reserved. Now we are left with 10 million reserved NAIs
-   //    [0 : 09,999,999] and 90 million available for SMT creators [10,000,000 : 99,999,999]
+   //    [0 : 09,999,999] and 90 million available for SST creators [10,000,000 : 99,999,999]
    // 5. The least significant bit is used as liquid/vesting variant indicator so the 10 and 90 million are numbers
    //    of liquid/vesting *pairs* of reserved/available NAIs.
-   // 6. 45 million SMTs await for their creators.
+   // 6. 45 million SSTs await for their creators.
    static asset_symbol_type generate( uint32_t seed )
    {
       asset_symbol_type new_symbol;
-      uint32_t nai = ( hasher::hash( seed ) % ( ( SMT_MAX_NAI + 1 ) - SMT_MIN_NON_RESERVED_NAI ) ) + SMT_MIN_NON_RESERVED_NAI;
+      uint32_t nai = ( hasher::hash( seed ) % ( ( SST_MAX_NAI + 1 ) - SST_MIN_NON_RESERVED_NAI ) ) + SST_MIN_NON_RESERVED_NAI;
       nai &= ~1;
 
       uint8_t check_digit = asset_symbol_type::damm_checksum_8digit( nai );
@@ -55,4 +55,4 @@ public:
    }
 };
 
-} } } // steem::chain::util
+} } } // freezone::chain::util

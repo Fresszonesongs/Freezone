@@ -1,16 +1,16 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/protocol/transaction.hpp>
+#include <freezone/protocol/transaction.hpp>
 
-#include <steem/chain/buffer_type.hpp>
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/buffer_type.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
 //#include <boost/multi_index/hashed_index.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-   using steem::protocol::signed_transaction;
+   using freezone::protocol::signed_transaction;
    using chainbase::t_vector;
 
    /**
@@ -20,7 +20,7 @@ namespace steem { namespace chain {
     */
    class transaction_object : public object< transaction_object_type, transaction_object >
    {
-      STEEM_STD_ALLOCATOR_CONSTRUCTOR( transaction_object )
+      freezone_STD_ALLOCATOR_CONSTRUCTOR( transaction_object )
 
       public:
          template< typename Constructor, typename Allocator >
@@ -56,19 +56,19 @@ namespace steem { namespace chain {
       allocator< transaction_object >
    > transaction_index;
 
-} } // steem::chain
+} } // freezone::chain
 
-FC_REFLECT( steem::chain::transaction_object, (id)(packed_trx)(trx_id)(expiration) )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::transaction_object, steem::chain::transaction_index )
+FC_REFLECT( freezone::chain::transaction_object, (id)(packed_trx)(trx_id)(expiration) )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::transaction_object, freezone::chain::transaction_index )
 
 namespace helpers
 {
    template <>
-   class index_statistic_provider<steem::chain::transaction_index>
+   class index_statistic_provider<freezone::chain::transaction_index>
    {
    public:
-      typedef steem::chain::transaction_index IndexType;
-      typedef typename steem::chain::transaction_object::t_packed_trx t_packed_trx;
+      typedef freezone::chain::transaction_index IndexType;
+      typedef typename freezone::chain::transaction_object::t_packed_trx t_packed_trx;
 
       index_statistic_info gather_statistics(const IndexType& index, bool onlyStaticInfo) const
       {

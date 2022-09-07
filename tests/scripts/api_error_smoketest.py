@@ -159,7 +159,7 @@ tests = [
    },
    {
       "method": "condenser_api.get_transaction_hex",
-      "params": [{"operations":[["transfer", {"from":"temp", "to":"null", "ammount":"1.000 STEEM"}]]}]
+      "params": [{"operations":[["transfer", {"from":"temp", "to":"null", "ammount":"1.000 freezone"}]]}]
    },
 # Not currently tracking info required for this
 #   {
@@ -168,11 +168,11 @@ tests = [
 #   },
    {
       "method": "condenser_api.get_required_signatures",
-      "params": [{"operations":[["transfer", {"from":"temp", "to":"null", "ammount":"1.000 STEEM"}]]}, []]
+      "params": [{"operations":[["transfer", {"from":"temp", "to":"null", "ammount":"1.000 freezone"}]]}, []]
    },
    {
       "method": "condenser_api.verify_authority",
-      "params": [{"operations":[["transfer", {"from":"temp", "to":"null", "ammount":"1.000 STEEM"}]]}]
+      "params": [{"operations":[["transfer", {"from":"temp", "to":"null", "ammount":"1.000 freezone"}]]}]
    },
    {
       "method": "condenser_api.verify_account_authority",
@@ -704,18 +704,18 @@ tests = [
       "params": {"required_active":["temp"]}
    },
    {
-      "method": "database_api.list_smt_token_emissions",
+      "method": "database_api.list_SST_token_emissions",
       "params": {"limit": 100, "order": "by_symbol_time", "start": []}
    },
-   {  "method": "database_api.find_smt_token_emissions",
+   {  "method": "database_api.find_SST_token_emissions",
       "params": {"asset_symbol": {"nai":"@@100000006", "decimals": 3}}
    }
    {
-      "method": "database_api.list_smt_contributions",
+      "method": "database_api.list_SST_contributions",
       "params": {"limit": 100, "order": "by_symbol_contributor", "start": []}
    },
    {
-      "method": "database_api.find_smt_contributions",
+      "method": "database_api.find_SST_contributions",
       "params": {"symbol_contributor": [["asset_symbol": {"nai":"@@100000006", "decimals": 3}, "account": "temp"]] }
    }
 ]
@@ -743,11 +743,11 @@ def test_api( url, headers, payload ):
 
 def main():
    if len( sys.argv ) == 1:
-      url = "https://api.steemit.com/"
+      url = "https://api.freezone.com/"
    elif len( sys.argv ) == 2:
       url = sys.argv[1]
    else:
-      exit( "Usage: api_error_smoketest.py <steem_api_endpoint>" )
+      exit( "Usage: api_error_smoketest.py <freezone_api_endpoint>" )
 
    print( "Testing against endpoint: " + url )
 

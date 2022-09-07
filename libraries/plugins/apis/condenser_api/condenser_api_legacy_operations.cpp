@@ -1,4 +1,4 @@
-#include <steem/plugins/condenser_api/condenser_api_legacy_operations.hpp>
+#include <freezone/plugins/condenser_api/condenser_api_legacy_operations.hpp>
 
 #define LEGACY_PREFIX "legacy_"
 #define LEGACY_PREFIX_OFFSET (7)
@@ -48,19 +48,19 @@ struct get_operation_name
    }
 };
 
-void to_variant( const steem::plugins::condenser_api::legacy_operation& var,  fc::variant& vo )
+void to_variant( const freezone::plugins::condenser_api::legacy_operation& var,  fc::variant& vo )
 {
    var.visit( from_operation( vo ) );
 }
 
-void from_variant( const fc::variant& var, steem::plugins::condenser_api::legacy_operation& vo )
+void from_variant( const fc::variant& var, freezone::plugins::condenser_api::legacy_operation& vo )
 {
    static std::map<string,int64_t> to_tag = []()
    {
       std::map<string,int64_t> name_map;
-      for( int i = 0; i < steem::plugins::condenser_api::legacy_operation::count(); ++i )
+      for( int i = 0; i < freezone::plugins::condenser_api::legacy_operation::count(); ++i )
       {
-         steem::plugins::condenser_api::legacy_operation tmp;
+         freezone::plugins::condenser_api::legacy_operation tmp;
          tmp.set_which(i);
          string n;
          tmp.visit( get_operation_name(n) );
@@ -71,9 +71,9 @@ void from_variant( const fc::variant& var, steem::plugins::condenser_api::legacy
    static std::map<string,int64_t> to_full_tag = []()
    {
       std::map<string,int64_t> name_map;
-      for( int i = 0; i < steem::plugins::condenser_api::legacy_operation::count(); ++i )
+      for( int i = 0; i < freezone::plugins::condenser_api::legacy_operation::count(); ++i )
       {
-         steem::plugins::condenser_api::legacy_operation tmp;
+         freezone::plugins::condenser_api::legacy_operation tmp;
          tmp.set_which(i);
          string n;
          tmp.visit( get_static_variant_name(n) );
@@ -99,52 +99,52 @@ void from_variant( const fc::variant& var, steem::plugins::condenser_api::legacy
    vo.visit( fc::to_static_variant( ar[1] ) );
 }
 
-void to_variant( const steem::plugins::condenser_api::legacy_comment_options_extensions& sv, fc::variant& v )
+void to_variant( const freezone::plugins::condenser_api::legacy_comment_options_extensions& sv, fc::variant& v )
 {
    old_sv_to_variant( sv, v );
 }
 
-void from_variant( const fc::variant& v, steem::plugins::condenser_api::legacy_comment_options_extensions& sv )
+void from_variant( const fc::variant& v, freezone::plugins::condenser_api::legacy_comment_options_extensions& sv )
 {
    old_sv_from_variant( v, sv );
 }
 
-void to_variant( const steem::plugins::condenser_api::legacy_pow2_work& sv, fc::variant& v )
+void to_variant( const freezone::plugins::condenser_api::legacy_pow2_work& sv, fc::variant& v )
 {
    old_sv_to_variant( sv, v );
 }
 
-void from_variant( const fc::variant& v, steem::plugins::condenser_api::legacy_pow2_work& sv )
+void from_variant( const fc::variant& v, freezone::plugins::condenser_api::legacy_pow2_work& sv )
 {
    old_sv_from_variant( v, sv );
 }
 
-void to_variant( const steem::plugins::condenser_api::legacy_smt_generation_policy& sv, fc::variant& v )
+void to_variant( const freezone::plugins::condenser_api::legacy_SST_generation_policy& sv, fc::variant& v )
 {
    old_sv_to_variant( sv, v );
 }
 
-void from_variant( const fc::variant& v, steem::plugins::condenser_api::legacy_smt_generation_policy& sv )
+void from_variant( const fc::variant& v, freezone::plugins::condenser_api::legacy_SST_generation_policy& sv )
 {
    old_sv_from_variant( v, sv );
 }
 
-void to_variant( const steem::plugins::condenser_api::legacy_smt_setup_parameter& sv, fc::variant& v )
+void to_variant( const freezone::plugins::condenser_api::legacy_SST_setup_parameter& sv, fc::variant& v )
 {
    old_sv_to_variant( sv, v );
 }
 
-void from_variant( const fc::variant& v, steem::plugins::condenser_api::legacy_smt_setup_parameter& sv )
+void from_variant( const fc::variant& v, freezone::plugins::condenser_api::legacy_SST_setup_parameter& sv )
 {
    old_sv_from_variant( v, sv );
 }
 
-void to_variant( const steem::plugins::condenser_api::legacy_smt_runtime_parameter& sv, fc::variant& v )
+void to_variant( const freezone::plugins::condenser_api::legacy_SST_runtime_parameter& sv, fc::variant& v )
 {
    old_sv_to_variant( sv, v );
 }
 
-void from_variant( const fc::variant& v, steem::plugins::condenser_api::legacy_smt_runtime_parameter& sv )
+void from_variant( const fc::variant& v, freezone::plugins::condenser_api::legacy_SST_runtime_parameter& sv )
 {
    old_sv_from_variant( v, sv );
 }

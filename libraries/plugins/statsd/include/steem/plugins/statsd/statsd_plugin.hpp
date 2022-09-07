@@ -1,12 +1,12 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 #include <appbase/application.hpp>
 
 #include <boost/config.hpp>
 
-#define STEEM_STATSD_PLUGIN_NAME "statsd"
+#define freezone_STATSD_PLUGIN_NAME "statsd"
 
-namespace steem { namespace plugins { namespace statsd {
+namespace freezone { namespace plugins { namespace statsd {
 
 using namespace appbase;
 
@@ -25,7 +25,7 @@ class statsd_plugin : public appbase::plugin< statsd_plugin >
 
       virtual void set_program_options( options_description&, options_description& ) override;
 
-      static const std::string& name() { static std::string name = STEEM_STATSD_PLUGIN_NAME; return name; }
+      static const std::string& name() { static std::string name = freezone_STATSD_PLUGIN_NAME; return name; }
 
       virtual void plugin_initialize( const variables_map& options ) override;
       virtual void plugin_startup() override;
@@ -44,4 +44,4 @@ class statsd_plugin : public appbase::plugin< statsd_plugin >
       std::unique_ptr< detail::statsd_plugin_impl > my;
 };
 
-} } } // steem::plugins::statsd
+} } } // freezone::plugins::statsd

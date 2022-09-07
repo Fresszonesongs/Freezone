@@ -1,16 +1,16 @@
 #pragma once
 
-#include <steem/chain/sps_objects.hpp>
-#include <steem/chain/notifications.hpp>
-#include <steem/chain/database.hpp>
-#include <steem/chain/index.hpp>
-#include <steem/chain/account_object.hpp>
+#include <freezone/chain/sps_objects.hpp>
+#include <freezone/chain/notifications.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/index.hpp>
+#include <freezone/chain/account_object.hpp>
 
-#include <steem/chain/util/sps_helper.hpp>
+#include <freezone/chain/util/sps_helper.hpp>
 
-#include <steem/protocol/sps_operations.hpp>
+#include <freezone/protocol/sps_operations.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 class sps_processor
 {
@@ -67,4 +67,4 @@ class sps_processor
       void run( const block_notification& note );
 };
 
-} } // namespace steem::chain
+} } // namespace freezone::chain

@@ -1,53 +1,53 @@
 
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/plugins/block_data_export/block_data_export_plugin.hpp>
+#include <freezone/plugins/block_data_export/block_data_export_plugin.hpp>
 
-#include <steem/plugins/rc/rc_config.hpp>
-#include <steem/plugins/rc/rc_curve.hpp>
-#include <steem/plugins/rc/rc_export_objects.hpp>
-#include <steem/plugins/rc/rc_plugin.hpp>
-#include <steem/plugins/rc/rc_objects.hpp>
-#include <steem/plugins/rc/rc_operations.hpp>
+#include <freezone/plugins/rc/rc_config.hpp>
+#include <freezone/plugins/rc/rc_curve.hpp>
+#include <freezone/plugins/rc/rc_export_objects.hpp>
+#include <freezone/plugins/rc/rc_plugin.hpp>
+#include <freezone/plugins/rc/rc_objects.hpp>
+#include <freezone/plugins/rc/rc_operations.hpp>
 
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/database.hpp>
-#include <steem/chain/database_exceptions.hpp>
-#include <steem/chain/generic_custom_operation_interpreter.hpp>
-#include <steem/chain/index.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/database_exceptions.hpp>
+#include <freezone/chain/generic_custom_operation_interpreter.hpp>
+#include <freezone/chain/index.hpp>
 
-#include <steem/jsonball/jsonball.hpp>
+#include <freezone/jsonball/jsonball.hpp>
 
 #include <boost/algorithm/string.hpp>
 
-#define STEEM_RC_REGEN_TIME   (60*60*24*5)
-// 2020.748973 VESTS == 1.000 STEEM when HF20 occurred on mainnet
+#define freezone_RC_REGEN_TIME   (60*60*24*5)
+// 2020.748973 VESTS == 1.000 freezone when HF20 occurred on mainnet
 // TODO: What should this value be for testnet?
-#define STEEM_HISTORICAL_ACCOUNT_CREATION_ADJUSTMENT      2020748973
+#define freezone_HISTORICAL_ACCOUNT_CREATION_ADJUSTMENT      2020748973
 
 #ifndef IS_TEST_NET
-#define STEEM_HF20_BLOCK_NUM                              26256743
+#define freezone_HF20_BLOCK_NUM                              26256743
 #endif
 
 // 1.66% is ~2 hours of regen.
 // 2 / ( 24 * 5 ) = 0.01666...
-#define STEEM_RC_MAX_NEGATIVE_PERCENT 166
+#define freezone_RC_MAX_NEGATIVE_PERCENT 166
 
-namespace steem { namespace plugins { namespace rc {
+namespace freezone { namespace plugins { namespace rc {
 
-using steem::plugins::block_data_export::block_data_export_plugin;
+using freezone::plugins::block_data_export::block_data_export_plugin;
 
 namespace detail {
 
 using chain::plugin_exception;
-using steem::chain::util::manabar_params;
-using steem::chain::util::manabar;
+using freezone::chain::util::manabar_params;
+using freezone::chain::util::manabar;
 
 class rc_plugin_impl
 {
    public:
       rc_plugin_impl( rc_plugin& _plugin ) :
-         _db( appbase::app().get_plugin< steem::plugins::chain::chain_plugin >().db() ),
+         _db( appbase::app().get_plugin< freezone::plugins::chain::chain_plugin >().db() ),
          _self( _plugin )
       {
          _skip.skip_reject_not_enough_rc = 0;
@@ -90,7 +90,7 @@ class rc_plugin_impl
       std::map< account_name_type, int64_t > _account_to_max_rc;
       uint32_t                      _enable_at_block = 1;
 
-      std::shared_ptr< generic_custom_operation_interpreter< steem::plugins::rc::rc_plugin_operation > >
+      std::shared_ptr< generic_custom_operation_interpreter< freezone::plugins::rc::rc_plugin_operation > >
                                     _custom_operation_interpreter;
 
 #ifdef IS_TEST_NET
@@ -132,7 +132,7 @@ void create_rc_account( database& db, uint32_t now, const account_object& accoun
          return;
    }
 
-   if( max_rc_creation_adjustment.symbol == STEEM_SYMBOL )
+   if( max_rc_creation_adjustment.symbol == freezone_SYMBOL )
    {
       const dynamic_global_property_object& gpo = db.get_dynamic_global_properties();
       max_rc_creation_adjustment = max_rc_creation_adjustment * gpo.get_vesting_share_price();
@@ -158,11 +158,11 @@ void create_rc_account( database& db, uint32_t now, const account_object& accoun
       rca.rc_manabar.current_mana = max_rc;
       rca.last_max_rc = max_rc;
 
-      rca.indel_slots[ STEEM_RC_CREATOR_SLOT_NUM ] = creator;
-      rca.indel_slots[ STEEM_RC_RECOVERY_SLOT_NUM ] = account.recovery_account;
-      for( int i = STEEM_RC_USER_SLOT_NUM; i < STEEM_RC_MAX_SLOTS; i++ )
+      rca.indel_slots[ freezone_RC_CREATOR_SLOT_NUM ] = creator;
+      rca.indel_slots[ freezone_RC_RECOVERY_SLOT_NUM ] = account.recovery_account;
+      for( int i = freezone_RC_USER_SLOT_NUM; i < freezone_RC_MAX_SLOTS; i++ )
       {
-         rca.indel_slots[ i ] = STEEM_NULL_ACCOUNT;
+         rca.indel_slots[ i ] = freezone_NULL_ACCOUNT;
       }
    } );
 }
@@ -234,7 +234,7 @@ struct get_resource_user_visitor
       return account_name_type();
    }
 
-   account_name_type operator()( const smt_token_emission_action& a )const
+   account_name_type operator()( const SST_token_emission_action& a )const
    {
       return a.symbol.to_nai_string();
    }
@@ -277,7 +277,7 @@ void use_account_rcs(
    {
       if( db.is_producing() )
       {
-         STEEM_ASSERT( false, plugin_exception,
+         freezone_ASSERT( false, plugin_exception,
             "Tried to execute transaction with no resource user",
             );
       }
@@ -293,13 +293,13 @@ void use_account_rcs(
    const rc_account_object& rc_account = db.get< rc_account_object, by_name >( account_name );
 
    int64_t total_mana_available = 0;
-   std::array< manabar, STEEM_RC_MAX_SLOTS > drc_manabars;
-   std::array< manabar, STEEM_RC_MAX_SLOTS > pool_manabars;
+   std::array< manabar, freezone_RC_MAX_SLOTS > drc_manabars;
+   std::array< manabar, freezone_RC_MAX_SLOTS > pool_manabars;
    manabar_params mbparams;
-   mbparams.regen_time = STEEM_RC_REGEN_TIME;
+   mbparams.regen_time = freezone_RC_REGEN_TIME;
    auto now = gpo.time.sec_since_epoch();
 
-   for( int i = 0; i < STEEM_RC_MAX_SLOTS; i++ )
+   for( int i = 0; i < freezone_RC_MAX_SLOTS; i++ )
    {
       const auto* drc_edge = db.find< rc_outdel_drc_edge_object, by_edge >( boost::make_tuple( rc_account.indel_slots[i], account_name, VESTS_SYMBOL ) );
 
@@ -339,12 +339,12 @@ void use_account_rcs(
    {
       rca.rc_manabar = rca_manabar;
 
-      if( (!skip.skip_reject_not_enough_rc) && db.has_hardfork( STEEM_HARDFORK_0_20 ) )
+      if( (!skip.skip_reject_not_enough_rc) && db.has_hardfork( freezone_HARDFORK_0_20 ) )
       {
          if( db.is_producing() )
          {
-            STEEM_ASSERT( has_mana, plugin_exception,
-               "Account: ${account} has ${rc_current} RC, needs ${rc_needed} RC. Please wait to transact, or power up STEEM.",
+            freezone_ASSERT( has_mana, plugin_exception,
+               "Account: ${account} has ${rc_current} RC, needs ${rc_needed} RC. Please wait to transact, or power up freezone.",
                ("account", account_name)
                ("rc_needed", rc)
                ("rc_current", rca.rc_manabar.current_mana)
@@ -372,12 +372,12 @@ void use_account_rcs(
       if( skip.skip_deduct_rc )
          return;
 
-      int64_t min_mana = -1 * ( STEEM_RC_MAX_NEGATIVE_PERCENT * mbparams.max_mana ) / STEEM_100_PERCENT;
+      int64_t min_mana = -1 * ( freezone_RC_MAX_NEGATIVE_PERCENT * mbparams.max_mana ) / freezone_100_PERCENT;
 
       rca.rc_manabar.use_mana( rc - total_mana_delegated, min_mana );
    } );
 
-   for( int i = 0; i < STEEM_RC_MAX_SLOTS; i++ )
+   for( int i = 0; i < freezone_RC_MAX_SLOTS; i++ )
    {
       const auto* drc_edge = db.find< rc_outdel_drc_edge_object, by_edge >( boost::make_tuple( rc_account.indel_slots[i], account_name, VESTS_SYMBOL ) );
 
@@ -403,7 +403,7 @@ void rc_plugin_impl::on_post_apply_transaction( const transaction_notification& 
    if( before_first_block() )
       return;
 
-   int64_t rc_regen = (gpo.total_vesting_shares.amount.value / (STEEM_RC_REGEN_TIME / STEEM_BLOCK_INTERVAL));
+   int64_t rc_regen = (gpo.total_vesting_shares.amount.value / (freezone_RC_REGEN_TIME / freezone_BLOCK_INTERVAL));
 
    rc_transaction_info tx_info;
 
@@ -419,7 +419,7 @@ void rc_plugin_impl::on_post_apply_transaction( const transaction_notification& 
    // When rc_regen is 0, everything is free
    if( rc_regen > 0 )
    {
-      for( size_t i=0; i<STEEM_NUM_RESOURCE_TYPES; i++ )
+      for( size_t i=0; i<freezone_NUM_RESOURCE_TYPES; i++ )
       {
          const rc_resource_params& params = params_obj.resource_param_array[i];
          int64_t pool = pool_obj.pool_array[i];
@@ -440,7 +440,7 @@ void rc_plugin_impl::on_post_apply_transaction( const transaction_notification& 
    );
 
    std::shared_ptr< exp_rc_data > export_data =
-      steem::plugins::block_data_export::find_export_data< exp_rc_data >( STEEM_RC_PLUGIN_NAME );
+      freezone::plugins::block_data_export::find_export_data< exp_rc_data >( freezone_RC_PLUGIN_NAME );
    if( (gpo.head_block_number % 10000) == 0 )
    {
       dlog( "${t} : ${i}", ("t", gpo.time)("i", tx_info) );
@@ -553,7 +553,7 @@ void rc_plugin_impl::on_post_apply_block( const block_notification& note )
       {
          bool debug_print = ((gpo.head_block_number % 10000) == 0);
 
-         for( size_t i=0; i<STEEM_NUM_RESOURCE_TYPES; i++ )
+         for( size_t i=0; i<freezone_NUM_RESOURCE_TYPES; i++ )
          {
             const rd_dynamics_params& params = params_obj.resource_param_array[i].resource_dynamics_params;
             int64_t& pool = pool_obj.pool_array[i];
@@ -589,7 +589,7 @@ void rc_plugin_impl::on_post_apply_block( const block_notification& note )
                double k = 27.027027027027028;
                double a = double(params.pool_eq - pool);
                a /= k*double(pool);
-               dlog( "a=${a}   aR=${aR}", ("a", a)("aR", a*gpo.total_vesting_shares.amount.value/STEEM_RC_REGEN_TIME) );
+               dlog( "a=${a}   aR=${aR}", ("a", a)("aR", a*gpo.total_vesting_shares.amount.value/freezone_RC_REGEN_TIME) );
             }
          }
          if( debug_print )
@@ -599,7 +599,7 @@ void rc_plugin_impl::on_post_apply_block( const block_notification& note )
       } );
 
    std::shared_ptr< exp_rc_data > export_data =
-      steem::plugins::block_data_export::find_export_data< exp_rc_data >( STEEM_RC_PLUGIN_NAME );
+      freezone::plugins::block_data_export::find_export_data< exp_rc_data >( freezone_RC_PLUGIN_NAME );
    if( export_data )
       export_data->block_info = block_info;
 } FC_CAPTURE_AND_RETHROW( (note.block) ) }
@@ -607,7 +607,7 @@ void rc_plugin_impl::on_post_apply_block( const block_notification& note )
 void rc_plugin_impl::on_first_block()
 {
    // Initial values are located at `libraries/jsonball/data/resource_parameters.json`
-   std::string resource_params_json = steem::jsonball::get_resource_parameters();
+   std::string resource_params_json = freezone::jsonball::get_resource_parameters();
    fc::variant resource_params_var = fc::json::from_string( resource_params_json, fc::json::strict_parser );
    std::vector< std::pair< fc::variant, std::pair< fc::variant_object, fc::variant_object > > > resource_params_pairs;
    fc::from_variant( resource_params_var, resource_params_pairs );
@@ -632,7 +632,7 @@ void rc_plugin_impl::on_first_block()
    _db.create< rc_pool_object >(
       [&]( rc_pool_object& pool_obj )
       {
-         for( size_t i=0; i<STEEM_NUM_RESOURCE_TYPES; i++ )
+         for( size_t i=0; i<freezone_NUM_RESOURCE_TYPES; i++ )
          {
             const rc_resource_params& params = params_obj.resource_param_array[i];
             pool_obj.pool_array[i] = params.resource_dynamics_params.pool_eq;
@@ -644,7 +644,7 @@ void rc_plugin_impl::on_first_block()
    const auto& idx = _db.get_index< account_index >().indices().get< by_id >();
    for( auto it=idx.begin(); it!=idx.end(); ++it )
    {
-      create_rc_account( _db, now.sec_since_epoch(), *it, asset( STEEM_HISTORICAL_ACCOUNT_CREATION_ADJUSTMENT, VESTS_SYMBOL ), it->name );
+      create_rc_account( _db, now.sec_since_epoch(), *it, asset( freezone_HISTORICAL_ACCOUNT_CREATION_ADJUSTMENT, VESTS_SYMBOL ), it->name );
    }
 
    return;
@@ -699,13 +699,13 @@ struct pre_apply_operation_visitor
       //
       // TODO:  Issue number
       //
-      static_assert( STEEM_RC_REGEN_TIME <= STEEM_VOTING_MANA_REGENERATION_SECONDS, "RC regen time must be smaller than vote regen time" );
+      static_assert( freezone_RC_REGEN_TIME <= freezone_VOTING_MANA_REGENERATION_SECONDS, "RC regen time must be smaller than vote regen time" );
 
       // ilog( "regenerate(${a})", ("a", account.name) );
 
       manabar_params mbparams;
       mbparams.max_mana = get_maximum_rc( account, rc_account );
-      mbparams.regen_time = STEEM_RC_REGEN_TIME;
+      mbparams.regen_time = freezone_RC_REGEN_TIME;
 
       try {
 
@@ -713,7 +713,7 @@ struct pre_apply_operation_visitor
       {
          if( !_skip.skip_reject_unknown_delta_vests )
          {
-            STEEM_ASSERT( false, plugin_exception,
+            freezone_ASSERT( false, plugin_exception,
                "Account ${a} max RC changed from ${old} to ${new} without triggering an op, noticed on block ${b}",
                ("a", account.name)("old", rc_account.last_max_rc)("new", mbparams.max_mana)("b", _db.head_block_num()) );
          }
@@ -812,12 +812,12 @@ struct pre_apply_operation_visitor
       regenerate( op.account );
    }
 
-   void operator()( const smt_contributor_payout_action& op )const
+   void operator()( const SST_contributor_payout_action& op )const
    {
       regenerate( op.contributor );
    }
 
-   void operator()( const smt_founder_payout_action& op )const
+   void operator()( const SST_founder_payout_action& op )const
    {
       for ( auto& e : op.account_payouts )
          regenerate( e.first );
@@ -825,7 +825,7 @@ struct pre_apply_operation_visitor
 
    void operator()( const hardfork_operation& op )const
    {
-      if( op.hardfork_id == STEEM_HARDFORK_0_1 )
+      if( op.hardfork_id == freezone_HARDFORK_0_1 )
       {
          const auto& idx = _db.get_index< account_index >().indices().get< by_id >();
          for( auto it=idx.begin(); it!=idx.end(); ++it )
@@ -852,7 +852,7 @@ struct pre_apply_operation_visitor
 
    void operator()( const clear_null_account_balance_operation& op )const
    {
-      regenerate( STEEM_NULL_ACCOUNT );
+      regenerate( freezone_NULL_ACCOUNT );
    }
 
    void operator()( const pow_operation& op )const
@@ -953,7 +953,7 @@ struct post_apply_operation_visitor
             {
                manabar_params mbparams;
                mbparams.max_mana = rc_pool.max_rc;
-               mbparams.regen_time = STEEM_RC_REGEN_TIME;
+               mbparams.regen_time = freezone_RC_REGEN_TIME;
                pool_manabar.regenerate_mana< true >( mbparams, _db.head_block_time() );
             }
 
@@ -1020,7 +1020,7 @@ struct post_apply_operation_visitor
    void operator()( const pow_operation& op )const
    {
       // ilog( "handling post-apply pow_operation" );
-      create_rc_account< true >( _db, _current_time, op.worker_account, asset( 0, STEEM_SYMBOL ), op.worker_account );
+      create_rc_account< true >( _db, _current_time, op.worker_account, asset( 0, freezone_SYMBOL ), op.worker_account );
       _mod_accounts.emplace_back( op.worker_account );
       _mod_accounts.emplace_back( _current_witness );
    }
@@ -1028,7 +1028,7 @@ struct post_apply_operation_visitor
    void operator()( const pow2_operation& op )const
    {
       auto worker_name = get_worker_name( op.work );
-      create_rc_account< true >( _db, _current_time, worker_name, asset( 0, STEEM_SYMBOL ), worker_name );
+      create_rc_account< true >( _db, _current_time, worker_name, asset( 0, freezone_SYMBOL ), worker_name );
       _mod_accounts.emplace_back( worker_name );
       _mod_accounts.emplace_back( _current_witness );
    }
@@ -1089,12 +1089,12 @@ struct post_apply_operation_visitor
       _mod_accounts.emplace_back( op.account );
    }
 
-   void operator()( const smt_contributor_payout_action& op )const
+   void operator()( const SST_contributor_payout_action& op )const
    {
       _mod_accounts.emplace_back( op.contributor );
    }
 
-   void operator()( const smt_founder_payout_action& op )const
+   void operator()( const SST_founder_payout_action& op )const
    {
       for ( auto& e : op.account_payouts )
          _mod_accounts.emplace_back( e.first );
@@ -1102,7 +1102,7 @@ struct post_apply_operation_visitor
 
    void operator()( const hardfork_operation& op )const
    {
-      if( op.hardfork_id == STEEM_HARDFORK_0_1 )
+      if( op.hardfork_id == freezone_HARDFORK_0_1 )
       {
          const auto& idx = _db.get_index< account_index >().indices().get< by_id >();
          for( auto it=idx.begin(); it!=idx.end(); ++it )
@@ -1111,13 +1111,13 @@ struct post_apply_operation_visitor
          }
       }
 
-      if( op.hardfork_id == STEEM_HARDFORK_0_20 )
+      if( op.hardfork_id == freezone_HARDFORK_0_20 )
       {
          const auto& params = _db.get< rc_resource_param_object, by_id >( rc_resource_param_object::id_type() );
 
          _db.modify( _db.get< rc_pool_object, by_id >( rc_pool_object::id_type() ), [&]( rc_pool_object& p )
          {
-            for( size_t i = 0; i < STEEM_NUM_RESOURCE_TYPES; i++ )
+            for( size_t i = 0; i < freezone_NUM_RESOURCE_TYPES; i++ )
             {
                p.pool_array[ i ] = int64_t( params.resource_param_array[ i ].resource_dynamics_params.max_pool_size );
             }
@@ -1144,7 +1144,7 @@ struct post_apply_operation_visitor
 
    void operator()( const clear_null_account_balance_operation& op )const
    {
-      _mod_accounts.emplace_back( STEEM_NULL_ACCOUNT );
+      _mod_accounts.emplace_back( freezone_NULL_ACCOUNT );
    }
 
    void operator()( const create_proposal_operation& op )const
@@ -1168,7 +1168,7 @@ struct post_apply_operation_visitor
       _mod_accounts.emplace_back( op.from_account );
    }
 
-   void operator()( const smt_token_launch_action& op )const
+   void operator()( const SST_token_launch_action& op )const
    {
       account_name_type nai = op.symbol.to_nai_string();
       int32_t now = _db.head_block_time().sec_since_epoch();
@@ -1178,15 +1178,15 @@ struct post_apply_operation_visitor
          rca.account = nai;
          rca.creator = op.control_account;
          rca.rc_manabar.last_update_time = now;
-         rca.max_rc_creation_adjustment = asset( 0, STEEM_SYMBOL );
+         rca.max_rc_creation_adjustment = asset( 0, freezone_SYMBOL );
          int64_t max_rc = 0;
          rca.rc_manabar.current_mana = max_rc;
          rca.last_max_rc = max_rc;
 
-         rca.indel_slots[ STEEM_RC_CREATOR_SLOT_NUM ] = nai;
-         for( int i = STEEM_RC_RECOVERY_SLOT_NUM; i < STEEM_RC_MAX_SLOTS; i++ )
+         rca.indel_slots[ freezone_RC_CREATOR_SLOT_NUM ] = nai;
+         for( int i = freezone_RC_RECOVERY_SLOT_NUM; i < freezone_RC_MAX_SLOTS; i++ )
          {
-            rca.indel_slots[ i ] = STEEM_NULL_ACCOUNT;
+            rca.indel_slots[ i ] = freezone_NULL_ACCOUNT;
          }
       });
    }
@@ -1209,7 +1209,7 @@ void rc_plugin_impl::on_pre_apply_required_action( const required_action_notific
    pre_apply_operation_visitor vtor( _db );
 
    // TODO: Add issue number to HF constant
-   if( _db.has_hardfork( STEEM_HARDFORK_0_20 ) )
+   if( _db.has_hardfork( freezone_HARDFORK_0_20 ) )
       vtor._vesting_share_price = gpo.get_vesting_share_price();
 
    vtor._current_witness = gpo.current_witness;
@@ -1228,7 +1228,7 @@ void rc_plugin_impl::on_pre_apply_operation( const operation_notification& note 
    pre_apply_operation_visitor vtor( _db );
 
    // TODO: Add issue number to HF constant
-   if( _db.has_hardfork( STEEM_HARDFORK_0_20 ) )
+   if( _db.has_hardfork( freezone_HARDFORK_0_20 ) )
       vtor._vesting_share_price = gpo.get_vesting_share_price();
 
    vtor._current_witness = gpo.current_witness;
@@ -1250,7 +1250,7 @@ void rc_plugin_impl::pre_apply_custom_op_type( const custom_operation_notificati
    pre_apply_operation_visitor vtor( _db );
 
    // TODO: Add issue number to HF constant
-   if( _db.has_hardfork( STEEM_HARDFORK_0_20 ) )
+   if( _db.has_hardfork( freezone_HARDFORK_0_20 ) )
       vtor._vesting_share_price = gpo.get_vesting_share_price();
 
    vtor._current_witness = gpo.current_witness;
@@ -1372,7 +1372,7 @@ void rc_plugin_impl::on_post_apply_optional_action( const optional_action_notifi
    update_modified_accounts( _db, modified_accounts );
 
    // There is no transaction equivalent for actions, so post apply transaction logic for actions go here.
-   int64_t rc_regen = (gpo.total_vesting_shares.amount.value / (STEEM_RC_REGEN_TIME / STEEM_BLOCK_INTERVAL));
+   int64_t rc_regen = (gpo.total_vesting_shares.amount.value / (freezone_RC_REGEN_TIME / freezone_BLOCK_INTERVAL));
 
    rc_optional_action_info opt_action_info;
 
@@ -1388,7 +1388,7 @@ void rc_plugin_impl::on_post_apply_optional_action( const optional_action_notifi
    // When rc_regen is 0, everything is free
    if( rc_regen > 0 )
    {
-      for( size_t i=0; i<STEEM_NUM_RESOURCE_TYPES; i++ )
+      for( size_t i=0; i<freezone_NUM_RESOURCE_TYPES; i++ )
       {
          const rc_resource_params& params = params_obj.resource_param_array[i];
          int64_t pool = pool_obj.pool_array[i];
@@ -1409,7 +1409,7 @@ void rc_plugin_impl::on_post_apply_optional_action( const optional_action_notifi
    );
 
    std::shared_ptr< exp_rc_data > export_data =
-      steem::plugins::block_data_export::find_export_data< exp_rc_data >( STEEM_RC_PLUGIN_NAME );
+      freezone::plugins::block_data_export::find_export_data< exp_rc_data >( freezone_RC_PLUGIN_NAME );
    if( (gpo.head_block_number % 10000) == 0 )
    {
       dlog( "${t} : ${i}", ("t", gpo.time)("i", opt_action_info) );
@@ -1473,11 +1473,11 @@ void rc_plugin::plugin_initialize( const boost::program_options::variables_map& 
       if( export_plugin != nullptr )
       {
          ilog( "Registering RC export data factory" );
-         export_plugin->register_export_data_factory( STEEM_RC_PLUGIN_NAME,
+         export_plugin->register_export_data_factory( freezone_RC_PLUGIN_NAME,
             []() -> std::shared_ptr< exportable_block_data > { return std::make_shared< exp_rc_data >(); } );
       }
 
-      chain::database& db = appbase::app().get_plugin< steem::plugins::chain::chain_plugin >().db();
+      chain::database& db = appbase::app().get_plugin< freezone::plugins::chain::chain_plugin >().db();
 
       my->_post_apply_block_conn = db.add_post_apply_block_handler( [&]( const block_notification& note )
          { try { my->on_post_apply_block( note ); } FC_LOG_AND_RETHROW() }, *this, 0 );
@@ -1502,13 +1502,13 @@ void rc_plugin::plugin_initialize( const boost::program_options::variables_map& 
       my->_post_apply_custom_operation_conn = db.add_post_apply_custom_operation_handler( [&]( const custom_operation_notification& note )
          { try { my->on_post_apply_custom_operation( note ); } FC_LOG_AND_RETHROW() }, *this, 0 );
 
-      STEEM_ADD_PLUGIN_INDEX(db, rc_resource_param_index);
-      STEEM_ADD_PLUGIN_INDEX(db, rc_pool_index);
-      STEEM_ADD_PLUGIN_INDEX(db, rc_account_index);
-      STEEM_ADD_PLUGIN_INDEX(db, rc_delegation_pool_index);
-      STEEM_ADD_PLUGIN_INDEX(db, rc_delegation_from_account_index);
-      STEEM_ADD_PLUGIN_INDEX(db, rc_indel_edge_index);
-      STEEM_ADD_PLUGIN_INDEX(db, rc_outdel_drc_edge_index);
+      freezone_ADD_PLUGIN_INDEX(db, rc_resource_param_index);
+      freezone_ADD_PLUGIN_INDEX(db, rc_pool_index);
+      freezone_ADD_PLUGIN_INDEX(db, rc_account_index);
+      freezone_ADD_PLUGIN_INDEX(db, rc_delegation_pool_index);
+      freezone_ADD_PLUGIN_INDEX(db, rc_delegation_from_account_index);
+      freezone_ADD_PLUGIN_INDEX(db, rc_indel_edge_index);
+      freezone_ADD_PLUGIN_INDEX(db, rc_outdel_drc_edge_index);
 
       fc::mutable_variant_object state_opts;
 
@@ -1517,7 +1517,7 @@ void rc_plugin::plugin_initialize( const boost::program_options::variables_map& 
 #ifndef IS_TEST_NET
       if( !options.at( "rc-compute-historical-rc" ).as<bool>() )
       {
-         my->_enable_at_block = STEEM_HF20_BLOCK_NUM;
+         my->_enable_at_block = freezone_HF20_BLOCK_NUM;
       }
 #else
       uint32_t start_block = options.at( "rc-start-at-block" ).as<uint32_t>();
@@ -1544,7 +1544,7 @@ void rc_plugin::plugin_initialize( const boost::program_options::variables_map& 
       appbase::app().get_plugin< chain::chain_plugin >().report_state_options( name(), state_opts );
 
       // Each plugin needs its own evaluator registry.
-      my->_custom_operation_interpreter = std::make_shared< generic_custom_operation_interpreter< steem::plugins::rc::rc_plugin_operation > >( my->_db, name() );
+      my->_custom_operation_interpreter = std::make_shared< generic_custom_operation_interpreter< freezone::plugins::rc::rc_plugin_operation > >( my->_db, name() );
 
       // Add each operation evaluator to the registry
       my->_custom_operation_interpreter->register_evaluator< delegate_to_pool_evaluator >( this );
@@ -1609,4 +1609,4 @@ int64_t get_maximum_rc( const account_object& account, const rc_account_object& 
    return result;
 }
 
-} } } // steem::plugins::rc
+} } } // freezone::plugins::rc

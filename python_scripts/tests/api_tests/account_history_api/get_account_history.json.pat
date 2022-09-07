@@ -26,7 +26,7 @@
                     "vote",
                     {
                         "author": "blocktrades",
-                        "permlink": "steem-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
+                        "permlink": "freezone-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
                         "voter": "dilzeem",
                         "weight": 10000
                     }
@@ -47,10 +47,10 @@
                     {
                         "author": "mikegold10",
                         "body": "Just use the market on this site and forget about OpenLedger and its fees.",
-                        "json_metadata": "{\"tags\":[\"steem\"]}",
+                        "json_metadata": "{\"tags\":[\"freezone\"]}",
                         "parent_author": "blocktrades",
-                        "parent_permlink": "steem-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
-                        "permlink": "re-blocktrades-steem-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading-20160715t165115443z",
+                        "parent_permlink": "freezone-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
+                        "permlink": "re-blocktrades-freezone-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading-20160715t165115443z",
                         "title": ""
                     }
                 ],
@@ -123,7 +123,7 @@
                     "vote",
                     {
                         "author": "blocktrades",
-                        "permlink": "steem-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
+                        "permlink": "freezone-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
                         "voter": "rufai",
                         "weight": 10000
                     }
@@ -179,7 +179,7 @@
                     "vote",
                     {
                         "author": "blocktrades",
-                        "permlink": "steem-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
+                        "permlink": "freezone-deposits-withdrawals-re-enabled-on-openledger-for-decentralized-trading",
                         "voter": "george-goya",
                         "weight": 10000
                     }

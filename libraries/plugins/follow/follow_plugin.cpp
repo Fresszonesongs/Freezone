@@ -1,28 +1,28 @@
 
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/plugins/follow/follow_plugin.hpp>
-#include <steem/plugins/follow/follow_objects.hpp>
-#include <steem/plugins/follow/follow_operations.hpp>
-#include <steem/plugins/follow/inc_performance.hpp>
+#include <freezone/plugins/follow/follow_plugin.hpp>
+#include <freezone/plugins/follow/follow_objects.hpp>
+#include <freezone/plugins/follow/follow_operations.hpp>
+#include <freezone/plugins/follow/inc_performance.hpp>
 
-#include <steem/chain/util/impacted.hpp>
+#include <freezone/chain/util/impacted.hpp>
 
-#include <steem/protocol/config.hpp>
+#include <freezone/protocol/config.hpp>
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/index.hpp>
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/comment_object.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/index.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/comment_object.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/thread/thread.hpp>
 
 #include <memory>
 
-namespace steem { namespace plugins { namespace follow {
+namespace freezone { namespace plugins { namespace follow {
 
-using namespace steem::protocol;
+using namespace freezone::protocol;
 
 namespace detail {
 
@@ -30,7 +30,7 @@ class follow_plugin_impl
 {
    public:
       follow_plugin_impl( follow_plugin& _plugin ) :
-         _db( appbase::app().get_plugin< steem::plugins::chain::chain_plugin >().db() ),
+         _db( appbase::app().get_plugin< freezone::plugins::chain::chain_plugin >().db() ),
          _self( _plugin ) {}
       ~follow_plugin_impl() {}
 
@@ -63,11 +63,11 @@ struct pre_operation_visitor
          if( db.calculate_discussion_payout_time( c ) == fc::time_point_sec::maximum() ) return;
 
          const auto& cv_idx = db.get_index< comment_vote_index, by_comment_voter_symbol >();
-         auto cv = cv_idx.find( boost::make_tuple( c.id, db.get_account( op.voter ).id, STEEM_SYMBOL ) );
+         auto cv = cv_idx.find( boost::make_tuple( c.id, db.get_account( op.voter ).id, freezone_SYMBOL ) );
 
          if( cv != cv_idx.end() )
          {
-            auto rep_delta = ( cv->rshares >> STEEM_PRECISION_VESTS );
+            auto rep_delta = ( cv->rshares >> freezone_PRECISION_VESTS );
 
             const auto& rep_idx = db.get_index< reputation_index, by_account >();
             auto voter_rep = rep_idx.find( op.voter );
@@ -89,7 +89,7 @@ struct pre_operation_visitor
                {
                   db.modify( *author_rep, [&]( reputation_object& r )
                   {
-                     r.reputation -= ( cv->rshares >> STEEM_PRECISION_VESTS ); // Shift away precision from vests. It is noise
+                     r.reputation -= ( cv->rshares >> freezone_PRECISION_VESTS ); // Shift away precision from vests. It is noise
                   });
                }
             }
@@ -168,7 +168,7 @@ struct post_operation_visitor
             return;
 
          const auto& cv_idx = db.get_index< comment_vote_index, by_comment_voter_symbol >();
-         auto cv = cv_idx.find( boost::make_tuple( comment.id, db.get_account( op.voter ).id, STEEM_SYMBOL ) );
+         auto cv = cv_idx.find( boost::make_tuple( comment.id, db.get_account( op.voter ).id, freezone_SYMBOL ) );
 
          const auto& rep_idx = db.get_index< reputation_index, by_account >();
          auto voter_rep = rep_idx.find( op.voter );
@@ -187,7 +187,7 @@ struct post_operation_visitor
             db.create< reputation_object >( [&]( reputation_object& r )
             {
                r.account = op.author;
-               r.reputation = ( cv->rshares >> STEEM_PRECISION_VESTS ); // Shift away precision from vests. It is noise
+               r.reputation = ( cv->rshares >> freezone_PRECISION_VESTS ); // Shift away precision from vests. It is noise
             });
          }
          else
@@ -197,7 +197,7 @@ struct post_operation_visitor
 
             db.modify( *author_rep, [&]( reputation_object& r )
             {
-               r.reputation += ( cv->rshares >> STEEM_PRECISION_VESTS ); // Shift away precision from vests. It is noise
+               r.reputation += ( cv->rshares >> freezone_PRECISION_VESTS ); // Shift away precision from vests. It is noise
             });
          }
       }
@@ -211,7 +211,7 @@ struct post_operation_visitor
    {
       try
       {
-         if( op.id == STEEM_FOLLOW_PLUGIN_NAME )
+         if( op.id == freezone_FOLLOW_PLUGIN_NAME )
          {
             custom_json_operation new_cop;
 
@@ -377,7 +377,7 @@ void follow_plugin::plugin_initialize( const boost::program_options::variables_m
       my = std::make_unique< detail::follow_plugin_impl >( *this );
 
       // Each plugin needs its own evaluator registry.
-      _custom_operation_interpreter = std::make_shared< generic_custom_operation_interpreter< steem::plugins::follow::follow_plugin_operation > >( my->_db, name() );
+      _custom_operation_interpreter = std::make_shared< generic_custom_operation_interpreter< freezone::plugins::follow::follow_plugin_operation > >( my->_db, name() );
 
       // Add each operation evaluator to the registry
       _custom_operation_interpreter->register_evaluator< follow_evaluator >( this );
@@ -388,12 +388,12 @@ void follow_plugin::plugin_initialize( const boost::program_options::variables_m
 
       my->_pre_apply_operation_conn = my->_db.add_pre_apply_operation_handler( [&]( const operation_notification& note ){ my->pre_operation( note ); }, *this, 0 );
       my->_post_apply_operation_conn = my->_db.add_post_apply_operation_handler( [&]( const operation_notification& note ){ my->post_operation( note ); }, *this, 0 );
-      STEEM_ADD_PLUGIN_INDEX(my->_db, follow_index);
-      STEEM_ADD_PLUGIN_INDEX(my->_db, feed_index);
-      STEEM_ADD_PLUGIN_INDEX(my->_db, blog_index);
-      STEEM_ADD_PLUGIN_INDEX(my->_db, reputation_index);
-      STEEM_ADD_PLUGIN_INDEX(my->_db, follow_count_index);
-      STEEM_ADD_PLUGIN_INDEX(my->_db, blog_author_stats_index);
+      freezone_ADD_PLUGIN_INDEX(my->_db, follow_index);
+      freezone_ADD_PLUGIN_INDEX(my->_db, feed_index);
+      freezone_ADD_PLUGIN_INDEX(my->_db, blog_index);
+      freezone_ADD_PLUGIN_INDEX(my->_db, reputation_index);
+      freezone_ADD_PLUGIN_INDEX(my->_db, follow_count_index);
+      freezone_ADD_PLUGIN_INDEX(my->_db, blog_author_stats_index);
 
       fc::mutable_variant_object state_opts;
 
@@ -423,4 +423,4 @@ void follow_plugin::plugin_shutdown()
    chain::util::disconnect_signal( my->_post_apply_operation_conn );
 }
 
-} } } // steem::plugins::follow
+} } } // freezone::plugins::follow

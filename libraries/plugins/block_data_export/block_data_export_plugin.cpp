@@ -4,13 +4,13 @@
 #define BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION
 #define BOOST_THREAD_USES_MOVE
 
-#include <steem/plugins/block_data_export/block_data_export_plugin.hpp>
-#include <steem/plugins/block_data_export/exportable_block_data.hpp>
+#include <freezone/plugins/block_data_export/block_data_export_plugin.hpp>
+#include <freezone/plugins/block_data_export/exportable_block_data.hpp>
 
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/database.hpp>
-#include <steem/chain/global_property_object.hpp>
-#include <steem/chain/index.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/global_property_object.hpp>
+#include <freezone/chain/index.hpp>
 
 #include <boost/thread/future.hpp>
 #include <boost/thread/sync_bounded_queue.hpp>
@@ -20,12 +20,12 @@
 #include <queue>
 #include <sstream>
 
-namespace steem { namespace plugins { namespace block_data_export {
+namespace freezone { namespace plugins { namespace block_data_export {
 
-using steem::chain::block_notification;
-using steem::chain::database;
+using freezone::chain::block_notification;
+using freezone::chain::database;
 
-using steem::protocol::block_id_type;
+using freezone::protocol::block_id_type;
 
 namespace detail {
 
@@ -46,9 +46,9 @@ struct api_export_data_object
 
 } } } }
 
-FC_REFLECT( steem::plugins::block_data_export::detail::api_export_data_object, (block_id)(previous)(export_data) )
+FC_REFLECT( freezone::plugins::block_data_export::detail::api_export_data_object, (block_id)(previous)(export_data) )
 
-namespace steem { namespace plugins { namespace block_data_export { namespace detail {
+namespace freezone { namespace plugins { namespace block_data_export { namespace detail {
 
 struct work_item
 {
@@ -61,7 +61,7 @@ class block_data_export_plugin_impl
 {
    public:
       block_data_export_plugin_impl( block_data_export_plugin& _plugin ) :
-         _db( appbase::app().get_plugin< steem::plugins::chain::chain_plugin >().db() ),
+         _db( appbase::app().get_plugin< freezone::plugins::chain::chain_plugin >().db() ),
          _self( _plugin ),
          _data_queue( _max_queue_size ),
          _output_queue( _max_queue_size ) {}
@@ -306,4 +306,4 @@ void block_data_export_plugin::plugin_shutdown()
 exportable_block_data::exportable_block_data() {}
 exportable_block_data::~exportable_block_data() {}
 
-} } } // steem::plugins::block_data_export
+} } } // freezone::plugins::block_data_export

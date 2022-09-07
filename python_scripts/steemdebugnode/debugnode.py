@@ -11,48 +11,48 @@ from tempfile import TemporaryDirectory
 from threading import Lock
 from time import sleep
 
-from steemapi.steemnoderpc import SteemNodeRPC
+from freezoneapi.freezonenoderpc import freezoneNodeRPC
 
 class DebugNode( object ):
-   """ Wraps the steemd debug node plugin for easier automated testing of the Steem Network"""
+   """ Wraps the freezoned debug node plugin for easier automated testing of the freezone Network"""
 
-   def __init__( self, steemd, data_dir, args='', plugins=[], apis=[], steemd_out=None, steemd_err=None ):
-      """ Creates a steemd debug node.
+   def __init__( self, freezoned, data_dir, args='', plugins=[], apis=[], freezoned_out=None, freezoned_err=None ):
+      """ Creates a freezoned debug node.
 
       It can be ran by using 'with debug_node:'
       While in the context of 'with' the debug node will continue to run.
       Upon exit of 'with' the debug will exit and clean up temporary files.
       This class also contains methods to allow basic manipulation of the blockchain.
-      For all other requests, the python-steem library should be used.
+      For all other requests, the python-freezone library should be used.
 
       args:
-         steemd -- The string path to the location of the steemd binary
-         data_dir -- The string path to an existing steemd data directory which will be used to pull blocks from.
-         args -- Other string args to pass to steemd.
+         freezoned -- The string path to the location of the freezoned binary
+         data_dir -- The string path to an existing freezoned data directory which will be used to pull blocks from.
+         args -- Other string args to pass to freezoned.
          plugins -- Any additional plugins to start with the debug node. Modify plugins DebugNode.plugins
          apis -- Any additional APIs to have available. APIs will retain this order for accesibility starting at id 3.
             database_api is 0, login_api is 1, and debug_node_api is 2. Modify apis with DebugNode.api
-         steemd_stdout -- A stream for steemd's stdout. Default is to pipe to /dev/null
-         steemd_stderr -- A stream for steemd's stderr. Default is to pipe to /dev/null
+         freezoned_stdout -- A stream for freezoned's stdout. Default is to pipe to /dev/null
+         freezoned_stderr -- A stream for freezoned's stderr. Default is to pipe to /dev/null
       """
       self._data_dir = None
       self._debug_key = None
       self._FNULL = None
       self._rpc = None
-      self._steemd_bin = None
-      self._steemd_lock = None
-      self._steemd_process = None
+      self._freezoned_bin = None
+      self._freezoned_lock = None
+      self._freezoned_process = None
       self._temp_data_dir = None
 
-      self._steemd_bin = Path( steemd )
-      if( not self._steemd_bin.exists() ):
-         raise ValueError( 'steemd does not exist' )
-      if( not self._steemd_bin.is_file() ):
-         raise ValueError( 'steemd is not a file' )
+      self._freezoned_bin = Path( freezoned )
+      if( not self._freezoned_bin.exists() ):
+         raise ValueError( 'freezoned does not exist' )
+      if( not self._freezoned_bin.is_file() ):
+         raise ValueError( 'freezoned is not a file' )
 
       self._data_dir = Path( data_dir )
       if( not self._data_dir.exists() ):
-         raise ValueError( 'data_dir either does not exist or is not a properly constructed steem data directory' )
+         raise ValueError( 'data_dir either does not exist or is not a properly constructed freezone data directory' )
       if( not self._data_dir.is_dir() ):
          raise ValueError( 'data_dir is not a directory' )
 
@@ -65,22 +65,22 @@ class DebugNode( object ):
          self._args = list()
 
       self._FNULL = open( devnull, 'w' )
-      if( steemd_out != None ):
-         self.steemd_out = steemd_out
+      if( freezoned_out != None ):
+         self.freezoned_out = freezoned_out
       else:
-         self.steemd_out = self._FNULL
+         self.freezoned_out = self._FNULL
 
-      if( steemd_err != None ):
-         self.steemd_err = steemd_err
+      if( freezoned_err != None ):
+         self.freezoned_err = freezoned_err
       else:
-         self.steemd_err = self._FNULL
+         self.freezoned_err = self._FNULL
 
       self._debug_key = '5JHNbFNDg834SFj8CMArV6YW7td4zrPzXveqTfaShmYVuYNeK69'
-      self._steemd_lock = Lock()
+      self._freezoned_lock = Lock()
 
 
    def __enter__( self ):
-      self._steemd_lock.acquire()
+      self._freezoned_lock.acquire()
 
       # Setup temp directory to use as the data directory for this
       self._temp_data_dir = TemporaryDirectory()
@@ -97,42 +97,42 @@ class DebugNode( object ):
       config.touch()
       config.write_text( self._get_config() )
 
-      steemd = [ str( self._steemd_bin ), '--data-dir=' + str( self._temp_data_dir.name ) ]
-      steemd.extend( self._args )
+      freezoned = [ str( self._freezoned_bin ), '--data-dir=' + str( self._temp_data_dir.name ) ]
+      freezoned.extend( self._args )
 
-      self._steemd_process = Popen( steemd, stdout=self.steemd_out, stderr=self.steemd_err )
-      self._steemd_process.poll()
+      self._freezoned_process = Popen( freezoned, stdout=self.freezoned_out, stderr=self.freezoned_err )
+      self._freezoned_process.poll()
       sleep( 5 )
-      if( not self._steemd_process.returncode ):
-         self._rpc = SteemNodeRPC( 'ws://127.0.0.1:8095', '', '' )
+      if( not self._freezoned_process.returncode ):
+         self._rpc = freezoneNodeRPC( 'ws://127.0.0.1:8095', '', '' )
       else:
-         raise Exception( "steemd did not start properly..." )
+         raise Exception( "freezoned did not start properly..." )
 
    def __exit__( self, exc, value, tb ):
       self._rpc = None
 
-      if( self._steemd_process != None ):
-         self._steemd_process.poll()
+      if( self._freezoned_process != None ):
+         self._freezoned_process.poll()
 
-         if( not self._steemd_process.returncode ):
-            self._steemd_process.send_signal( SIGINT )
+         if( not self._freezoned_process.returncode ):
+            self._freezoned_process.send_signal( SIGINT )
 
             sleep( 7 )
-            self._steemd_process.poll()
+            self._freezoned_process.poll()
 
-            if( not self._steemd_process.returncode ):
-               self._steemd_process.send_signal( SIGTERM )
+            if( not self._freezoned_process.returncode ):
+               self._freezoned_process.send_signal( SIGTERM )
 
                sleep( 5 )
-               self._steemd_process.poll()
+               self._freezoned_process.poll()
 
-               if( self._steemd_process.returncode ):
-                  loggin.error( 'steemd did not properly shut down after SIGINT and SIGTERM. User intervention may be required.' )
+               if( self._freezoned_process.returncode ):
+                  loggin.error( 'freezoned did not properly shut down after SIGINT and SIGTERM. User intervention may be required.' )
 
-      self._steemd_process = None
+      self._freezoned_process = None
       self._temp_data_dir.cleanup()
       self._temp_data_dir = None
-      self._steemd_lock.release()
+      self._freezoned_lock.release()
 
 
    def _get_config( self ):
@@ -150,7 +150,7 @@ class DebugNode( object ):
 
       The debug node plugin requires a WIF key to sign blocks with. This class uses the key
       5JHNbFNDg834SFj8CMArV6YW7td4zrPzXveqTfaShmYVuYNeK69 which was generated from
-      `get_dev_key steem debug`. Do not use this key on the live chain for any reason.
+      `get_dev_key freezone debug`. Do not use this key on the live chain for any reason.
 
       args:
          count -- The number of new blocks to generate.
@@ -170,7 +170,7 @@ class DebugNode( object ):
 
       The debug node plugin requires a WIF key to sign blocks with. This class uses the key
       5JHNbFNDg834SFj8CMArV6YW7td4zrPzXveqTfaShmYVuYNeK69 which was generated from
-      `get_dev_key steem debug`. Do not use this key on the live chain for any reason.
+      `get_dev_key freezone debug`. Do not use this key on the live chain for any reason.
 
       args:
          time -- The desired new head block time. This is a POSIX Timestmap.
@@ -207,7 +207,7 @@ class DebugNode( object ):
 
       args:
          hardfork_id: The id of the hardfork to set. Hardfork IDs start at 1 (0 is genesis) and increment
-            by one for each hardfork. The maximum value is STEEM_NUM_HARDFORKS in chain/hardfork.d/0-preamble.hf
+            by one for each hardfork. The maximum value is freezone_NUM_HARDFORKS in chain/hardfork.d/0-preamble.hf
       """
       if( hardfork_id < 0 ):
          raise ValueError( "hardfork_id cannot be negative" )
@@ -233,7 +233,7 @@ if __name__=="__main__":
    def main():
       global WAITING
       """
-      This example contains a simple parser to obtain the locations of both steemd and the data directory,
+      This example contains a simple parser to obtain the locations of both freezoned and the data directory,
       creates and runs a new debug node, replays all of the blocks in the data directory, and finally waits
       for the user to interface with it outside of the script. Sending SIGINT succesfully and cleanly terminates
       the program.
@@ -248,26 +248,26 @@ if __name__=="__main__":
       parser = ArgumentParser( description='Run a Debug Node on an existing chain. This simply replays all blocks ' + \
                                  'and then waits indefinitely to allow user interaction through RPC calls and ' + \
                                  'the CLI wallet' )
-      parser.add_argument( '--steemd', '-s', type=str, required=True, help='The location of a steemd binary to run the debug node' )
+      parser.add_argument( '--freezoned', '-s', type=str, required=True, help='The location of a freezoned binary to run the debug node' )
       parser.add_argument( '--data-dir', '-d', type=str, required=True, help='The location of an existing data directory. ' + \
                            'The debug node will pull blocks from this directory when replaying the chain. The directory ' + \
                            'will not be changed.' )
 
       args = parser.parse_args()
 
-      steemd = Path( args.steemd )
-      if( not steemd.exists() ):
-         print( 'Error: steemd does not exist.' )
+      freezoned = Path( args.freezoned )
+      if( not freezoned.exists() ):
+         print( 'Error: freezoned does not exist.' )
          return
 
-      steemd = steemd.resolve()
-      if( not steemd.is_file() ):
-         print( 'Error: steemd is not a file.' )
+      freezoned = freezoned.resolve()
+      if( not freezoned.is_file() ):
+         print( 'Error: freezoned is not a file.' )
          return
 
       data_dir = Path( args.data_dir )
       if( not data_dir.exists() ):
-         print( 'Error: data_dir does not exist or is not a properly constructed steemd data directory' )
+         print( 'Error: data_dir does not exist or is not a properly constructed freezoned data directory' )
 
       data_dir = data_dir.resolve()
       if( not data_dir.is_dir() ):
@@ -276,7 +276,7 @@ if __name__=="__main__":
       signal.signal( signal.SIGINT, sigint_handler )
 
       print( 'Creating and starting debug node' )
-      debug_node = DebugNode( str( steemd ), str( data_dir ), steemd_err=sys.stderr )
+      debug_node = DebugNode( str( freezoned ), str( data_dir ), freezoned_err=sys.stderr )
 
       with debug_node:
          print( 'Done!' )

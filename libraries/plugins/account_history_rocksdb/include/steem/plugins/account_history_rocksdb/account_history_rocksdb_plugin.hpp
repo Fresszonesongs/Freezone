@@ -1,15 +1,15 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/plugins/account_history_rocksdb/account_history_rocksdb_objects.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/plugins/account_history_rocksdb/account_history_rocksdb_objects.hpp>
 
-#include <steem/plugins/chain/chain_plugin.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
 
 #include <appbase/application.hpp>
 
 #include <functional>
 #include <memory>
 
-namespace steem {
+namespace freezone {
 
 namespace plugins { namespace account_history_rocksdb {
 
@@ -20,7 +20,7 @@ namespace bfs = boost::filesystem;
 class account_history_rocksdb_plugin final : public appbase::plugin< account_history_rocksdb_plugin >
 {
 public:
-   APPBASE_PLUGIN_REQUIRES((steem::plugins::chain::chain_plugin))
+   APPBASE_PLUGIN_REQUIRES((freezone::plugins::chain::chain_plugin))
 
    account_history_rocksdb_plugin();
    virtual ~account_history_rocksdb_plugin();
@@ -53,4 +53,4 @@ private:
 };
 
 
-} } } // steem::plugins::account_history_rocksdb
+} } } // freezone::plugins::account_history_rocksdb

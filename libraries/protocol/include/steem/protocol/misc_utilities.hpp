@@ -1,6 +1,6 @@
 #pragma once
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 enum curve_id
 {
@@ -12,11 +12,11 @@ enum curve_id
    convergent_square_root
 };
 
-} } // steem::utilities
+} } // freezone::utilities
 
 
 FC_REFLECT_ENUM(
-   steem::protocol::curve_id,
+   freezone::protocol::curve_id,
    (quadratic)
    (bounded)
    (linear)

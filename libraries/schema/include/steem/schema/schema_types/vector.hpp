@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include <steem/schema/abstract_schema.hpp>
-#include <steem/schema/schema_impl.hpp>
+#include <freezone/schema/abstract_schema.hpp>
+#include <freezone/schema/schema_impl.hpp>
 
 #include <vector>
 
-namespace steem { namespace schema { namespace detail {
+namespace freezone { namespace schema { namespace detail {
 
 //////////////////////////////////////////////
 // vector                                   //
@@ -16,7 +16,7 @@ template< typename E >
 struct schema_vector_impl
    : public abstract_schema
 {
-   STEEM_SCHEMA_TEMPLATE_CLASS_BODY( schema_vector_impl )
+   freezone_SCHEMA_TEMPLATE_CLASS_BODY( schema_vector_impl )
 };
 
 template< typename E >

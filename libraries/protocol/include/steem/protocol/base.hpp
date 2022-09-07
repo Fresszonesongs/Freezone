@@ -1,12 +1,12 @@
 #pragma once
 
-#include <steem/protocol/types.hpp>
-#include <steem/protocol/authority.hpp>
-#include <steem/protocol/version.hpp>
+#include <freezone/protocol/types.hpp>
+#include <freezone/protocol/authority.hpp>
+#include <freezone/protocol/version.hpp>
 
 #include <fc/time.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
    struct base_operation
    {
@@ -32,6 +32,6 @@ namespace steem { namespace protocol {
    typedef flat_set<future_extensions> extensions_type;
 
 
-} } // steem::protocol
+} } // freezone::protocol
 
-FC_REFLECT_TYPENAME( steem::protocol::future_extensions )
+FC_REFLECT_TYPENAME( freezone::protocol::future_extensions )

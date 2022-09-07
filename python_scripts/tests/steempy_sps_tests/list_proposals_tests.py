@@ -4,16 +4,16 @@ from uuid import uuid4
 from time import sleep
 import logging
 import sys
-import steem_utils.steem_runner
-import steem_utils.steem_tools
-import steem_utils.utils
+import freezone_utils.freezone_runner
+import freezone_utils.freezone_tools
+import freezone_utils.utils
 
 
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)-15s - %(name)s - %(levelname)s - %(message)s"
 MAIN_LOG_PATH = "./sps_list_proposal.log"
 
-MODULE_NAME = "SPS-Tester-via-steempy"
+MODULE_NAME = "SPS-Tester-via-freezonepy"
 logger = logging.getLogger(MODULE_NAME)
 logger.setLevel(LOG_LEVEL)
 
@@ -30,9 +30,9 @@ if not logger.hasHandlers():
     logger.addHandler(fh)
 
 try:
-    from steem import Steem
+    from freezone import freezone
 except Exception as ex:
-    logger.error("SteemPy library is not installed.")
+    logger.error("freezonePy library is not installed.")
     sys.exit(1)
 
 
@@ -53,9 +53,9 @@ def create_proposals(node_client, creator_account, receiver_account):
     import datetime
     now = datetime.datetime.now()
 
-    start_date, end_date = steem_utils.utils.get_isostr_start_end_date(now, 10, 2)
+    start_date, end_date = freezone_utils.utils.get_isostr_start_end_date(now, 10, 2)
 
-    from steem.account import Account
+    from freezone.account import Account
     try:
         creator = Account(creator_account)
     except Exception as ex:
@@ -69,11 +69,11 @@ def create_proposals(node_client, creator_account, receiver_account):
         sys.exit(1)
 
     logger.info("Creating initial post...")
-    node_client.commit.post("Steempy proposal title", "Steempy proposal body", creator["name"], permlink = "steempy-proposal-title", tags = "proposals")
+    node_client.commit.post("freezonepy proposal title", "freezonepy proposal body", creator["name"], permlink = "freezonepy-proposal-title", tags = "proposals")
 
     logger.info("Creating proposals...")
     for start_end_subject in START_END_SUBJECTS:
-        start_date, end_date = steem_utils.utils.get_isostr_start_end_date(now, start_end_subject[0], start_end_subject[1])
+        start_date, end_date = freezone_utils.utils.get_isostr_start_end_date(now, start_end_subject[0], start_end_subject[1])
 
         node_client.commit.create_proposal(
             creator["name"], 
@@ -82,7 +82,7 @@ def create_proposals(node_client, creator_account, receiver_account):
             end_date,
             "16.000 TBD",
             start_end_subject[2],
-            "steempy-proposal-title"
+            "freezonepy-proposal-title"
             )
         sleep(3)
     sleep(6)
@@ -170,10 +170,10 @@ if __name__ == '__main__':
     parser.add_argument("creator", help = "Account to create test accounts with")
     parser.add_argument("receiver", help = "Account to receive payment")
     parser.add_argument("wif", help="Private key for creator account")
-    parser.add_argument("--node-url", dest="node_url", default="http://127.0.0.1:8090", help="Url of working steem node")
-    parser.add_argument("--run-steemd", dest="steemd_path", help = "Path to steemd executable. Warning: using this option will erase contents of selected steemd working directory.")
-    parser.add_argument("--working_dir", dest="steemd_working_dir", default="/tmp/steemd-data/", help = "Path to steemd working directory")
-    parser.add_argument("--config_path", dest="steemd_config_path", default="./steem_utils/resources/config.ini.in",help = "Path to source config.ini file")
+    parser.add_argument("--node-url", dest="node_url", default="http://127.0.0.1:8090", help="Url of working freezone node")
+    parser.add_argument("--run-freezoned", dest="freezoned_path", help = "Path to freezoned executable. Warning: using this option will erase contents of selected freezoned working directory.")
+    parser.add_argument("--working_dir", dest="freezoned_working_dir", default="/tmp/freezoned-data/", help = "Path to freezoned working directory")
+    parser.add_argument("--config_path", dest="freezoned_config_path", default="./freezone_utils/resources/config.ini.in",help = "Path to source config.ini file")
     parser.add_argument("--no-erase-proposal", action='store_false', dest = "no_erase_proposal", help = "Do not erase proposal created with this test")
 
 
@@ -181,16 +181,16 @@ if __name__ == '__main__':
 
     node = None
 
-    if args.steemd_path:
-        logger.info("Running steemd via {} in {} with config {}".format(args.steemd_path, 
-            args.steemd_working_dir, 
-            args.steemd_config_path)
+    if args.freezoned_path:
+        logger.info("Running freezoned via {} in {} with config {}".format(args.freezoned_path, 
+            args.freezoned_working_dir, 
+            args.freezoned_config_path)
         )
         
-        node = steem_utils.steem_runner.SteemNode(
-            args.steemd_path, 
-            args.steemd_working_dir, 
-            args.steemd_config_path
+        node = freezone_utils.freezone_runner.freezoneNode(
+            args.freezoned_path, 
+            args.freezoned_working_dir, 
+            args.freezoned_config_path
         )
     
     node_url = args.node_url
@@ -206,10 +206,10 @@ if __name__ == '__main__':
     keys = [wif]
     
     if node is not None:
-        node.run_steem_node(["--enable-stale-production"])
+        node.run_freezone_node(["--enable-stale-production"])
     try:
         if node is None or node.is_running():
-            node_client = Steem(nodes = [node_url], no_broadcast = False, 
+            node_client = freezone(nodes = [node_url], no_broadcast = False, 
                 keys = keys
             )
 
@@ -217,12 +217,12 @@ if __name__ == '__main__':
             list_proposals_test(node_client, args.creator)
 
             if node is not None:
-                node.stop_steem_node()
+                node.stop_freezone_node()
             sys.exit(0)
         sys.exit(1)
     except Exception as ex:
         logger.error("Exception: {}".format(ex))
         if node is not None: 
-            node.stop_steem_node()
+            node.stop_freezone_node()
 sys.exit(1)
 

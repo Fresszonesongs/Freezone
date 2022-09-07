@@ -4,15 +4,15 @@ from uuid import uuid4
 from time import sleep
 import logging
 import sys
-import steem_utils.steem_runner
-import steem_utils.steem_tools
+import freezone_utils.freezone_runner
+import freezone_utils.freezone_tools
 import threading
 
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)-15s - %(name)s - %(levelname)s - %(message)s"
 MAIN_LOG_PATH = "./sps_id_collision_test.log"
 
-MODULE_NAME = "SPS-Tester-via-steempy"
+MODULE_NAME = "SPS-Tester-via-freezonepy"
 logger = logging.getLogger(MODULE_NAME)
 logger.setLevel(LOG_LEVEL)
 
@@ -29,9 +29,9 @@ if not logger.hasHandlers():
   logger.addHandler(fh)
 
 try:
-    from steem import Steem
+    from freezone import freezone
 except Exception as ex:
-    logger.error("SteemPy library is not installed.")
+    logger.error("freezonePy library is not installed.")
     sys.exit(1)
 
 # we would like to test ID conflict problem and I'd like to have python scripts 
@@ -48,7 +48,7 @@ class ProposalsCreatorThread(threading.Thread):
         self.private_key = private_key
         self.delay = delay
         self.log = logging.getLogger(MODULE_NAME + ".ProposalsCreatorThread." + self.node_url)
-        self.node_client = Steem(nodes = [self.node_url], keys = [self.private_key])
+        self.node_client = freezone(nodes = [self.node_url], keys = [self.private_key])
 
 
     def run(self):
@@ -77,14 +77,14 @@ class ProposalsCreatorThread(threading.Thread):
 
 
 def get_permlink(account):
-    return "steempy-proposal-title-{}".format(account)
+    return "freezonepy-proposal-title-{}".format(account)
 
 
 def list_proposals_by_node(creator, private_key, nodes, subjects):
     for idx in range(0, len(nodes)):
         node = nodes[idx]
         logger.info("Listing proposals using node at {}".format(node))
-        s = Steem(nodes = [node], keys = [private_key])
+        s = freezone(nodes = [node], keys = [private_key])
         proposals = s.list_proposals(creator, "by_creator", "direction_ascending", 1000, "all")
         for subject in subjects:
             msg = "Looking for id of proposal with subject {}".format(subject)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     parser.add_argument("creator", help = "Account to create test accounts with")
     parser.add_argument("receiver", help = "Account to receive payment for proposal")
     parser.add_argument("wif", help="Private key for creator account")
-    parser.add_argument("nodes_url", type=str, nargs="+", help="Url of working steem node")
+    parser.add_argument("nodes_url", type=str, nargs="+", help="Url of working freezone node")
     parser.add_argument("--delays", dest="delays", type=float, nargs="+", help="Delays for each worker/node (default 0)")
     parser.add_argument("--proposal-count", dest="proposal_count", type=int, default=1, help="Number of proposals each worker will create.")
 
@@ -109,25 +109,25 @@ if __name__ == "__main__":
 
     logger.info("Performing ID collision test with nodes {}".format(args.nodes_url))
 
-    import steem_utils.steem_tools
+    import freezone_utils.freezone_tools
 
-    node_client = Steem(nodes = args.nodes_url, keys = [args.wif])
+    node_client = freezone(nodes = args.nodes_url, keys = [args.wif])
     logger.info("New post ==> ({},{},{},{},{})".format(
-        "Steempy proposal title [{}]".format(args.creator), 
-        "Steempy proposal body [{}]".format(args.creator), 
+        "freezonepy proposal title [{}]".format(args.creator), 
+        "freezonepy proposal body [{}]".format(args.creator), 
         args.creator, 
         get_permlink(args.creator), 
         "proposals"
     ))
 
-    node_client.commit.post("Steempy proposal title [{}]".format(args.creator), 
-        "Steempy proposal body [{}]".format(args.creator), 
+    node_client.commit.post("freezonepy proposal title [{}]".format(args.creator), 
+        "freezonepy proposal body [{}]".format(args.creator), 
         args.creator, 
         permlink = get_permlink(args.creator), 
         tags = "proposals"
     )
 
-    steem_utils.steem_tools.wait_for_blocks_produced(5, args.nodes_url[0])
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, args.nodes_url[0])
 
     workers = []
 
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     results = {}
     for idx in range(0, len(node_subjects)):
         node = args.nodes_url[idx]
-        s = Steem(nodes = [node], keys = [args.wif])
+        s = freezone(nodes = [node], keys = [args.wif])
         proposals = s.list_proposals(args.creator, "by_creator", "direction_ascending", 1000, "all")
         for subject in node_subjects[idx]:
             for proposal in proposals:
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     logger.info("Checking for all transaction IDs by querying all nodes, IDs should match those gathered from nodes where we send the transactions")
     list_proposals_by_node(args.creator, args.wif, args.nodes_url, only_subjects)
 
-    steem_utils.steem_tools.wait_for_blocks_produced(5, args.nodes_url[0])
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, args.nodes_url[0])
     logger.info("Checking for all transaction IDs by querying all nodes (after some blocks produced)")
     list_proposals_by_node(args.creator, args.wif, args.nodes_url, only_subjects)
 

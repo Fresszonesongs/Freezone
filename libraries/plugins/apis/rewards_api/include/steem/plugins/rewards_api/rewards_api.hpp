@@ -1,9 +1,9 @@
 #pragma once
 
-#include <steem/plugins/rewards_api/rewards_api_args.hpp>
-#include <steem/plugins/json_rpc/utility.hpp>
+#include <freezone/plugins/rewards_api/rewards_api_args.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
 
-namespace steem { namespace plugins { namespace rewards_api {
+namespace freezone { namespace plugins { namespace rewards_api {
 
 namespace detail { class rewards_api_impl; }
 
@@ -20,4 +20,4 @@ private:
    std::unique_ptr< detail::rewards_api_impl > my;
 };
 
-} } } //steem::plugins::rewards_api
+} } } //freezone::plugins::rewards_api

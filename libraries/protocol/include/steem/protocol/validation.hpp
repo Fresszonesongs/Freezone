@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include <steem/protocol/base.hpp>
-#include <steem/protocol/block_header.hpp>
-#include <steem/protocol/asset.hpp>
+#include <freezone/protocol/base.hpp>
+#include <freezone/protocol/block_header.hpp>
+#include <freezone/protocol/asset.hpp>
 
 #include <fc/utf8.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 inline bool is_asset_type( asset asset, asset_symbol_type symbol )
 {
@@ -21,22 +21,22 @@ inline void validate_account_name( const string& name )
 
 inline void validate_permlink( const string& permlink )
 {
-   FC_ASSERT( permlink.size() < STEEM_MAX_PERMLINK_LENGTH, "permlink is too long" );
+   FC_ASSERT( permlink.size() < freezone_MAX_PERMLINK_LENGTH, "permlink is too long" );
    FC_ASSERT( fc::is_utf8( permlink ), "permlink not formatted in UTF8" );
 }
 
-inline void validate_smt_symbol( const asset_symbol_type& symbol )
+inline void validate_SST_symbol( const asset_symbol_type& symbol )
 {
    symbol.validate();
-   FC_ASSERT( symbol.space() == asset_symbol_type::smt_nai_space, "legacy symbol used instead of NAI" );
+   FC_ASSERT( symbol.space() == asset_symbol_type::SST_nai_space, "legacy symbol used instead of NAI" );
    FC_ASSERT( symbol.is_vesting() == false, "liquid variant of NAI expected");
 }
 
 /**
  * Determine if a price complies with Tick Pricing Rules.
  *
- * - For prices involving Steem Dollars (SBD), the base asset must be SBD.
- * - For prices involving SMT assets, the base asset must be STEEM.
+ * - For prices involving freezone Dollars (SBD), the base asset must be SBD.
+ * - For prices involving SST assets, the base asset must be freezone.
  * - The quote must be a power of 10.
  *
  * \param  price The price to check for Tick Pricing compliance
@@ -46,12 +46,12 @@ inline bool is_tick_pricing( const price& p )
 {
    if ( p.base.symbol == SBD_SYMBOL )
    {
-      if ( p.quote.symbol != STEEM_SYMBOL )
+      if ( p.quote.symbol != freezone_SYMBOL )
          return false;
    }
-   else if ( p.base.symbol == STEEM_SYMBOL )
+   else if ( p.base.symbol == freezone_SYMBOL )
    {
-      if ( p.quote.symbol.space() != asset_symbol_type::smt_nai_space )
+      if ( p.quote.symbol.space() != asset_symbol_type::SST_nai_space )
          return false;
 
       if ( p.quote.symbol.is_vesting() )
@@ -75,8 +75,8 @@ inline bool is_tick_pricing( const price& p )
 /**
  * Validate a price complies with Tick Pricing Rules.
  *
- * - For prices involving Steem Dollars (SBD), the base asset must be SBD.
- * - For prices involving SMT assets, the base asset must be STEEM.
+ * - For prices involving freezone Dollars (SBD), the base asset must be SBD.
+ * - For prices involving SST assets, the base asset must be freezone.
  * - The quote must be a power of 10.
  *
  * \param price The price to perform Tick Pricing Rules validation
@@ -86,16 +86,16 @@ inline void validate_tick_pricing( const price& p )
 {
    if ( p.base.symbol == SBD_SYMBOL )
    {
-      FC_ASSERT( p.quote.symbol == STEEM_SYMBOL, "Only STEEM can be paired with SBD as the base symbol." );
+      FC_ASSERT( p.quote.symbol == freezone_SYMBOL, "Only freezone can be paired with SBD as the base symbol." );
    }
-   else if ( p.base.symbol == STEEM_SYMBOL )
+   else if ( p.base.symbol == freezone_SYMBOL )
    {
-      FC_ASSERT( p.quote.symbol.space() == asset_symbol_type::smt_nai_space, "Only tokens can be paired with STEEM as the base symbol." );
+      FC_ASSERT( p.quote.symbol.space() == asset_symbol_type::SST_nai_space, "Only tokens can be paired with freezone as the base symbol." );
       FC_ASSERT( p.quote.symbol.is_vesting() == false, "Quote symbol cannot be a vesting symbol." );
    }
    else
    {
-      FC_ASSERT( false, "STEEM and SBD are the only valid base symbols." );
+      FC_ASSERT( false, "freezone and SBD are the only valid base symbols." );
    }
 
    share_type tmp = p.quote.amount;

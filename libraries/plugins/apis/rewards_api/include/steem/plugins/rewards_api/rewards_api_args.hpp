@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
 #include <fc/uint128.hpp>
-#include <steem/protocol/misc_utilities.hpp>
-#include <steem/protocol/asset.hpp>
-#include <steem/plugins/json_rpc/utility.hpp>
+#include <freezone/protocol/misc_utilities.hpp>
+#include <freezone/protocol/asset.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
 
-namespace steem { namespace plugins { namespace rewards_api {
+namespace freezone { namespace plugins { namespace rewards_api {
 
 struct simulate_curve_payouts_element {
    protocol::account_name_type  author;
@@ -26,8 +26,8 @@ struct simulate_curve_payouts_return
 };
 
 
-} } } // steem::plugins::rewards_api
+} } } // freezone::plugins::rewards_api
 
-FC_REFLECT( steem::plugins::rewards_api::simulate_curve_payouts_element, (author)(permlink)(payout) )
-FC_REFLECT( steem::plugins::rewards_api::simulate_curve_payouts_args, (curve)(var1) )
-FC_REFLECT( steem::plugins::rewards_api::simulate_curve_payouts_return, (recent_claims)(payouts) )
+FC_REFLECT( freezone::plugins::rewards_api::simulate_curve_payouts_element, (author)(permlink)(payout) )
+FC_REFLECT( freezone::plugins::rewards_api::simulate_curve_payouts_args, (curve)(var1) )
+FC_REFLECT( freezone::plugins::rewards_api::simulate_curve_payouts_return, (recent_claims)(payouts) )

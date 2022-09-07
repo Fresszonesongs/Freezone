@@ -1,9 +1,9 @@
 
 #define BOOST_THREAD_PROVIDES_FUTURE
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/index.hpp>
-#include <steem/plugins/chain/statefile/statefile.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/index.hpp>
+#include <freezone/plugins/chain/statefile/statefile.hpp>
 
 #include <boost/thread/future.hpp>
 #include <boost/thread/sync_bounded_queue.hpp>
@@ -14,9 +14,9 @@
 #include <string>
 #include <vector>
 
-namespace steem { namespace plugins { namespace chain { namespace statefile {
+namespace freezone { namespace plugins { namespace chain { namespace statefile {
 
-using steem::chain::index_info;
+using freezone::chain::index_info;
 
 // Version        : Must precisely match what is output by embedded code.
 // Header         : JSON object that lists sections
@@ -171,7 +171,7 @@ void object_serializer::convert_thread_main()
       }
 
       // TODO exception handling
-      std::shared_ptr< steem::chain::abstract_object > obj = work->info->get_object_from_db( *(work->db), work->id );
+      std::shared_ptr< freezone::chain::abstract_object > obj = work->info->get_object_from_db( *(work->db), work->id );
       std::shared_ptr< std::string > result;
       if( _format.is_binary )
       {
@@ -362,7 +362,7 @@ write_state_result write_state( const database& db, const std::string& state_fil
 
    state_header top_header;
    state_footer top_footer;
-   top_header.version = steem_version_info( db );
+   top_header.version = freezone_version_info( db );
 
    std::vector< object_section_producer > producers;
 
@@ -424,4 +424,4 @@ write_state_result write_state( const database& db, const std::string& state_fil
    return result;
 }
 
-} } } } // steem::plugins::chain::statefile
+} } } } // freezone::plugins::chain::statefile

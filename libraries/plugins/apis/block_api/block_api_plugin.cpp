@@ -1,7 +1,7 @@
-#include <steem/plugins/block_api/block_api.hpp>
-#include <steem/plugins/block_api/block_api_plugin.hpp>
+#include <freezone/plugins/block_api/block_api.hpp>
+#include <freezone/plugins/block_api/block_api_plugin.hpp>
 
-namespace steem { namespace plugins { namespace block_api {
+namespace freezone { namespace plugins { namespace block_api {
 
 block_api_plugin::block_api_plugin() {}
 block_api_plugin::~block_api_plugin() {}
@@ -19,4 +19,4 @@ void block_api_plugin::plugin_startup() {}
 
 void block_api_plugin::plugin_shutdown() {}
 
-} } } // steem::plugins::block_api
+} } } // freezone::plugins::block_api

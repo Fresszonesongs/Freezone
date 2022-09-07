@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace steem { namespace plugins {
+namespace freezone { namespace plugins {
 
 void register_plugins();
 

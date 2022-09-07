@@ -1,10 +1,10 @@
 #pragma once
 
-#include <steem/plugins/condenser_api/condenser_api.hpp>
+#include <freezone/plugins/condenser_api/condenser_api.hpp>
 
-#include <steem/wallet/remote_node_api.hpp>
+#include <freezone/wallet/remote_node_api.hpp>
 
-#include <steem/utilities/key_conversion.hpp>
+#include <freezone/utilities/key_conversion.hpp>
 
 #include <fc/macros.hpp>
 #include <fc/real128.hpp>
@@ -12,12 +12,12 @@
 #include <fc/rpc/cli.hpp>
 #include <fc/api.hpp>
 
-namespace steem { namespace wallet {
+namespace freezone { namespace wallet {
 
 using namespace std;
 
-using namespace steem::utilities;
-using namespace steem::protocol;
+using namespace freezone::utilities;
+using namespace freezone::protocol;
 
 typedef uint16_t transaction_handle_type;
 
@@ -84,7 +84,7 @@ class wallet_api_impl;
 class wallet_api
 {
    public:
-      wallet_api( const wallet_data& initial_data, const steem::protocol::chain_id_type& _steem_chain_id, fc::api< remote_node_api > rapi, std::shared_ptr<fc::rpc::cli> _cli );
+      wallet_api( const wallet_data& initial_data, const freezone::protocol::chain_id_type& _freezone_chain_id, fc::api< remote_node_api > rapi, std::shared_ptr<fc::rpc::cli> _cli );
       virtual ~wallet_api();
 
       bool copy_wallet_file( string destination_filename );
@@ -182,13 +182,13 @@ class wallet_api
        */
       condenser_api::api_account_object get_account( string account_name ) const;
 
-      /** Returns account balance for an SMT.
+      /** Returns account balance for an SST.
        *
        * @param account_name the name of the account to provide balance information
-       * @param nai the Numerical Asset Identifier of the SMT
-       * @return the SMT balance for the account
+       * @param nai the Numerical Asset Identifier of the SST
+       * @return the SST balance for the account
        */
-      database_api::api_smt_account_balance_object get_smt_balance( string account_name, string nai ) const;
+      database_api::api_SST_account_balance_object get_SST_balance( string account_name, string nai ) const;
 
       /** Returns the current wallet filename.
        *
@@ -394,10 +394,10 @@ class wallet_api
        *  that is paid by the creator. The current account creation fee can be found with the
        *  'info' wallet command.
        *
-       *  These accounts are created with combination of STEEM and delegated SP
+       *  These accounts are created with combination of freezone and delegated SP
        *
        *  @param creator The account creating the new account
-       *  @param steem_fee The amount of the fee to be paid with STEEM
+       *  @param freezone_fee The amount of the fee to be paid with freezone
        *  @param delegated_vests The amount of the fee to be paid with delegation
        *  @param new_account_name The name of the new account
        *  @param json_meta JSON Metadata associated with the new account
@@ -405,7 +405,7 @@ class wallet_api
        */
       condenser_api::legacy_signed_transaction create_account_delegated(
          string creator,
-         condenser_api::legacy_asset steem_fee,
+         condenser_api::legacy_asset freezone_fee,
          condenser_api::legacy_asset delegated_vests,
          string new_account_name,
          string json_meta,
@@ -417,10 +417,10 @@ class wallet_api
        * wallet. There is a fee associated with account creation that is paid by the creator.
        * The current account creation fee can be found with the 'info' wallet command.
        *
-       * These accounts are created with combination of STEEM and delegated SP
+       * These accounts are created with combination of freezone and delegated SP
        *
        * @param creator The account creating the new account
-       * @param steem_fee The amount of the fee to be paid with STEEM
+       * @param freezone_fee The amount of the fee to be paid with freezone
        * @param delegated_vests The amount of the fee to be paid with delegation
        * @param newname The name of the new account
        * @param json_meta JSON Metadata associated with the new account
@@ -432,7 +432,7 @@ class wallet_api
        */
       condenser_api::legacy_signed_transaction create_account_with_keys_delegated(
          string creator,
-         condenser_api::legacy_asset steem_fee,
+         condenser_api::legacy_asset freezone_fee,
          condenser_api::legacy_asset delegated_vests,
          string newname,
          string json_meta,
@@ -647,11 +647,11 @@ class wallet_api
          bool broadcast = false);
 
       /**
-       * Transfer funds from one account to another. STEEM and SBD can be transferred.
+       * Transfer funds from one account to another. freezone and SBD can be transferred.
        *
        * @param from The account the funds are coming from
        * @param to The account the funds are going to
-       * @param amount The funds being transferred. i.e. "100.000 STEEM"
+       * @param amount The funds being transferred. i.e. "100.000 freezone"
        * @param memo A memo for the transactionm, encrypted with the to account's public memo key
        * @param broadcast true if you wish to broadcast the transaction
        */
@@ -663,14 +663,14 @@ class wallet_api
          bool broadcast = false);
 
       /**
-       * Transfer funds from one account to another using escrow. STEEM and SBD can be transferred.
+       * Transfer funds from one account to another using escrow. freezone and SBD can be transferred.
        *
        * @param from The account the funds are coming from
        * @param to The account the funds are going to
        * @param agent The account acting as the agent in case of dispute
        * @param escrow_id A unique id for the escrow transfer. (from, escrow_id) must be a unique pair
        * @param sbd_amount The amount of SBD to transfer
-       * @param steem_amount The amount of STEEM to transfer
+       * @param freezone_amount The amount of freezone to transfer
        * @param fee The fee paid to the agent
        * @param ratification_deadline The deadline for 'to' and 'agent' to approve the escrow transfer
        * @param escrow_expiration The expiration of the escrow transfer, after which either party can claim the funds
@@ -683,7 +683,7 @@ class wallet_api
          string agent,
          uint32_t escrow_id,
          condenser_api::legacy_asset sbd_amount,
-         condenser_api::legacy_asset steem_amount,
+         condenser_api::legacy_asset freezone_amount,
          condenser_api::legacy_asset fee,
          time_point_sec ratification_deadline,
          time_point_sec escrow_expiration,
@@ -742,7 +742,7 @@ class wallet_api
        * @param receiver The account that will receive funds being released
        * @param escrow_id A unique id for the escrow transfer
        * @param sbd_amount The amount of SBD that will be released
-       * @param steem_amount The amount of STEEM that will be released
+       * @param freezone_amount The amount of freezone that will be released
        * @param broadcast true if you wish to broadcast the transaction
        */
       condenser_api::legacy_signed_transaction escrow_release(
@@ -753,18 +753,18 @@ class wallet_api
          string receiver,
          uint32_t escrow_id,
          condenser_api::legacy_asset sbd_amount,
-         condenser_api::legacy_asset steem_amount,
+         condenser_api::legacy_asset freezone_amount,
          bool broadcast = false
       );
 
       /**
-       * Transfer STEEM into a vesting fund represented by vesting shares (VESTS). VESTS are required to vesting
+       * Transfer freezone into a vesting fund represented by vesting shares (VESTS). VESTS are required to vesting
        * for a minimum of one coin year and can be withdrawn once a week over a two year withdraw period.
-       * VESTS are protected against dilution up until 90% of STEEM is vesting.
+       * VESTS are protected against dilution up until 90% of freezone is vesting.
        *
-       * @param from The account the STEEM is coming from
+       * @param from The account the freezone is coming from
        * @param to The account getting the VESTS
-       * @param amount The amount of STEEM to vest i.e. "100.00 STEEM"
+       * @param amount The amount of freezone to vest i.e. "100.00 freezone"
        * @param broadcast true if you wish to broadcast the transaction
        */
       condenser_api::legacy_signed_transaction transfer_to_vesting(
@@ -814,7 +814,7 @@ class wallet_api
        *
        * @param from The account the VESTS are withdrawn from
        * @param vesting_shares The amount of VESTS to withdraw over the next two years. Each week (amount/104) shares are
-       *    withdrawn and deposited back as STEEM. i.e. "10.000000 VESTS"
+       *    withdrawn and deposited back as freezone. i.e. "10.000000 VESTS"
        * @param broadcast true if you wish to broadcast the transaction
        */
       condenser_api::legacy_signed_transaction withdraw_vesting(
@@ -827,11 +827,11 @@ class wallet_api
        * based on the specified weights.
        *
        * @param from The account the VESTS are withdrawn from.
-       * @param to   The account receiving either VESTS or STEEM.
+       * @param to   The account receiving either VESTS or freezone.
        * @param percent The percent of the withdraw to go to the 'to' account. This is denoted in hundreths of a percent.
        *    i.e. 100 is 1% and 10000 is 100%. This value must be between 1 and 100000
        * @param auto_vest Set to true if the from account should receive the VESTS as VESTS, or false if it should receive
-       *    them as STEEM.
+       *    them as freezone.
        * @param broadcast true if you wish to broadcast the transaction.
        */
       condenser_api::legacy_signed_transaction set_withdraw_vesting_route(
@@ -842,7 +842,7 @@ class wallet_api
          bool broadcast = false );
 
       /**
-       *  This method will convert SBD to STEEM at the current_median_history price one
+       *  This method will convert SBD to freezone at the current_median_history price one
        *  week from the time it is executed. This method depends upon there being a valid price feed.
        *
        *  @param from The account requesting conversion of its SBD i.e. "1.000 SBD"
@@ -855,8 +855,8 @@ class wallet_api
          bool broadcast = false );
 
       /**
-       * A witness can public a price feed for the STEEM:SBD market. The median price feed is used
-       * to process conversion requests from SBD to STEEM.
+       * A witness can public a price feed for the freezone:SBD market. The median price feed is used
+       * to process conversion requests from SBD to freezone.
        *
        * @param witness The witness publishing the price feed
        * @param exchange_rate The desired exchange rate
@@ -912,14 +912,14 @@ class wallet_api
        * you can fill in.  It's better than nothing.
        *
        * @param operation_type the type of operation to return, must be one of the
-       *                       operations defined in `steem/chain/operations.hpp`
+       *                       operations defined in `freezone/chain/operations.hpp`
        *                       (e.g., "global_parameters_update_operation")
        * @return a default-constructed operation of the given type
        */
       operation get_prototype_operation(string operation_type);
 
       /**
-       * Gets the current order book for STEEM:SBD
+       * Gets the current order book for freezone:SBD
        *
        * @param limit Maximum number of orders to return for bids and asks. Max is 1000.
        */
@@ -931,7 +931,7 @@ class wallet_api
        *
        *  @param owner The name of the account creating the order
        *  @param order_id is a unique identifier assigned by the creator of the order, it can be reused after the order has been filled
-       *  @param amount_to_sell The amount of either SBD or STEEM you wish to sell
+       *  @param amount_to_sell The amount of either SBD or freezone you wish to sell
        *  @param min_to_receive The amount of the other asset you will receive at a minimum
        *  @param fill_or_kill true if you want the order to be killed if it cannot immediately be filled
        *  @param expiration the time the order should expire if it has not been filled
@@ -981,7 +981,7 @@ class wallet_api
          bool broadcast );
 
       /**
-       * Vote on a comment to be paid STEEM
+       * Vote on a comment to be paid freezone
        *
        * @param voter The account voting
        * @param author The author of the comment to be voted on
@@ -1090,7 +1090,7 @@ class wallet_api
 
       condenser_api::legacy_signed_transaction claim_reward_balance(
          string account,
-         condenser_api::legacy_asset reward_steem,
+         condenser_api::legacy_asset reward_freezone,
          condenser_api::legacy_asset reward_sbd,
          condenser_api::legacy_asset reward_vests,
          bool broadcast );
@@ -1167,51 +1167,51 @@ class wallet_api
                                                                 bool broadcast );
 
       /**
-       *  Create a Smart Media Token.
+       *  Create a Smart Social Token.
        *
        *  @param control_account The name of the controlling account
        *  @param symbol The asset symbol of the created token
-       *  @param smt_creation_fee The fee paid to create a token
+       *  @param SST_creation_fee The fee paid to create a token
        *  @param precision The number of decimal places a token uses
        *  @param broadcast To broadcast this transaction or not
        */
-      condenser_api::legacy_signed_transaction create_smt(
+      condenser_api::legacy_signed_transaction create_SST(
          account_name_type control_account,
          asset_symbol_type symbol,
-         asset smt_creation_fee,
+         asset SST_creation_fee,
          uint8_t precision,
          bool broadcast );
 
       /**
-       *  Creates Smart Media Token setup parameters.
+       *  Creates Smart Social Token setup parameters.
        *
        *  @param control_account The name of the controlling account
        *  @param symbol The asset symbol of the created token
-       *  @param json_setup_parameters A JSON representation of smt_setup_parameters
+       *  @param json_setup_parameters A JSON representation of SST_setup_parameters
        *  @param broadcast To broadcast this transaction or not
        */
-      condenser_api::legacy_signed_transaction smt_set_setup_parameters(
+      condenser_api::legacy_signed_transaction SST_set_setup_parameters(
          account_name_type control_account,
          asset_symbol_type symbol,
          string json_setup_parameters,
          bool broadcast );
 
       /**
-       *  Creates Smart Media Token runtime parameters.
+       *  Creates Smart Social Token runtime parameters.
        *
        *  @param control_account The name of the controlling account
        *  @param symbol The asset symbol of the created token
-       *  @param json_runtime_parameters A JSON representation of smt_runtime_parameters
+       *  @param json_runtime_parameters A JSON representation of SST_runtime_parameters
        *  @param broadcast To broadcast this transaction or not
        */
-      condenser_api::legacy_signed_transaction smt_set_runtime_parameters(
+      condenser_api::legacy_signed_transaction SST_set_runtime_parameters(
          account_name_type control_account,
          asset_symbol_type symbol,
          string json_runtime_parameters,
          bool broadcast );
 
       /**
-       *  Create Smart Media Token emissions.
+       *  Create Smart Social Token emissions.
        *
        *  @param control_account The name of the controlling account
        *  @param symbol The asset symbol of the created token
@@ -1230,7 +1230,7 @@ class wallet_api
        *  @param floor_emissions Indicates whether we should consider the lowest or highest value with regards to relative and absolute emissions
        *  @param broadcast To broadcast this transaction or not
        */
-      condenser_api::legacy_signed_transaction smt_setup_emissions(
+      condenser_api::legacy_signed_transaction SST_setup_emissions(
          account_name_type control_account,
          asset_symbol_type symbol,
          time_point_sec schedule_time,
@@ -1249,27 +1249,27 @@ class wallet_api
          bool broadcast );
 
       /**
-       *  Setup a Smart Media Token.
+       *  Setup a Smart Social Token.
        *
        *  @param control_account The name of the controlling account
        *  @param symbol The asset symbol of the created token
-       *  @param max_supply The maximum supply of a smart media token
+       *  @param max_supply The maximum supply of a Smart Social Token
        *  @param contribution_begin_time The start time of the ICO contribution process
        *  @param contribution_end_time The end time of the ICO contribution process
        *  @param launch_time The time in which a token should launch
-       *  @param steem_satoshi_min The minimum steem satoshis required for a successful ICO
+       *  @param freezone_satoshi_min The minimum freezone satoshis required for a successful ICO
        *  @param min_unit_ratio The minimum token unit ratio
        *  @param max_unit_ratio The maximum token unit ratio
        *  @param broadcast To broadcast this transaction or not
        */
-      condenser_api::legacy_signed_transaction smt_setup(
+      condenser_api::legacy_signed_transaction SST_setup(
          account_name_type control_account,
          asset_symbol_type symbol,
          int64_t max_supply,
          time_point_sec contribution_begin_time,
          time_point_sec contribution_end_time,
          time_point_sec launch_time,
-         share_type steem_satoshi_min,
+         share_type freezone_satoshi_min,
          uint32_t min_unit_ratio,
          uint32_t max_unit_ratio,
          bool broadcast );
@@ -1279,14 +1279,14 @@ class wallet_api
        *
        *  @param control_account The name of the controlling account
        *  @param symbol The asset symbol of the created token
-       *  @param steem_satoshi_cap The maximum amount of STEEM this ICO tier applies to
-       *  @param json_generation_policy The steem and token destination routes of the ICO process
+       *  @param freezone_satoshi_cap The maximum amount of freezone this ICO tier applies to
+       *  @param json_generation_policy The freezone and token destination routes of the ICO process
        *  @param broadcast To broadcast this transaction or not
        */
-      condenser_api::legacy_signed_transaction smt_setup_ico_tier(
+      condenser_api::legacy_signed_transaction SST_setup_ico_tier(
          account_name_type control_account,
          asset_symbol_type symbol,
-         share_type steem_satoshi_cap,
+         share_type freezone_satoshi_cap,
          string json_generation_policy,
          bool broadcast );
 
@@ -1299,7 +1299,7 @@ class wallet_api
        *  @param contribution The contribution
        *  @param broadcast To broadcast this transaction or not
        */
-      condenser_api::legacy_signed_transaction smt_contribute(
+      condenser_api::legacy_signed_transaction SST_contribute(
          account_name_type contributor,
          asset_symbol_type symbol,
          uint32_t contribution_id,
@@ -1328,20 +1328,20 @@ struct plain_keys {
 
 } }
 
-FC_REFLECT( steem::wallet::wallet_data,
+FC_REFLECT( freezone::wallet::wallet_data,
             (cipher_keys)
             (ws_server)
             (ws_user)
             (ws_password)
           )
 
-FC_REFLECT( steem::wallet::brain_key_info, (brain_priv_key)(wif_priv_key) (pub_key))
+FC_REFLECT( freezone::wallet::brain_key_info, (brain_priv_key)(wif_priv_key) (pub_key))
 
-FC_REFLECT( steem::wallet::plain_keys, (checksum)(keys) )
+FC_REFLECT( freezone::wallet::plain_keys, (checksum)(keys) )
 
-FC_REFLECT_ENUM( steem::wallet::authority_type, (owner)(active)(posting) )
+FC_REFLECT_ENUM( freezone::wallet::authority_type, (owner)(active)(posting) )
 
-FC_API( steem::wallet::wallet_api,
+FC_API( freezone::wallet::wallet_api,
         /// wallet api
         (help)(gethelp)
         (about)(is_new)(is_locked)(lock)(unlock)(set_password)(exit)
@@ -1362,7 +1362,7 @@ FC_API( steem::wallet::wallet_api,
         (list_witnesses)
         (get_witness)
         (get_account)
-        (get_smt_balance)
+        (get_SST_balance)
         (get_block)
         (get_ops_in_block)
         (get_feed_history)
@@ -1434,14 +1434,14 @@ FC_API( steem::wallet::wallet_api,
         (list_proposal_votes)
         (remove_proposal)
 
-        ///smt api
-        (create_smt)
-        (smt_set_setup_parameters)
-        (smt_set_runtime_parameters)
-        (smt_setup_emissions)
-        (smt_setup)
-        (smt_contribute)
+        ///SST api
+        (create_SST)
+        (SST_set_setup_parameters)
+        (SST_set_runtime_parameters)
+        (SST_setup_emissions)
+        (SST_setup)
+        (SST_contribute)
         (get_nai_pool)
       )
 
-FC_REFLECT( steem::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )
+FC_REFLECT( freezone::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )

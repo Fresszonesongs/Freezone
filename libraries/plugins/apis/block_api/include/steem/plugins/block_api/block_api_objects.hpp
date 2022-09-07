@@ -1,17 +1,17 @@
 #pragma once
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/block_summary_object.hpp>
-#include <steem/chain/comment_object.hpp>
-#include <steem/chain/global_property_object.hpp>
-#include <steem/chain/history_object.hpp>
-#include <steem/chain/steem_objects.hpp>
-#include <steem/chain/transaction_object.hpp>
-#include <steem/chain/witness_objects.hpp>
-#include <steem/chain/database.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/block_summary_object.hpp>
+#include <freezone/chain/comment_object.hpp>
+#include <freezone/chain/global_property_object.hpp>
+#include <freezone/chain/history_object.hpp>
+#include <freezone/chain/freezone_objects.hpp>
+#include <freezone/chain/transaction_object.hpp>
+#include <freezone/chain/witness_objects.hpp>
+#include <freezone/chain/database.hpp>
 
-namespace steem { namespace plugins { namespace block_api {
+namespace freezone { namespace plugins { namespace block_api {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
 struct api_signed_block_object : public signed_block
 {
@@ -30,9 +30,9 @@ struct api_signed_block_object : public signed_block
    vector< transaction_id_type > transaction_ids;
 };
 
-} } } // steem::plugins::database_api
+} } } // freezone::plugins::database_api
 
-FC_REFLECT_DERIVED( steem::plugins::block_api::api_signed_block_object, (steem::protocol::signed_block),
+FC_REFLECT_DERIVED( freezone::plugins::block_api::api_signed_block_object, (freezone::protocol::signed_block),
                      (block_id)
                      (signing_key)
                      (transaction_ids)

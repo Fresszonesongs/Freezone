@@ -1,10 +1,10 @@
 
-This is developer documentation for creating brand-new operations on the STEEM blockchain.
+This is developer documentation for creating brand-new operations on the freezone blockchain.
 
-- (1) Define `smt_elevate_account_operation` structure in `smt_operations.hpp`
+- (1) Define `SST_elevate_account_operation` structure in `SST_operations.hpp`
 - (2) Create `FC_REFLECT` definition for the operation struct.
 - (3) Implement `validate()` for the operation struct.
-- (4) Add operation to `steem::protocol::operation`
+- (4) Add operation to `freezone::protocol::operation`
 - (5) Define evaluator for the operation.
 - (6) Define required authorities for the operation.
 - (7) Define unit tests for the operation.
@@ -68,7 +68,7 @@ checks must go in the evaluator.
 
 ## Step 4
 
-- (4a) The file `operations.hpp` defines the `steem::protocol::operation`
+- (4a) The file `operations.hpp` defines the `freezone::protocol::operation`
 type, which is an `fc::static_variant` with a lengthy parameter list.  (The
 `fc::static_variant` implements a
 [tagged union type](https://en.wikipedia.org/wiki/Tagged_union) which uses
@@ -85,7 +85,7 @@ of virtual operations.
 
 ## Step 5
 
-- (5a) You must add `STEEM_DEFINE_EVALUATOR` macro in `evaluator.hpp` to
+- (5a) You must add `freezone_DEFINE_EVALUATOR` macro in `evaluator.hpp` to
 generate some boilerplate code.  The macro is defined `evaluator.hpp`,
 most of the generated code is support code required by the framework and
 does not affect the operation itself.
@@ -104,7 +104,7 @@ later we will see how to adapt this field to different objects.
 - (5e) Methods which get objects from the database return `const` references.
 The most general way to retrieve chain state is with
 `get< type, index >( index_value )`, for example see the
-[implementation](https://github.com/steemit/steem/blob/a0a69b10189d93a9be4da7e7fd9d5358af956e34/libraries/chain/database.cpp#L364)
+[implementation](https://github.com/freezone/freezone/blob/a0a69b10189d93a9be4da7e7fd9d5358af956e34/libraries/chain/database.cpp#L364)
 of `get_account(name)`.
 
 - (5f) To modify an object on the database, you must issue `db.modify()`,
@@ -132,7 +132,7 @@ in the database.
 
 ## Step 7
 
-- (7a) Unit tests for SMT functionality should go in `smt_tests.cpp`.
+- (7a) Unit tests for SST functionality should go in `SST_tests.cpp`.
 
 - (7b) Operations should have separate tests:  `validate` test,
 `authorities` test and `apply` test.
@@ -152,14 +152,14 @@ to make it available to JSON clients
 
 ## Step 9
 
-- (9a) Add `smt_token_object_type` to `enum object_type` in `steem_objects.hpp` and add
+- (9a) Add `SST_token_object_type` to `enum object_type` in `freezone_objects.hpp` and add
 to `FC_REFLECT_ENUM` bubble list at the bottom of that file
-- (9b) Declare (but do not define) `class smt_token_object;` in `steem_objects.hpp`
-- (9c) Define `typedef oid< smt_token_object > smt_token_id_type` in `steem_objects.hpp`
-- (9d) Create object header file (one header file per object) in `smt_objects` directory.
-Include the new header from `smt_objects.hpp`.
-- (9e) All SMT objects are consensus, and therefore should exist in `steem::chain` namespace
-- (9f) The object class should subclass `object< smt_token_object_type, smt_token_object >`
+- (9b) Declare (but do not define) `class SST_token_object;` in `freezone_objects.hpp`
+- (9c) Define `typedef oid< SST_token_object > SST_token_id_type` in `freezone_objects.hpp`
+- (9d) Create object header file (one header file per object) in `SST_objects` directory.
+Include the new header from `SST_objects.hpp`.
+- (9e) All SST objects are consensus, and therefore should exist in `freezone::chain` namespace
+- (9f) The object class should subclass `object< SST_token_object_type, SST_token_object >`
 - (9g) The constructor should be defined the same as other object classes, with
 `Constructor` and `Allocator` template parameters.
 - (9h) Any variable-length fields require special attention.  Such fields must be
@@ -181,9 +181,9 @@ will have access to necessary external information (from `database` and the oper
 and Boost `multi_index_container` docs for more information on the purpose and syntax of this
 definition.
 - (9n) Macro
-`CHAINBASE_SET_INDEX_TYPE( steem::chain::smt_token_object, steem::chain::smt_token_index )`
+`CHAINBASE_SET_INDEX_TYPE( freezone::chain::SST_token_object, freezone::chain::SST_token_index )`
 must be invoked.  It should be invoked at the global scope (outside any namespace).
-- (9o) Call `add_core_index< smt_token_index >(*this);` in `database::initialize_indexes()` to
+- (9o) Call `add_core_index< SST_token_index >(*this);` in `database::initialize_indexes()` to
 register the object type with the database.
 
 ### Step 9 additional explanation
@@ -191,29 +191,29 @@ register the object type with the database.
 Step 9 requires some explanation.
 
 - (9a) Each object type has an integer ID signifying that object type.  These type ID's are
-defined by an `enum` in `steem_object_types.hpp`, any new objects must be added here.  In SQL
-terms, if we imagine each *database table* has an integer ID, then `smt_token_object_type` is
-the ID value that refers to the `smt_token_object` *table*.
+defined by an `enum` in `freezone_object_types.hpp`, any new objects must be added here.  In SQL
+terms, if we imagine each *database table* has an integer ID, then `SST_token_object_type` is
+the ID value that refers to the `SST_token_object` *table*.
 
 - (9c) While object ID's are all integers, at compile time a "note" is attached to each
 variable of ID type, which notes the table the ID refers to.  This is implemented by the
 `chainbase::oid` class, which takes the class name as a template parameter.  To cut down
 on the number of template invocations needed in typical code (and to ease porting of
 code first developed with older versions of `chainbase` or its predecessors), a type
-alias `typedef oid< smt_token_object > smt_id_type` is added to `steem_object_types.hpp`.
+alias `typedef oid< SST_token_object > SST_id_type` is added to `freezone_object_types.hpp`.
 
-- (9f) The `smt_token_object` class subclasses
-`chainbase::object< smt_token_object_type, smt_token_object >`.  This is the
+- (9f) The `SST_token_object` class subclasses
+`chainbase::object< SST_token_object_type, SST_token_object >`.  This is the
 [curiously recurring template pattern](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern),
 it involves routing of type parameters to allow interaction of templates and polymorphism.  It sounds
 complicated, but the `object` class definition in `chainbase.hpp` makes clear that it is used to simply
-`typedef oid< smt_token_object > id_type;`
+`typedef oid< SST_token_object > id_type;`
 
-As a consequence of the above, `smt_token_id_type`, `oid< smt_token_object >` and
-`smt_token_object::id_type` all refer to a type representing an integer object ID, with a
-compile-time "note" attached that this object ID is a primary key for the `smt_token_object`
+As a consequence of the above, `SST_token_id_type`, `oid< SST_token_object >` and
+`SST_token_object::id_type` all refer to a type representing an integer object ID, with a
+compile-time "note" attached that this object ID is a primary key for the `SST_token_object`
 database table.  The table ID of that database table is an integer value given by
-`smt_token_object_type` or `smt_token_object::type_id`.
+`SST_token_object_type` or `SST_token_object::type_id`.
 
 - (9h) We're using a memory-mapped file for the database, when the database allocates memory it
 must go into the memory-mapped file (not on the heap).  Any variable-length fields in any
@@ -228,28 +228,28 @@ Examples may be seen with fields `transaction_object::packed_trx`, `comment_obje
 created will be assigned the next sequentially available object ID.
 
 - (9l) Some functionality in `chainbase` requires the `by_id` field.  Since `chainbase`
-is designed as a reusable library, not tightly coupled to Steem, it contains no reference
-to any `steem` namespaces.  So the name `by_id` must refer to `chainbase::by_id`.  If you
-define a `struct by_id;` in the `steem::chain` namespace, the result will be that every
+is designed as a reusable library, not tightly coupled to freezone, it contains no reference
+to any `freezone` namespaces.  So the name `by_id` must refer to `chainbase::by_id`.  If you
+define a `struct by_id;` in the `freezone::chain` namespace, the result will be that every
 index defined later in the compilation unit which references `by_id` without qualification
 will become an incorrect or ambiguous type reference.  The result likely will not
 function correctly, and may not compile.
 
-- (9m) The template definition of `smt_token_index` looks intimidating (and the definitions of
+- (9m) The template definition of `SST_token_index` looks intimidating (and the definitions of
 indexes like `control_account` moreso).  The indexes are used by the
 `multi_index_container` type provided by the Boost library.  The `multi_index_container` library
 roughly implements the functionality of an in-memory SQL database (a collection of objects for
 which multiple "keys" may be defined for potential random access / iteration, and also supports
 "composite keys" consisting of multiple fields).  Since all type information is known about all
 "database tables" is known at compile time, the `multi_index_container` is fast and efficient.
-So the `smt_token_index` definition is basically a DDL which describes the available indexes --
+So the `SST_token_index` definition is basically a DDL which describes the available indexes --
 it is like an SQL `CREATE INDEX` statement with more complicated syntax.  Most of the time,
 the index definition can be treated as "boilerplate" that can be copied from existing, working
 definitions.  More information about the syntax is available in the Boost documentation.
 
 - (9m) The `by_id` index is used by the `chainbase` infrastructure to implement the undo function.
 
-- (9m) All indexes used in Steem must be `ordered_unique`.  In theory, hashed or non-unique
+- (9m) All indexes used in freezone must be `ordered_unique`.  In theory, hashed or non-unique
 indexes may be permissible in some situations, and may offer a performance advantage.
 However, past experience has shown that the undefined iteration order of these indexes
 is a potential source of state corruption bugs (in practice, iteration order of such an
@@ -266,13 +266,13 @@ new field values for the object.
 - (10c) The `modify()` and `remove()` functions take a reference to an existing object.
 - (10d) To get a reference to an object, you can use `db.get()` to lookup the object
 by index value.  For example
-`db.get< smt_token_object, by_control_account >( "alice" );` which throws an exception
+`db.get< SST_token_object, by_control_account >( "alice" );` which throws an exception
 if the object does not exist.  In an evaluator, such an exception will cause the operation
 (and any transaction or block that contains it) to fail.
 - (10e) To get an object that potentially does not exist, you can use `db.find()`, which
 is like `db.get()` but it will return a pointer, or `nullptr` if the object does not exist.
 - (10f) To iterate over objects in the order of some index, you can call
-`auto& idx = get_index< smt_token_index >().indices().get< by_control_account >()` to get a reference
+`auto& idx = get_index< SST_token_index >().indices().get< by_control_account >()` to get a reference
 to the `multi_index_container` index, then use `begin()`, `end()` for a traversal from
 the end, or use `lower_bound()`, `upper_bound()` for traversal beginning at an arbitrary
 point.  Many examples exist in the code and `multi_index_container` documentation.
@@ -291,19 +291,19 @@ only exists inside the body of the callback where the modification occurs.
 
 ### Step 10 additional explanation
 
-- (10) The following discussion is specific to the `smt_token_object` example code, and
+- (10) The following discussion is specific to the `SST_token_object` example code, and
 isn't directly applicable to other objects.
 
-For `smt_token_index` two single-column indexes are defined, `by_id`
+For `SST_token_index` two single-column indexes are defined, `by_id`
 on the `id` field, and `by_control_account` on the `control_account` field.
 
-Now that an object is created for each SMT, the `is_smt` field in the database describing
-whether an object has an associated SMT is redundant information and can be removed.  We want to
-continue to provide the same interface to JSON-RPC clients, so we keep the `is_smt` field in the RPC
-object.  But we now fill it in based on whether an `smt_token_object` exists with a matching
+Now that an object is created for each SST, the `is_SST` field in the database describing
+whether an object has an associated SST is redundant information and can be removed.  We want to
+continue to provide the same interface to JSON-RPC clients, so we keep the `is_SST` field in the RPC
+object.  But we now fill it in based on whether an `SST_token_object` exists with a matching
 `control_account`.
 
-Also, we delete the `is_smt` check in the evaluator.  But the unit test code which tests that
+Also, we delete the `is_SST` check in the evaluator.  But the unit test code which tests that
 an account cannot be elevated twice still passes.  The reason it passes is that object
 creation will throw an exception if the created object has the same key value as an existing
 object for any unique index.  So the second account creation will fail due to the exception

@@ -1,25 +1,25 @@
 #pragma once
 
-#include <steem/protocol/asset.hpp>
+#include <freezone/protocol/asset.hpp>
 
-namespace steem { namespace chain { namespace util {
+namespace freezone { namespace chain { namespace util {
 
-using steem::protocol::asset;
-using steem::protocol::price;
+using freezone::protocol::asset;
+using freezone::protocol::price;
 
-inline asset to_sbd( const price& p, const asset& steem )
+inline asset to_sbd( const price& p, const asset& freezone )
 {
-   FC_ASSERT( steem.symbol == STEEM_SYMBOL );
+   FC_ASSERT( freezone.symbol == freezone_SYMBOL );
    if( p.is_null() )
       return asset( 0, SBD_SYMBOL );
-   return steem * p;
+   return freezone * p;
 }
 
-inline asset to_steem( const price& p, const asset& sbd )
+inline asset to_freezone( const price& p, const asset& sbd )
 {
    FC_ASSERT( sbd.symbol == SBD_SYMBOL );
    if( p.is_null() )
-      return asset( 0, STEEM_SYMBOL );
+      return asset( 0, freezone_SYMBOL );
    return sbd * p;
 }
 

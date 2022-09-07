@@ -1,16 +1,16 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 #include <appbase/application.hpp>
 
-#include <steem/plugins/json_rpc/json_rpc_plugin.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
+#include <freezone/plugins/json_rpc/json_rpc_plugin.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
 
 #include <boost/thread.hpp>
 #include <boost/container/vector.hpp>
 
-#define STEEM_WEBSERVER_PLUGIN_NAME "webserver"
+#define freezone_WEBSERVER_PLUGIN_NAME "webserver"
 
-namespace steem { namespace plugins { namespace webserver {
+namespace freezone { namespace plugins { namespace webserver {
 
 namespace detail { class webserver_plugin_impl; }
 
@@ -37,7 +37,7 @@ class webserver_plugin : public appbase::plugin< webserver_plugin >
 
       APPBASE_PLUGIN_REQUIRES( (plugins::chain::chain_plugin)(plugins::json_rpc::json_rpc_plugin) );
 
-      static const std::string& name() { static std::string name = STEEM_WEBSERVER_PLUGIN_NAME; return name; }
+      static const std::string& name() { static std::string name = freezone_WEBSERVER_PLUGIN_NAME; return name; }
 
       virtual void set_program_options(options_description&, options_description& cfg) override;
 
@@ -50,4 +50,4 @@ class webserver_plugin : public appbase::plugin< webserver_plugin >
       std::unique_ptr< detail::webserver_plugin_impl > my;
 };
 
-} } } // steem::plugins::webserver
+} } } // freezone::plugins::webserver

@@ -1,22 +1,22 @@
 #pragma once
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
-#ifndef STEEM_WITNESS_SPACE_ID
-#define STEEM_WITNESS_SPACE_ID 19
+#ifndef freezone_WITNESS_SPACE_ID
+#define freezone_WITNESS_SPACE_ID 19
 #endif
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 struct by_account;
 } }
 
-namespace steem { namespace plugins { namespace witness {
+namespace freezone { namespace plugins { namespace witness {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
 enum witness_object_types
 {
-   witness_custom_op_object_type          = ( STEEM_WITNESS_SPACE_ID << 8 )
+   witness_custom_op_object_type          = ( freezone_WITNESS_SPACE_ID << 8 )
 };
 
 class witness_custom_op_object : public object< witness_custom_op_object_type, witness_custom_op_object >
@@ -46,9 +46,9 @@ typedef multi_index_container<
 
 } } }
 
-FC_REFLECT( steem::plugins::witness::witness_custom_op_object,
+FC_REFLECT( freezone::plugins::witness::witness_custom_op_object,
    (id)
    (account)
    (count)
    )
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::witness::witness_custom_op_object, steem::plugins::witness::witness_custom_op_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::witness::witness_custom_op_object, freezone::plugins::witness::witness_custom_op_index )

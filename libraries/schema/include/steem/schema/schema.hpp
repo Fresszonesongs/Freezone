@@ -1,5 +1,5 @@
 #pragma once
 
-#include <steem/schema/abstract_schema.hpp>
-#include <steem/schema/schema_impl.hpp>
-#include <steem/schema/schema_types.hpp>
+#include <freezone/schema/abstract_schema.hpp>
+#include <freezone/schema/schema_impl.hpp>
+#include <freezone/schema/schema_types.hpp>

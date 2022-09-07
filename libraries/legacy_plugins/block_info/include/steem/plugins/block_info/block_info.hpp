@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
-namespace steem { namespace plugin { namespace block_info {
+namespace freezone { namespace plugin { namespace block_info {
 
 struct block_info
 {
@@ -22,7 +22,7 @@ struct block_with_info
 
 } } }
 
-FC_REFLECT( steem::plugin::block_info::block_info,
+FC_REFLECT( freezone::plugin::block_info::block_info,
    (block_id)
    (block_size)
    (aslot)
@@ -30,7 +30,7 @@ FC_REFLECT( steem::plugin::block_info::block_info,
    (num_pow_witnesses)
    )
 
-FC_REFLECT( steem::plugin::block_info::block_with_info,
+FC_REFLECT( freezone::plugin::block_info::block_with_info,
    (block)
    (info)
    )

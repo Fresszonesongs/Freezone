@@ -1,17 +1,17 @@
 #pragma once
-#include <steem/plugins/json_rpc/utility.hpp>
-#include <steem/plugins/reputation/reputation_objects.hpp>
-#include <steem/plugins/database_api/database_api_objects.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
+#include <freezone/plugins/reputation/reputation_objects.hpp>
+#include <freezone/plugins/database_api/database_api_objects.hpp>
 
-#include <steem/protocol/types.hpp>
+#include <freezone/protocol/types.hpp>
 
 #include <fc/optional.hpp>
 #include <fc/variant.hpp>
 #include <fc/vector.hpp>
 
-namespace steem { namespace plugins { namespace reputation {
+namespace freezone { namespace plugins { namespace reputation {
 
-using steem::protocol::account_name_type;
+using freezone::protocol::account_name_type;
 
 namespace detail
 {
@@ -21,7 +21,7 @@ namespace detail
 struct account_reputation
 {
    account_name_type             account;
-   steem::protocol::share_type   reputation;
+   freezone::protocol::share_type   reputation;
 };
 
 struct get_account_reputations_args
@@ -49,13 +49,13 @@ class reputation_api
       std::unique_ptr< detail::reputation_api_impl > my;
 };
 
-} } } // steem::plugins::reputation
+} } } // freezone::plugins::reputation
 
-FC_REFLECT( steem::plugins::reputation::account_reputation,
+FC_REFLECT( freezone::plugins::reputation::account_reputation,
             (account)(reputation) );
 
-FC_REFLECT( steem::plugins::reputation::get_account_reputations_args,
+FC_REFLECT( freezone::plugins::reputation::get_account_reputations_args,
             (account_lower_bound)(limit) );
 
-FC_REFLECT( steem::plugins::reputation::get_account_reputations_return,
+FC_REFLECT( freezone::plugins::reputation::get_account_reputations_return,
             (reputations) );

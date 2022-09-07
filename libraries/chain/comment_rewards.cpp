@@ -1,13 +1,13 @@
-#include <steem/chain/comment_rewards.hpp>
+#include <freezone/chain/comment_rewards.hpp>
 
-#include <steem/chain/comment_object.hpp>
-#include <steem/chain/steem_objects.hpp>
-#include <steem/chain/smt_objects.hpp>
-#include <steem/chain/vesting.hpp>
+#include <freezone/chain/comment_object.hpp>
+#include <freezone/chain/freezone_objects.hpp>
+#include <freezone/chain/SST_objects.hpp>
+#include <freezone/chain/vesting.hpp>
 
-#include <steem/chain/util/reward.hpp>
+#include <freezone/chain/util/reward.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 struct comment_context
 {
@@ -41,7 +41,7 @@ struct comment_context
 };
 
 template< typename CommentType >
-share_type reward_comment( comment_context c_ctx, const CommentType& comment, const reward_fund_context& rf_ctx, const price& current_steem_price, database& db );
+share_type reward_comment( comment_context c_ctx, const CommentType& comment, const reward_fund_context& rf_ctx, const price& current_freezone_price, database& db );
 
 template< typename CommentType >
 share_type reward_curators( share_type& tokens, comment_context& c_ctx, const CommentType& comment, const asset_symbol_type symbol, database& db );
@@ -50,16 +50,16 @@ void process_comment_rewards( database& db )
 {
    flat_map< asset_symbol_type, reward_fund_context > reward_funds;
    flat_map< asset_symbol_type, uint128_t > new_claims;
-   const auto& steem_rf = db.get< reward_fund_object, by_id >( reward_fund_id_type() );
+   const auto& freezone_rf = db.get< reward_fund_object, by_id >( reward_fund_id_type() );
 
-   reward_funds[ STEEM_SYMBOL ].recent_claims = steem_rf.recent_claims;
-   reward_funds[ STEEM_SYMBOL ].reward_balance = steem_rf.reward_balance;
-   reward_funds[ STEEM_SYMBOL ].last_update = steem_rf.last_update;
-   reward_funds[ STEEM_SYMBOL ].author_reward_curve = steem_rf.author_reward_curve;
-   reward_funds[ STEEM_SYMBOL ].curation_reward_curve = steem_rf.curation_reward_curve;
-   reward_funds[ STEEM_SYMBOL ].content_constant = steem_rf.content_constant;
-   reward_funds[ STEEM_SYMBOL ].percent_curation_rewards = steem_rf.percent_curation_rewards;
-   new_claims[ STEEM_SYMBOL ] = 0;
+   reward_funds[ freezone_SYMBOL ].recent_claims = freezone_rf.recent_claims;
+   reward_funds[ freezone_SYMBOL ].reward_balance = freezone_rf.reward_balance;
+   reward_funds[ freezone_SYMBOL ].last_update = freezone_rf.last_update;
+   reward_funds[ freezone_SYMBOL ].author_reward_curve = freezone_rf.author_reward_curve;
+   reward_funds[ freezone_SYMBOL ].curation_reward_curve = freezone_rf.curation_reward_curve;
+   reward_funds[ freezone_SYMBOL ].content_constant = freezone_rf.content_constant;
+   reward_funds[ freezone_SYMBOL ].percent_curation_rewards = freezone_rf.percent_curation_rewards;
+   new_claims[ freezone_SYMBOL ] = 0;
 
    const auto& cidx = db.get_index< comment_index >().indices().get< by_cashout_time >();
    auto current = cidx.begin();
@@ -70,34 +70,34 @@ void process_comment_rewards( database& db )
    {
       if( current->net_rshares > 0 )
       {
-         new_claims[ STEEM_SYMBOL ] += util::evaluate_reward_curve( current->net_rshares.value, steem_rf.author_reward_curve, steem_rf.content_constant );
+         new_claims[ freezone_SYMBOL ] += util::evaluate_reward_curve( current->net_rshares.value, freezone_rf.author_reward_curve, freezone_rf.content_constant );
       }
 
-      for( auto& smt_rshare : current->smt_rshares )
+      for( auto& SST_rshare : current->SST_rshares )
       {
-         auto smt_rf = reward_funds.find( smt_rshare.first );
-         if( smt_rf == reward_funds.end() )
+         auto SST_rf = reward_funds.find( SST_rshare.first );
+         if( SST_rf == reward_funds.end() )
          {
-            const auto& smt_fund = db.get< smt_token_object, by_symbol >( smt_rshare.first );
+            const auto& SST_fund = db.get< SST_token_object, by_symbol >( SST_rshare.first );
 
             reward_fund_context rf_ctx;
-            rf_ctx.recent_claims = smt_fund.recent_claims;
-            rf_ctx.reward_balance = smt_fund.reward_balance;
-            rf_ctx.last_update = smt_fund.last_reward_update;
-            rf_ctx.author_reward_curve = smt_fund.author_reward_curve;
-            rf_ctx.curation_reward_curve = smt_fund.curation_reward_curve;
-            rf_ctx.content_constant = smt_fund.content_constant;
-            rf_ctx.percent_curation_rewards = smt_fund.percent_curation_rewards;
-            reward_funds[ smt_rshare.first ] = std::move( rf_ctx );
+            rf_ctx.recent_claims = SST_fund.recent_claims;
+            rf_ctx.reward_balance = SST_fund.reward_balance;
+            rf_ctx.last_update = SST_fund.last_reward_update;
+            rf_ctx.author_reward_curve = SST_fund.author_reward_curve;
+            rf_ctx.curation_reward_curve = SST_fund.curation_reward_curve;
+            rf_ctx.content_constant = SST_fund.content_constant;
+            rf_ctx.percent_curation_rewards = SST_fund.percent_curation_rewards;
+            reward_funds[ SST_rshare.first ] = std::move( rf_ctx );
 
-            new_claims[ smt_rshare.first ] = 0;
+            new_claims[ SST_rshare.first ] = 0;
 
-            smt_rf = reward_funds.find( smt_rshare.first );
+            SST_rf = reward_funds.find( SST_rshare.first );
          }
 
-         if( smt_rshare.second.net_rshares > 0 )
+         if( SST_rshare.second.net_rshares > 0 )
          {
-            new_claims[ smt_rshare.first ] += util::evaluate_reward_curve( smt_rshare.second.net_rshares.value, smt_rf->second.author_reward_curve, smt_rf->second.content_constant );
+            new_claims[ SST_rshare.first ] += util::evaluate_reward_curve( SST_rshare.second.net_rshares.value, SST_rf->second.author_reward_curve, SST_rf->second.content_constant );
          }
       }
 
@@ -106,34 +106,34 @@ void process_comment_rewards( database& db )
 
    for( auto& rf_ctx : reward_funds )
    {
-      fc::microseconds decay_time = STEEM_RECENT_RSHARES_DECAY_TIME_HF19;
+      fc::microseconds decay_time = freezone_RECENT_RSHARES_DECAY_TIME_HF19;
       rf_ctx.second.recent_claims -= ( rf_ctx.second.recent_claims * ( now - rf_ctx.second.last_update ).to_seconds() ) / decay_time.to_seconds();
       rf_ctx.second.recent_claims += new_claims[ rf_ctx.first ];
       rf_ctx.second.last_update = now;
    }
 
-   const auto current_steem_price = db.get_feed_history().current_median_history;
+   const auto current_freezone_price = db.get_feed_history().current_median_history;
    current = cidx.begin();
    util::comment_reward_context ctx;
 
    while( current != cidx.end() && current->cashout_time <= now )
    {
-      ctx.total_claims = reward_funds[ STEEM_SYMBOL ].recent_claims;
-      ctx.reward_fund = reward_funds[ STEEM_SYMBOL ].reward_balance.amount;
-      reward_funds[ STEEM_SYMBOL ].tokens_awarded += db.cashout_comment_helper( ctx, *current, current_steem_price, false );
+      ctx.total_claims = reward_funds[ freezone_SYMBOL ].recent_claims;
+      ctx.reward_fund = reward_funds[ freezone_SYMBOL ].reward_balance.amount;
+      reward_funds[ freezone_SYMBOL ].tokens_awarded += db.cashout_comment_helper( ctx, *current, current_freezone_price, false );
 
-      for( auto smt_rshare : current->smt_rshares )
+      for( auto SST_rshare : current->SST_rshares )
       {
-         auto beneficiaries = db.find< comment_smt_beneficiaries_object, by_comment_symbol >( boost::make_tuple( current->id, smt_rshare.first ) );
-         auto va_opts = current->allowed_vote_assets.find( smt_rshare.first );
-         comment_context c_ctx( *current, smt_rshare.second, va_opts->second, beneficiaries != nullptr ? &(beneficiaries->beneficiaries) : nullptr );
+         auto beneficiaries = db.find< comment_SST_beneficiaries_object, by_comment_symbol >( boost::make_tuple( current->id, SST_rshare.first ) );
+         auto va_opts = current->allowed_vote_assets.find( SST_rshare.first );
+         comment_context c_ctx( *current, SST_rshare.second, va_opts->second, beneficiaries != nullptr ? &(beneficiaries->beneficiaries) : nullptr );
 
          // The find here is safe because the comment has rshares for that symbol already, which requires the vote assets to exits
-         reward_funds[ smt_rshare.first ].tokens_awarded += reward_comment(
+         reward_funds[ SST_rshare.first ].tokens_awarded += reward_comment(
             c_ctx,
-            smt_rshare.second,
-            reward_funds[ smt_rshare.first ],
-            current_steem_price,
+            SST_rshare.second,
+            reward_funds[ SST_rshare.first ],
+            current_freezone_price,
             db
          );
 
@@ -144,7 +144,7 @@ void process_comment_rewards( database& db )
             c.vote_rshares = c_ctx.vote_rshares;
             c.total_vote_weight = c_ctx.total_vote_weight.value;
 #ifndef IS_LOW_MEM
-            FC_TODO( "Update SMT author rewards" ); // This is non-consensus and should probably be done in a plugin/hivemind
+            FC_TODO( "Update SST author rewards" ); // This is non-consensus and should probably be done in a plugin/hivemind
             //c.author_rewards += c_ctx.author_tokens;
 #endif
          });
@@ -155,18 +155,18 @@ void process_comment_rewards( database& db )
 
    for( auto& rf_ctx : reward_funds )
    {
-      if( rf_ctx.first == STEEM_SYMBOL )
+      if( rf_ctx.first == freezone_SYMBOL )
       {
-         db.modify( steem_rf, [&]( reward_fund_object& r )
+         db.modify( freezone_rf, [&]( reward_fund_object& r )
          {
             r.recent_claims = rf_ctx.second.recent_claims;
-            r.reward_balance -= asset( rf_ctx.second.tokens_awarded, STEEM_SYMBOL );
+            r.reward_balance -= asset( rf_ctx.second.tokens_awarded, freezone_SYMBOL );
             r.last_update = rf_ctx.second.last_update;
          });
       }
       else
       {
-         db.modify( db.get< smt_token_object, by_symbol >( rf_ctx.first ), [&]( smt_token_object& t )
+         db.modify( db.get< SST_token_object, by_symbol >( rf_ctx.first ), [&]( SST_token_object& t )
          {
             t.recent_claims = rf_ctx.second.recent_claims;
             t.reward_balance -= asset( rf_ctx.second.tokens_awarded, rf_ctx.second.reward_balance.symbol );
@@ -177,7 +177,7 @@ void process_comment_rewards( database& db )
 }
 
 template< typename CommentType >
-share_type reward_comment( comment_context c_ctx, const CommentType& comment, const reward_fund_context& rf_ctx, const price& current_steem_price, database& db )
+share_type reward_comment( comment_context c_ctx, const CommentType& comment, const reward_fund_context& rf_ctx, const price& current_freezone_price, database& db )
 {
    try
    {
@@ -192,7 +192,7 @@ share_type reward_comment( comment_context c_ctx, const CommentType& comment, co
          ctx.content_constant = rf_ctx.content_constant;
          ctx.total_claims = rf_ctx.recent_claims;
          ctx.reward_fund = rf_ctx.reward_balance.amount.value;
-         ctx.reward_weight = STEEM_100_PERCENT; // Not used past HF 17, set to 100%
+         ctx.reward_weight = freezone_100_PERCENT; // Not used past HF 17, set to 100%
 
          uint64_t reward = util::get_rshare_reward( ctx );
          reward = std::min( reward, (uint64_t)(c_ctx.max_accepted_payout.value) );
@@ -201,7 +201,7 @@ share_type reward_comment( comment_context c_ctx, const CommentType& comment, co
 
          if( reward_tokens > 0 )
          {
-            share_type curation_tokens = ( ( reward_tokens * rf_ctx.percent_curation_rewards ) / STEEM_100_PERCENT ).to_uint64();
+            share_type curation_tokens = ( ( reward_tokens * rf_ctx.percent_curation_rewards ) / freezone_100_PERCENT ).to_uint64();
             author_tokens = reward_tokens.to_uint64() - curation_tokens;
 
             reward_curators( curation_tokens, c_ctx, comment, rf_ctx.reward_balance.symbol, db );
@@ -209,14 +209,14 @@ share_type reward_comment( comment_context c_ctx, const CommentType& comment, co
             share_type total_beneficiary = 0;
             claimed_reward = author_tokens + curation_tokens;
 
-            // I do not like having to do this as a nullptr check, but the object might not exist for SMT beneficiaries
+            // I do not like having to do this as a nullptr check, but the object might not exist for SST beneficiaries
             if( c_ctx.beneficiaries != nullptr )
             {
                for( auto& b : *(c_ctx.beneficiaries) )
                {
-                  auto benefactor_tokens = ( author_tokens * b.weight ) / STEEM_100_PERCENT;
+                  auto benefactor_tokens = ( author_tokens * b.weight ) / freezone_100_PERCENT;
                   auto benefactor_vesting_tokens = benefactor_tokens;
-                  auto vop = comment_benefactor_reward_operation( b.account, c_ctx.author, c_ctx.permlink, asset( 0, SBD_SYMBOL ), asset( 0, STEEM_SYMBOL ), asset( 0, rf_ctx.reward_balance.symbol.get_paired_symbol() ) );
+                  auto vop = comment_benefactor_reward_operation( b.account, c_ctx.author, c_ctx.permlink, asset( 0, SBD_SYMBOL ), asset( 0, freezone_SYMBOL ), asset( 0, rf_ctx.reward_balance.symbol.get_paired_symbol() ) );
 
                   create_vesting2( db, db.get_account( b.account ), asset( benefactor_vesting_tokens.value, rf_ctx.reward_balance.symbol ), true,
                   [&]( const asset& reward )
@@ -234,7 +234,7 @@ share_type reward_comment( comment_context c_ctx, const CommentType& comment, co
             auto vesting_token = author_tokens;
 
             const auto& author = db.get_account( c_ctx.author );
-            operation vop = author_reward_operation( c_ctx.author, c_ctx.permlink, asset( 0, SBD_SYMBOL ), asset( 0, STEEM_SYMBOL ), asset( 0, VESTS_SYMBOL ) );
+            operation vop = author_reward_operation( c_ctx.author, c_ctx.permlink, asset( 0, SBD_SYMBOL ), asset( 0, freezone_SYMBOL ), asset( 0, VESTS_SYMBOL ) );
 
             create_vesting2( db, author, asset( vesting_token.value, rf_ctx.reward_balance.symbol ), true,
             [&]( const asset& vesting_payout )
@@ -243,14 +243,14 @@ share_type reward_comment( comment_context c_ctx, const CommentType& comment, co
                db.pre_push_virtual_operation( vop );
             } );
 
-            FC_TODO( "Adjust total payout for SMTs" ); // This is non-consensus and should probably be done in a plugin/hivemind
+            FC_TODO( "Adjust total payout for SSTs" ); // This is non-consensus and should probably be done in a plugin/hivemind
 
             db.post_push_virtual_operation( vop );
             vop = comment_reward_operation( c_ctx.author, c_ctx.permlink, asset( claimed_reward, rf_ctx.reward_balance.symbol ) );
             db.pre_push_virtual_operation( vop );
             db.post_push_virtual_operation( vop );
 
-            FC_TODO( "Update author and posting rewards for SMTs" ); // This is non-consensus and should probably be done in a plugin/hivemind
+            FC_TODO( "Update author and posting rewards for SSTs" ); // This is non-consensus and should probably be done in a plugin/hivemind
          }
       }
 
@@ -264,7 +264,7 @@ share_type reward_comment( comment_context c_ctx, const CommentType& comment, co
       c_ctx.vote_rshares = 0;
       c_ctx.total_vote_weight = 0;
 #ifndef IS_LOW_MEM
-      FC_TODO( "Update SMT author rewards" ); // This is non-consensus and should probably be done in a plugin/hivemind
+      FC_TODO( "Update SST author rewards" ); // This is non-consensus and should probably be done in a plugin/hivemind
       //c_ctx.author_rewards += author_tokens;
 #endif
 
@@ -286,7 +286,7 @@ share_type reward_comment( comment_context c_ctx, const CommentType& comment, co
       }
 
       return claimed_reward;
-   } FC_CAPTURE_AND_RETHROW( (comment)(rf_ctx)(current_steem_price) );
+   } FC_CAPTURE_AND_RETHROW( (comment)(rf_ctx)(current_freezone_price) );
 }
 
 template< typename CommentType >
@@ -345,7 +345,7 @@ share_type reward_curators( share_type& tokens, comment_context& c_ctx, const Co
                      db.pre_push_virtual_operation( vop );
                   });
 
-                  FC_TODO( "Update curation reward count for SMTs" ); // This is non-consensus and should probably be done in a plugin/hivemind
+                  FC_TODO( "Update curation reward count for SSTs" ); // This is non-consensus and should probably be done in a plugin/hivemind
 
 
                   db.post_push_virtual_operation( vop );
@@ -360,4 +360,4 @@ share_type reward_curators( share_type& tokens, comment_context& c_ctx, const Co
    } FC_CAPTURE_AND_RETHROW( (tokens)(comment)(symbol) )
 }
 
-} } // steem::chain
+} } // freezone::chain

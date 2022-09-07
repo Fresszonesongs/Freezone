@@ -1,6 +1,6 @@
-#include<steem/wallet/remote_node_api.hpp>
+#include<freezone/wallet/remote_node_api.hpp>
 
-namespace steem { namespace wallet{
+namespace freezone { namespace wallet{
 
 // This class exists only to provide method signature information to fc::api, not to execute calls.
 

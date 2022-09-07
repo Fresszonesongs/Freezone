@@ -1,10 +1,10 @@
 #pragma once
 #include <fc/filesystem.hpp>
-#include <steem/protocol/block.hpp>
+#include <freezone/protocol/block.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-   using namespace steem::protocol;
+   using namespace freezone::protocol;
 
    namespace detail { class block_log_impl; }
 

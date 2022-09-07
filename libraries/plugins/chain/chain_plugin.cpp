@@ -1,15 +1,15 @@
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/chain/database_exceptions.hpp>
-#include <steem/chain/transaction_object.hpp>
+#include <freezone/chain/database_exceptions.hpp>
+#include <freezone/chain/transaction_object.hpp>
 
-#include <steem/plugins/chain/abstract_block_producer.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
-#include <steem/plugins/chain/statefile/statefile.hpp>
-#include <steem/plugins/statsd/utility.hpp>
+#include <freezone/plugins/chain/abstract_block_producer.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
+#include <freezone/plugins/chain/statefile/statefile.hpp>
+#include <freezone/plugins/statsd/utility.hpp>
 
-#include <steem/utilities/benchmark_dumper.hpp>
-#include <steem/utilities/database_configuration.hpp>
+#include <freezone/utilities/benchmark_dumper.hpp>
+#include <freezone/utilities/database_configuration.hpp>
 
 #include <fc/string.hpp>
 #include <fc/io/json.hpp>
@@ -27,11 +27,11 @@
 #include <iostream>
 #include <future>
 
-namespace steem { namespace plugins { namespace chain {
+namespace freezone { namespace plugins { namespace chain {
 
-using namespace steem;
+using namespace freezone;
 using fc::flat_map;
-using steem::chain::block_id_type;
+using freezone::chain::block_id_type;
 namespace asio = boost::asio;
 
 #define NUM_THREADS 1
@@ -311,7 +311,7 @@ void chain_plugin_impl::stop_write_processing()
 void chain_plugin_impl::write_default_database_config( bfs::path &p )
 {
    ilog( "writing database configuration: ${p}", ("p", p.string()) );
-   fc::json::save_to_file( steem::utilities::default_database_configuration(), p );
+   fc::json::save_to_file( freezone::utilities::default_database_configuration(), p );
 }
 
 void chain_plugin_impl::post_block( const block_notification& note )
@@ -330,7 +330,7 @@ chain_plugin::chain_plugin() : my( new detail::chain_plugin_impl() ) {}
 chain_plugin::~chain_plugin(){}
 
 database& chain_plugin::db() { return my->db; }
-const steem::chain::database& chain_plugin::db() const { return my->db; }
+const freezone::chain::database& chain_plugin::db() const { return my->db; }
 
 bfs::path chain_plugin::state_storage_dir() const
 {
@@ -374,7 +374,7 @@ void chain_plugin::set_program_options(options_description& cli, options_descrip
          ("memory-replay,m", bpo::bool_switch()->default_value(false), "Replay with state in memory instead of on disk")
 #endif
 #ifdef IS_TEST_NET
-         ("chain-id", bpo::value< std::string >()->default_value( STEEM_CHAIN_ID ), "chain ID to connect to")
+         ("chain-id", bpo::value< std::string >()->default_value( freezone_CHAIN_ID ), "chain ID to connect to")
 #endif
          ;
 }
@@ -497,7 +497,7 @@ void chain_plugin::plugin_startup()
 {
    if( my->statsd_on_replay )
    {
-      auto statsd = appbase::app().find_plugin< steem::plugins::statsd::statsd_plugin >();
+      auto statsd = appbase::app().find_plugin< freezone::plugins::statsd::statsd_plugin >();
       if( statsd != nullptr )
       {
          statsd->start_logging();
@@ -517,11 +517,11 @@ void chain_plugin::plugin_startup()
    my->db.set_require_locking( my->check_locks );
 
    bool dump_memory_details = my->dump_memory_details;
-   steem::utilities::benchmark_dumper dumper;
+   freezone::utilities::benchmark_dumper dumper;
 
    const auto& abstract_index_cntr = my->db.get_abstract_index_cntr();
 
-   typedef steem::utilities::benchmark_dumper::index_memory_details_cntr_t index_memory_details_cntr_t;
+   typedef freezone::utilities::benchmark_dumper::index_memory_details_cntr_t index_memory_details_cntr_t;
    auto get_indexes_memory_details = [dump_memory_details, &abstract_index_cntr]
       (index_memory_details_cntr_t& index_memory_details_cntr, bool onlyStaticInfo)
    {
@@ -558,8 +558,8 @@ void chain_plugin::plugin_startup()
    database::open_args db_open_args;
    db_open_args.data_dir = app().data_dir() / "blockchain";
    db_open_args.shared_mem_dir = my->shared_memory_dir;
-   db_open_args.initial_supply = STEEM_INIT_SUPPLY;
-   db_open_args.sbd_initial_supply = STEEM_SBD_INIT_SUPPLY;
+   db_open_args.initial_supply = freezone_INIT_SUPPLY;
+   db_open_args.sbd_initial_supply = freezone_SBD_INIT_SUPPLY;
    db_open_args.shared_file_size = my->shared_memory_size;
    db_open_args.shared_file_full_threshold = my->shared_file_full_threshold;
    db_open_args.shared_file_scale_rate = my->shared_file_scale_rate;
@@ -577,7 +577,7 @@ void chain_plugin::plugin_startup()
    {
       if( current_block_number == 0 ) // initial call
       {
-         typedef steem::utilities::benchmark_dumper::database_object_sizeof_cntr_t database_object_sizeof_cntr_t;
+         typedef freezone::utilities::benchmark_dumper::database_object_sizeof_cntr_t database_object_sizeof_cntr_t;
          auto get_database_objects_sizeofs = [dump_memory_details, &abstract_index_cntr]
             (database_object_sizeof_cntr_t& database_object_sizeof_cntr)
          {
@@ -595,7 +595,7 @@ void chain_plugin::plugin_startup()
          return;
       }
 
-      const steem::utilities::benchmark_dumper::measurement& measure =
+      const freezone::utilities::benchmark_dumper::measurement& measure =
          dumper.measure(current_block_number, get_indexes_memory_details);
       ilog( "Performance report at block ${n}. Elapsed time: ${rt} ms (real), ${ct} ms (cpu). Memory usage: ${cm} (current), ${pm} (peak) kilobytes.",
          ("n", current_block_number)
@@ -608,7 +608,7 @@ void chain_plugin::plugin_startup()
    if(my->replay || (my->from_state != ""))
    {
       ilog("Replaying blockchain on user request.");
-      db_open_args.benchmark = steem::chain::database::TBenchmark(my->benchmark_interval, benchmark_lambda);
+      db_open_args.benchmark = freezone::chain::database::TBenchmark(my->benchmark_interval, benchmark_lambda);
       if( my->from_state != "" )
       {
          db_open_args.genesis_func = std::make_shared< std::function<void( database&, const database::open_args& )> >( [&]( database& db, const database::open_args& args )
@@ -620,7 +620,7 @@ void chain_plugin::plugin_startup()
 
       if( my->benchmark_interval > 0 )
       {
-         const steem::utilities::benchmark_dumper::measurement& total_data = dumper.dump(true, get_indexes_memory_details);
+         const freezone::utilities::benchmark_dumper::measurement& total_data = dumper.dump(true, get_indexes_memory_details);
          ilog( "Performance report (total). Blocks: ${b}. Elapsed time: ${rt} ms (real), ${ct} ms (cpu). Memory usage: ${cm} (current), ${pm} (peak) kilobytes.",
                ("b", total_data.block_number)
                ("rt", total_data.real_ms)
@@ -643,7 +643,7 @@ void chain_plugin::plugin_startup()
    }
    else
    {
-      db_open_args.benchmark = steem::chain::database::TBenchmark(dump_memory_details, benchmark_lambda);
+      db_open_args.benchmark = freezone::chain::database::TBenchmark(dump_memory_details, benchmark_lambda);
 
       try
       {
@@ -688,7 +688,7 @@ void chain_plugin::plugin_shutdown()
          db().undo_all();
 
          FC_TODO( "Serializing and deserializing transaction objects does not seem to be working... :/" );
-         //const auto& trx_idx = db().get_index< steem::chain::transaction_index, by_id >();
+         //const auto& trx_idx = db().get_index< freezone::chain::transaction_index, by_id >();
          //while( trx_idx.begin() != trx_idx.end() )
          //{
          //   db().remove( *trx_idx.begin() );
@@ -714,7 +714,7 @@ flat_map< string, fc::variant_object >& chain_plugin::get_state_options() const
    return my->plugin_state_opts;
 }
 
-bool chain_plugin::accept_block( const steem::chain::signed_block& block, bool currently_syncing, uint32_t skip )
+bool chain_plugin::accept_block( const freezone::chain::signed_block& block, bool currently_syncing, uint32_t skip )
 {
    if (currently_syncing && block.block_num() % 10000 == 0) {
       ilog("Syncing Blockchain --- Got block: #${n} time: ${t} producer: ${p}",
@@ -740,7 +740,7 @@ bool chain_plugin::accept_block( const steem::chain::signed_block& block, bool c
    return cxt.success;
 }
 
-void chain_plugin::accept_transaction( const steem::chain::signed_transaction& trx )
+void chain_plugin::accept_transaction( const freezone::chain::signed_transaction& trx )
 {
    boost::promise< void > prom;
    write_context cxt;
@@ -756,7 +756,7 @@ void chain_plugin::accept_transaction( const steem::chain::signed_transaction& t
    return;
 }
 
-steem::chain::signed_block chain_plugin::generate_block(
+freezone::chain::signed_block chain_plugin::generate_block(
    const fc::time_point_sec when,
    const account_name_type& witness_owner,
    const fc::ecc::private_key& block_signing_private_key,
@@ -789,17 +789,17 @@ int16_t chain_plugin::set_write_lock_hold_time( int16_t new_time )
    return old_time;
 }
 
-bool chain_plugin::block_is_on_preferred_chain(const steem::chain::block_id_type& block_id )
+bool chain_plugin::block_is_on_preferred_chain(const freezone::chain::block_id_type& block_id )
 {
    // If it's not known, it's not preferred.
    if( !db().is_known_block(block_id) ) return false;
 
    // Extract the block number from block_id, and fetch that block number's ID from the database.
    // If the database's block ID matches block_id, then block_id is on the preferred chain. Otherwise, it's on a fork.
-   return db().get_block_id_for_num( steem::chain::block_header::num_from_id( block_id ) ) == block_id;
+   return db().get_block_id_for_num( freezone::chain::block_header::num_from_id( block_id ) ) == block_id;
 }
 
-void chain_plugin::check_time_in_block( const steem::chain::signed_block& block )
+void chain_plugin::check_time_in_block( const freezone::chain::signed_block& block )
 {
    time_point_sec now = fc::time_point::now();
 
@@ -819,4 +819,4 @@ void chain_plugin::register_block_generator( const std::string& plugin_name, std
    my->block_generator = block_producer;
 }
 
-} } } // namespace steem::plugis::chain::chain_apis
+} } } // namespace freezone::plugis::chain::chain_apis

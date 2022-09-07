@@ -116,7 +116,7 @@ jobs:
             low_memory_mode: 'ON'
             clear_votes: 'ON'
             skip_by_tx_id: 'ON'
-            build_steem_testnet: 'OFF'
+            build_freezone_testnet: 'OFF'
             enable_coverage_testing: 'OFF'
             chainbase_check_locking: 'OFF'
             unit_test: 'ON'
@@ -125,7 +125,7 @@ jobs:
             low_memory_mode: 'OFF'
             clear_votes: 'OFF'
             skip_by_tx_id: 'ON'
-            build_steem_testnet: 'OFF'
+            build_freezone_testnet: 'OFF'
             enable_coverage_testing: 'OFF'
             chainbase_check_locking: 'OFF'
             unit_test: 'ON'
@@ -134,7 +134,7 @@ jobs:
             low_memory_mode: 'ON'
             clear_votes: 'ON'
             skip_by_tx_id: 'ON'
-            build_steem_testnet: 'OFF'
+            build_freezone_testnet: 'OFF'
             enable_coverage_testing: 'OFF'
             chainbase_check_locking: 'OFF'
             unit_test: 'OFF'
@@ -143,7 +143,7 @@ jobs:
             low_memory_mode: 'OFF'
             clear_votes: 'OFF'
             skip_by_tx_id: 'ON'
-            build_steem_testnet: 'OFF'
+            build_freezone_testnet: 'OFF'
             enable_coverage_testing: 'OFF'
             chainbase_check_locking: 'OFF'
             unit_test: 'OFF'
@@ -152,7 +152,7 @@ jobs:
             low_memory_mode: 'OFF'
             clear_votes: 'ON'
             skip_by_tx_id: 'ON'
-            build_steem_testnet: 'ON'
+            build_freezone_testnet: 'ON'
             enable_coverage_testing: 'ON'
             chainbase_check_locking: 'OFF'
             unit_test: 'OFF'
@@ -179,7 +179,7 @@ jobs:
           BUILD_TAG: ${{ github.event.inputs.build_tag }}
           MIRA: 'ON'
           LOW_MEMORY_MODE: ${{ matrix.low_memory_mode }}
-          BUILD_STEEM_TESTNET: ${{ matrix.build_steem_testnet }}
+          BUILD_freezone_TESTNET: ${{ matrix.build_freezone_testnet }}
         run: |
           set -x
           if [ "${MIRA}" = "ON" ]; then
@@ -188,7 +188,7 @@ jobs:
             mira_tag="-shared-memory";
           fi
 
-          if [ "${BUILD_STEEM_TESTNET}" = "ON" ]; then
+          if [ "${BUILD_freezone_TESTNET}" = "ON" ]; then
             testnet_tag="-testnet";
           else
             testnet_tag="";
@@ -199,7 +199,7 @@ jobs:
           else
             low_memory_tag="-full";
           fi
-          echo "::set-output name=image_name::steemit/steem:${BUILD_TAG}${mira_tag}${low_memory_tag}${testnet_tag}"
+          echo "::set-output name=image_name::freezone/freezone:${BUILD_TAG}${mira_tag}${low_memory_tag}${testnet_tag}"
       -
         name: Build and push
         id: docker_build
@@ -210,12 +210,12 @@ jobs:
           build-args: |
               CMAKE_BUILD_TYPE: ${{ matrix.cmake_build_type }}
               BUILD_TAG: ${{ github.event.inputs.build_tag }}
-              STEEM_STATIC_BUILD: 'ON'
+              freezone_STATIC_BUILD: 'ON'
               ENABLE_MIRA: 'ON'
               LOW_MEMORY_MODE: ${{ matrix.low_memory_mode }}
               CLEAR_VOTES: ${{ matrix.clear_votes }}
               SKIP_BY_TX_ID: ${{ matrix.skip_by_tx_id }}
-              BUILD_STEEM_TESTNET: ${{ matrix.build_steem_testnet }}
+              BUILD_freezone_TESTNET: ${{ matrix.build_freezone_testnet }}
               ENABLE_COVERAGE_TESTING: ${{ matrix.enable_coverage_testing }}
               CHAINBASE_CHECK_LOCKING: ${{ matrix.chainbase_check_locking }}
               UNIT_TEST: ${{ matrix.unit_test }}

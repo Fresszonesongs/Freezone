@@ -1,11 +1,11 @@
 #pragma once
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/sps_objects.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/sps_objects.hpp>
 
 #include <boost/container/flat_set.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 using boost::container::flat_set;
 
@@ -97,4 +97,4 @@ class sps_helper
       static void remove_proposals( database& db, const flat_set<int64_t>& proposal_ids, const account_name_type& proposal_owner );
 };
 
-} } // steem::chain
+} } // freezone::chain

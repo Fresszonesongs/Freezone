@@ -1,9 +1,9 @@
 #pragma once
-#include <steem/protocol/required_automated_actions.hpp>
-#include <steem/protocol/optional_automated_actions.hpp>
-#include <steem/protocol/base.hpp>
+#include <freezone/protocol/required_automated_actions.hpp>
+#include <freezone/protocol/optional_automated_actions.hpp>
+#include <freezone/protocol/base.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
    typedef vector< required_automated_action > required_automated_actions;
    typedef vector< optional_automated_action > optional_automated_actions;
@@ -42,9 +42,9 @@ namespace steem { namespace protocol {
    };
 
 
-} } // steem::protocol
+} } // freezone::protocol
 
-FC_REFLECT_TYPENAME( steem::protocol::block_header_extensions )
+FC_REFLECT_TYPENAME( freezone::protocol::block_header_extensions )
 
-FC_REFLECT( steem::protocol::block_header, (previous)(timestamp)(witness)(transaction_merkle_root)(extensions) )
-FC_REFLECT_DERIVED( steem::protocol::signed_block_header, (steem::protocol::block_header), (witness_signature) )
+FC_REFLECT( freezone::protocol::block_header, (previous)(timestamp)(witness)(transaction_merkle_root)(extensions) )
+FC_REFLECT_DERIVED( freezone::protocol::signed_block_header, (freezone::protocol::block_header), (witness_signature) )

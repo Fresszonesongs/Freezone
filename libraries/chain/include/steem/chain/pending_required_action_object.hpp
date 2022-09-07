@@ -1,17 +1,17 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/protocol/required_automated_actions.hpp>
+#include <freezone/protocol/required_automated_actions.hpp>
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-using steem::protocol::required_automated_action;
+using freezone::protocol::required_automated_action;
 
 class pending_required_action_object : public object< pending_required_action_object_type, pending_required_action_object >
 {
-   STEEM_STD_ALLOCATOR_CONSTRUCTOR( pending_required_action_object )
+   freezone_STD_ALLOCATOR_CONSTRUCTOR( pending_required_action_object )
 
    public:
       template< typename Constructor, typename Allocator >
@@ -42,8 +42,8 @@ typedef multi_index_container<
    allocator< pending_required_action_object >
 > pending_required_action_index;
 
-} } //steem::chain
+} } //freezone::chain
 
-FC_REFLECT( steem::chain::pending_required_action_object,
+FC_REFLECT( freezone::chain::pending_required_action_object,
             (id)(execution_time)(action) )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::pending_required_action_object, steem::chain::pending_required_action_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::pending_required_action_object, freezone::chain::pending_required_action_index )

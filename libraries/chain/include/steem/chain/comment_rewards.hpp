@@ -1,14 +1,14 @@
 #pragma once
 
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/chain/database.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/chain/database.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
 struct reward_fund_context
 {
    uint128_t            recent_claims = 0;
-   asset                reward_balance = asset( 0, STEEM_SYMBOL );
+   asset                reward_balance = asset( 0, freezone_SYMBOL );
    time_point_sec       last_update;
    share_type           tokens_awarded = 0;
    protocol::curve_id   author_reward_curve;
@@ -19,9 +19,9 @@ struct reward_fund_context
 
 void process_comment_rewards( database& db );
 
-} } // steem::chain
+} } // freezone::chain
 
-FC_REFLECT( steem::chain::reward_fund_context,
+FC_REFLECT( freezone::chain::reward_fund_context,
             (recent_claims)
             (reward_balance)
             (last_update)

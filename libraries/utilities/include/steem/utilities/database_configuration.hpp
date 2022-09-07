@@ -1,8 +1,8 @@
 #pragma once
 #include <fc/variant.hpp>
 
-namespace steem { namespace utilities {
+namespace freezone { namespace utilities {
 
 fc::variant default_database_configuration();
 
-} } // steem::utilities
+} } // freezone::utilities

@@ -1,28 +1,28 @@
 #ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
-#include <steem/chain/account_object.hpp>
-#include <steem/chain/comment_object.hpp>
-#include <steem/chain/database_exceptions.hpp>
-#include <steem/chain/smt_objects.hpp>
-#include <steem/protocol/steem_operations.hpp>
+#include <freezone/chain/account_object.hpp>
+#include <freezone/chain/comment_object.hpp>
+#include <freezone/chain/database_exceptions.hpp>
+#include <freezone/chain/SST_objects.hpp>
+#include <freezone/protocol/freezone_operations.hpp>
 
-#include <steem/plugins/rc/rc_objects.hpp>
-#include <steem/plugins/rc/rc_operations.hpp>
-#include <steem/plugins/rc/rc_plugin.hpp>
+#include <freezone/plugins/rc/rc_objects.hpp>
+#include <freezone/plugins/rc/rc_operations.hpp>
+#include <freezone/plugins/rc/rc_plugin.hpp>
 
 #include "../db_fixture/database_fixture.hpp"
 
-using namespace steem::chain;
-using namespace steem::protocol;
-using namespace steem::plugins::rc;
+using namespace freezone::chain;
+using namespace freezone::protocol;
+using namespace freezone::plugins::rc;
 
 BOOST_FIXTURE_TEST_SUITE( rc_delegation, clean_database_fixture )
 
 BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_validate )
 {
    try{
-      SMT_SYMBOL( alice, 3, db );
+      SST_SYMBOL( alice, 3, db );
 
       delegate_to_pool_operation op;
       op.from_account = "alice";
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_validate )
       op.amount = asset( 1, VESTS_SYMBOL );
       op.validate();
 
-      op.amount.symbol = STEEM_SYMBOL;
+      op.amount.symbol = freezone_SYMBOL;
       BOOST_REQUIRE_THROW( op.validate(), fc::assert_exception );
 
       op.amount.symbol = SBD_SYMBOL;
@@ -72,8 +72,8 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       BOOST_TEST_MESSAGE( "Testing:  rc_delegate_to_pool_apply" );
       ACTORS( (alice)(bob)(dave) )
 
-      vest( STEEM_INIT_MINER_NAME, "alice", ASSET( "10.000 TESTS" ) );
-      vest( STEEM_INIT_MINER_NAME, "bob", ASSET( "10.000 TESTS" ) );
+      vest( freezone_INIT_MINER_NAME, "alice", ASSET( "10.000 TESTS" ) );
+      vest( freezone_INIT_MINER_NAME, "bob", ASSET( "10.000 TESTS" ) );
 
       int64_t alice_vests = alice.vesting_shares.amount.value;
       int64_t bob_vests = bob.vesting_shares.amount.value;
@@ -86,11 +86,11 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
 
       custom_json_operation custom_op;
       custom_op.required_auths.insert( "alice" );
-      custom_op.id = STEEM_RC_PLUGIN_NAME;
+      custom_op.id = freezone_RC_PLUGIN_NAME;
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
 
       tx.operations.push_back( custom_op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       tx.validate();
       BOOST_CHECK_THROW( db->push_transaction( tx, 0 ), fc::exception );
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
 
       tx.operations.push_back( custom_op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       BOOST_CHECK_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
 
       tx.operations.push_back( custom_op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
 
@@ -153,11 +153,11 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       BOOST_REQUIRE( edge->amount.amount.value == vests_to_dave - 1 );
 
       generate_block();
-      auto alice_symbol = create_smt( "alice", alice_private_key, 3 );
-      SMT_SYMBOL( bob, 3, db );
+      auto alice_symbol = create_SST( "alice", alice_private_key, 3 );
+      SST_SYMBOL( bob, 3, db );
       generate_block();
 
-      BOOST_TEST_MESSAGE( "--- Test failure delegating to non-existent SMT" );
+      BOOST_TEST_MESSAGE( "--- Test failure delegating to non-existent SST" );
 
       op.from_account = "bob";
       op.to_pool = bob_symbol.to_nai_string();
@@ -167,12 +167,12 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       custom_op.required_auths.insert( "bob" );
       tx.clear();
       tx.operations.push_back( custom_op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, bob_private_key );
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
 
-      BOOST_TEST_MESSAGE( "--- Test failure delegating to SMT in setup phase" );
+      BOOST_TEST_MESSAGE( "--- Test failure delegating to SST in setup phase" );
 
       op.to_pool = alice_symbol.to_nai_string();
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
@@ -182,13 +182,13 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
 
-      BOOST_TEST_MESSAGE( "--- Test failure delegating to SMT in setup_completed phase" );
+      BOOST_TEST_MESSAGE( "--- Test failure delegating to SST in setup_completed phase" );
 
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( alice_symbol ), [&]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( alice_symbol ), [&]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::setup_completed;
+            SST.phase = SST_phase::setup_completed;
          });
       });
 
@@ -196,13 +196,13 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
 
-      BOOST_TEST_MESSAGE( "--- Test failure delegating to SMT in ico phase" );
+      BOOST_TEST_MESSAGE( "--- Test failure delegating to SST in ico phase" );
 
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( alice_symbol ), [&]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( alice_symbol ), [&]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::ico;
+            SST.phase = SST_phase::ico;
          });
       });
 
@@ -210,13 +210,13 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
 
-      BOOST_TEST_MESSAGE( "--- Test failure delegating to SMT in launch_failed phase" );
+      BOOST_TEST_MESSAGE( "--- Test failure delegating to SST in launch_failed phase" );
 
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( alice_symbol ), [&]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( alice_symbol ), [&]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::launch_failed;
+            SST.phase = SST_phase::launch_failed;
          });
       });
 
@@ -224,13 +224,13 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       BOOST_REQUIRE_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
 
-      BOOST_TEST_MESSAGE( "--- Test success delegating to SMT in ico_completed phase" );
+      BOOST_TEST_MESSAGE( "--- Test success delegating to SST in ico_completed phase" );
 
       db_plugin->debug_update( [=]( database& db )
       {
-         db.modify( db.get< smt_token_object, by_symbol >( alice_symbol ), [&]( smt_token_object& smt )
+         db.modify( db.get< SST_token_object, by_symbol >( alice_symbol ), [&]( SST_token_object& SST )
          {
-            smt.phase = smt_phase::ico_completed;
+            SST.phase = SST_phase::ico_completed;
          });
       });
 
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE( rc_delegate_to_pool_apply )
       BOOST_REQUIRE( edge->amount.amount.value == op.amount.amount.value );
 
 
-      BOOST_TEST_MESSAGE( "--- Test success delegating to SMT in setup_success phase" );
+      BOOST_TEST_MESSAGE( "--- Test success delegating to SST in setup_success phase" );
 
       op.amount = asset( bob_vests / 5, VESTS_SYMBOL );
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE( rc_set_slot_delegator )
       acc_create.json_metadata = "";
 
       signed_transaction tx;
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       tx.operations.push_back( acc_create );
       sign( tx, alice_private_key );
       db->push_transaction( tx, 0 );
@@ -307,23 +307,23 @@ BOOST_AUTO_TEST_CASE( rc_set_slot_delegator )
 
       custom_json_operation custom_op;
       custom_op.required_auths.insert( "alice" );
-      custom_op.id = STEEM_RC_PLUGIN_NAME;
+      custom_op.id = freezone_RC_PLUGIN_NAME;
 
       set_slot_delegator_operation op;
-      op.from_pool = STEEM_TEMP_ACCOUNT;
+      op.from_pool = freezone_TEMP_ACCOUNT;
       op.to_account = "dave";
       op.to_slot = -1;
       op.signer = "alice";
       BOOST_CHECK_THROW( op.validate(), fc::assert_exception );
 
-      op.to_slot = STEEM_RC_MAX_SLOTS;
+      op.to_slot = freezone_RC_MAX_SLOTS;
       BOOST_CHECK_THROW( op.validate(), fc::assert_exception );
 
       op.to_slot = 1;
       tx.clear();
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
       tx.operations.push_back( custom_op );
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       sign( tx, alice_private_key );
       BOOST_CHECK_THROW( db->push_transaction( tx, 0 ), fc::exception );
 
@@ -405,7 +405,7 @@ BOOST_AUTO_TEST_CASE( rc_set_slot_delegator )
 
       generate_block();
       tx.clear();
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
       tx.operations.push_back( custom_op );
       sign( tx, dave_private_key );
@@ -458,9 +458,9 @@ BOOST_AUTO_TEST_CASE( rc_delegate_drc_from_pool )
       custom_json_operation custom_op;
       custom_op.json = fc::json::to_string( rc_plugin_operation( op ) );
       custom_op.required_auths.insert( "alice" );
-      custom_op.id = STEEM_RC_PLUGIN_NAME;
+      custom_op.id = freezone_RC_PLUGIN_NAME;
       signed_transaction tx;
-      tx.set_expiration( db->head_block_time() + STEEM_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db->head_block_time() + freezone_MAX_TIME_UNTIL_EXPIRATION );
       tx.operations.push_back( custom_op );
       sign( tx, bob_private_key );
       BOOST_CHECK_THROW( db->push_transaction( tx, 0 ), fc::exception );
@@ -547,7 +547,7 @@ BOOST_AUTO_TEST_CASE( rc_drc_pool_consumption )
    {
       BOOST_TEST_MESSAGE( "Testing: rc_drc_pool_consumption" );
 
-      using steem::plugins::rc::detail::use_account_rcs;
+      using freezone::plugins::rc::detail::use_account_rcs;
 
       /*
       The first test is an edge test
@@ -688,7 +688,7 @@ BOOST_AUTO_TEST_CASE( rc_drc_pool_consumption )
       BOOST_REQUIRE( bob_rc.rc_manabar.current_mana == 100 );
 
       db->set_producing( true );
-      BOOST_CHECK_THROW( use_account_rcs( *db, gpo, "bob", 200, skip, whitelist ), steem::chain::plugin_exception );
+      BOOST_CHECK_THROW( use_account_rcs( *db, gpo, "bob", 200, skip, whitelist ), freezone::chain::plugin_exception );
    }
    FC_LOG_AND_RETHROW()
 }

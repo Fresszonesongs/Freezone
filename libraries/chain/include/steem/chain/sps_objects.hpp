@@ -1,17 +1,17 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/chain/steem_object_types.hpp>
+#include <freezone/chain/freezone_object_types.hpp>
 #include <boost/multi_index/composite_key.hpp>
-#include <steem/protocol/asset.hpp>
+#include <freezone/protocol/asset.hpp>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-using steem::protocol::asset;
+using freezone::protocol::asset;
 
 class proposal_object : public object< proposal_object_type, proposal_object >
 {
-   STEEM_STD_ALLOCATOR_CONSTRUCTOR( proposal_object )
+   freezone_STD_ALLOCATOR_CONSTRUCTOR( proposal_object )
 
    public:
 
@@ -46,7 +46,7 @@ class proposal_object : public object< proposal_object_type, proposal_object >
       //subject (a very brief description or title for the proposal)
       shared_string subject;
 
-      //permlink (a link to a page describing the work proposal in depth, generally this will probably be to a Steem post).
+      //permlink (a link to a page describing the work proposal in depth, generally this will probably be to a freezone post).
       shared_string permlink;
 
       //This will be calculate every maintenance period
@@ -57,7 +57,7 @@ class proposal_object : public object< proposal_object_type, proposal_object >
       time_point_sec get_end_date_with_delay() const
       {
          time_point_sec ret = end_date;
-         ret += STEEM_PROPOSAL_MAINTENANCE_CLEANUP;
+         ret += freezone_PROPOSAL_MAINTENANCE_CLEANUP;
 
          return ret;
       }
@@ -65,7 +65,7 @@ class proposal_object : public object< proposal_object_type, proposal_object >
 
 class proposal_vote_object : public object< proposal_vote_object_type, proposal_vote_object>
 {
-   STEEM_STD_ALLOCATOR_CONSTRUCTOR( proposal_vote_object )
+   freezone_STD_ALLOCATOR_CONSTRUCTOR( proposal_vote_object )
 
    public:
 
@@ -151,18 +151,18 @@ typedef multi_index_container<
    allocator< proposal_vote_object >
 > proposal_vote_index;
 
-} } // steem::chain
+} } // freezone::chain
 
 #ifdef ENABLE_STD_ALLOCATOR
 namespace mira {
 
-template<> struct is_static_length< steem::chain::proposal_vote_object > : public boost::true_type {};
+template<> struct is_static_length< freezone::chain::proposal_vote_object > : public boost::true_type {};
 
 } // mira
 #endif
 
-FC_REFLECT( steem::chain::proposal_object, (id)(proposal_id)(creator)(receiver)(start_date)(end_date)(daily_pay)(subject)(permlink)(total_votes)(removed) )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::proposal_object, steem::chain::proposal_index )
+FC_REFLECT( freezone::chain::proposal_object, (id)(proposal_id)(creator)(receiver)(start_date)(end_date)(daily_pay)(subject)(permlink)(total_votes)(removed) )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::proposal_object, freezone::chain::proposal_index )
 
-FC_REFLECT( steem::chain::proposal_vote_object, (id)(voter)(proposal_id) )
-CHAINBASE_SET_INDEX_TYPE( steem::chain::proposal_vote_object, steem::chain::proposal_vote_index )
+FC_REFLECT( freezone::chain::proposal_vote_object, (id)(voter)(proposal_id) )
+CHAINBASE_SET_INDEX_TYPE( freezone::chain::proposal_vote_object, freezone::chain::proposal_vote_index )

@@ -2,18 +2,18 @@
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  */
 #pragma once
-#include <steem/chain/block_log.hpp>
-#include <steem/chain/fork_database.hpp>
-#include <steem/chain/global_property_object.hpp>
-#include <steem/chain/hardfork_property_object.hpp>
-#include <steem/chain/node_property_object.hpp>
-#include <steem/chain/notifications.hpp>
+#include <freezone/chain/block_log.hpp>
+#include <freezone/chain/fork_database.hpp>
+#include <freezone/chain/global_property_object.hpp>
+#include <freezone/chain/hardfork_property_object.hpp>
+#include <freezone/chain/node_property_object.hpp>
+#include <freezone/chain/notifications.hpp>
 
-#include <steem/chain/util/advanced_benchmark_dumper.hpp>
-#include <steem/chain/util/signal.hpp>
+#include <freezone/chain/util/advanced_benchmark_dumper.hpp>
+#include <freezone/chain/util/signal.hpp>
 
-#include <steem/protocol/protocol.hpp>
-#include <steem/protocol/hardfork.hpp>
+#include <freezone/protocol/protocol.hpp>
+#include <freezone/protocol/hardfork.hpp>
 
 #include <appbase/plugin.hpp>
 
@@ -24,20 +24,20 @@
 #include <functional>
 #include <map>
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-   using steem::protocol::signed_transaction;
-   using steem::protocol::operation;
-   using steem::protocol::authority;
-   using steem::protocol::asset;
-   using steem::protocol::asset_symbol_type;
-   using steem::protocol::price;
+   using freezone::protocol::signed_transaction;
+   using freezone::protocol::operation;
+   using freezone::protocol::authority;
+   using freezone::protocol::asset;
+   using freezone::protocol::asset_symbol_type;
+   using freezone::protocol::price;
    using abstract_plugin = appbase::abstract_plugin;
 
    struct hardfork_versions
    {
-      fc::time_point_sec         times[ STEEM_NUM_HARDFORKS + 1 ];
-      protocol::hardfork_version versions[ STEEM_NUM_HARDFORKS + 1 ];
+      fc::time_point_sec         times[ freezone_NUM_HARDFORKS + 1 ];
+      protocol::hardfork_version versions[ freezone_NUM_HARDFORKS + 1 ];
    };
 
    class database;
@@ -117,8 +117,8 @@ namespace steem { namespace chain {
          {
             fc::path data_dir;
             fc::path shared_mem_dir;
-            uint64_t initial_supply = STEEM_INIT_SUPPLY;
-            uint64_t sbd_initial_supply = STEEM_SBD_INIT_SUPPLY;
+            uint64_t initial_supply = freezone_INIT_SUPPLY;
+            uint64_t sbd_initial_supply = freezone_SBD_INIT_SUPPLY;
             uint64_t shared_file_size = 0;
             uint16_t shared_file_full_threshold = 0;
             uint16_t shared_file_scale_rate = 0;
@@ -183,7 +183,7 @@ namespace steem { namespace chain {
          const signed_transaction   get_recent_transaction( const transaction_id_type& trx_id )const;
          std::vector<block_id_type> get_block_ids_on_fork(block_id_type head_of_fork) const;
 
-         chain_id_type steem_chain_id = STEEM_CHAIN_ID;
+         chain_id_type freezone_chain_id = freezone_CHAIN_ID;
          chain_id_type get_chain_id() const;
          void set_chain_id( const chain_id_type& chain_id );
 
@@ -344,7 +344,7 @@ namespace steem { namespace chain {
           * Use the get_slot_time() and get_slot_at_time() functions
           * to convert between slot_num and timestamp.
           *
-          * Passing slot_num == 0 returns STEEM_NULL_WITNESS
+          * Passing slot_num == 0 returns freezone_NULL_WITNESS
           */
          account_name_type get_scheduled_witness(uint32_t slot_num)const;
 
@@ -368,9 +368,9 @@ namespace steem { namespace chain {
           */
          uint32_t get_slot_at_time(fc::time_point_sec when)const;
 
-         /** @return the sbd created and deposited to_account, may return STEEM if there is no median feed */
-         std::pair< asset, asset > create_sbd( const account_object& to_account, asset steem, bool to_reward_balance=false );
-         asset create_vesting( const account_object& to_account, asset steem, bool to_reward_balance=false );
+         /** @return the sbd created and deposited to_account, may return freezone if there is no median feed */
+         std::pair< asset, asset > create_sbd( const account_object& to_account, asset freezone, bool to_reward_balance=false );
+         asset create_vesting( const account_object& to_account, asset freezone, bool to_reward_balance=false );
          void adjust_total_payout( const comment_object& a, const asset& sbd, const asset& curator_sbd_value, const asset& beneficiary_value );
 
          void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
@@ -391,7 +391,7 @@ namespace steem { namespace chain {
 
          /** this updates the votes for witnesses as a result of account voting proxy changing */
          void adjust_proxied_witness_votes( const account_object& a,
-                                            const std::array< share_type, STEEM_MAX_PROXY_RECURSION_DEPTH+1 >& delta,
+                                            const std::array< share_type, freezone_MAX_PROXY_RECURSION_DEPTH+1 >& delta,
                                             int depth = 0 );
 
          /** this updates the votes for all witnesses as a result of account VESTS changing */
@@ -410,7 +410,7 @@ namespace steem { namespace chain {
          void clear_witness_votes( const account_object& a );
          void process_vesting_withdrawals();
          share_type pay_curators( const comment_object& c, share_type& max_rewards );
-         share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment, const price& current_steem_price, bool forward_curation_remainder = true );
+         share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment, const price& current_freezone_price, bool forward_curation_remainder = true );
          void process_comment_cashout();
          void process_funds();
          void process_conversions();
@@ -435,10 +435,10 @@ namespace steem { namespace chain {
 
          /**
           * Helper method to return the current sbd value of a given amount of
-          * STEEM.  Return 0 SBD if there isn't a current_median_history
+          * freezone.  Return 0 SBD if there isn't a current_median_history
           */
-         asset to_sbd( const asset& steem )const;
-         asset to_steem( const asset& sbd )const;
+         asset to_sbd( const asset& freezone )const;
+         asset to_freezone( const asset& sbd )const;
 
          time_point_sec   head_block_time()const;
          uint32_t         head_block_num()const;
@@ -456,7 +456,7 @@ namespace steem { namespace chain {
          /// Reset the object graph in-memory
          void initialize_indexes();
          void init_schema();
-         void init_genesis(uint64_t initial_supply = STEEM_INIT_SUPPLY, uint64_t sbd_initial_supply = STEEM_SBD_INIT_SUPPLY );
+         void init_genesis(uint64_t initial_supply = freezone_INIT_SUPPLY, uint64_t sbd_initial_supply = freezone_SBD_INIT_SUPPLY );
 
          /**
           *  This method validates transactions without adding it to the pending state.
@@ -519,9 +519,9 @@ namespace steem { namespace chain {
          bool disable_low_mem_warning = true;
 #endif
 
-         ///Smart Media Tokens related methods
+         ///Smart Social Tokens related methods
          ///@{
-         void validate_smt_invariants()const;
+         void validate_SST_invariants()const;
          ///@}
 
    protected:
@@ -566,8 +566,8 @@ namespace steem { namespace chain {
          void apply_hardfork( uint32_t hardfork );
 
          ///@}
-         template< typename smt_balance_object_type, class balance_operator_type >
-         void adjust_smt_balance( const account_name_type& name, const asset& delta, bool check_account,
+         template< typename SST_balance_object_type, class balance_operator_type >
+         void adjust_SST_balance( const account_name_type& name, const asset& delta, bool check_account,
                                   balance_operator_type balance_operator );
          void modify_balance( const account_object& a, const asset& delta, bool check_balance );
          void modify_reward_balance( const account_object& a, const asset& value_delta, const asset& share_delta, bool check_balance );

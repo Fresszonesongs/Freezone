@@ -1,13 +1,13 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
 
-#include <steem/chain/comment_object.hpp>
+#include <freezone/chain/comment_object.hpp>
 
 
-namespace steem { namespace plugins { namespace tags {
+namespace freezone { namespace plugins { namespace tags {
 
-using namespace steem::chain;
+using namespace freezone::chain;
 
 using namespace appbase;
 
@@ -25,11 +25,11 @@ using chainbase::allocator;
 // various template automagic depends on them being known at compile
 // time.
 //
-#ifndef STEEM_TAG_SPACE_ID
-#define STEEM_TAG_SPACE_ID 5
+#ifndef freezone_TAG_SPACE_ID
+#define freezone_TAG_SPACE_ID 5
 #endif
 
-#define STEEM_TAGS_PLUGIN_NAME "tags"
+#define freezone_TAGS_PLUGIN_NAME "tags"
 
 typedef protocol::fixed_string< 32 > tag_name_type;
 
@@ -39,10 +39,10 @@ typedef protocol::fixed_string< 32 > tag_name_type;
 // to define as they see fit.
 enum
 {
-   tag_object_type              = ( STEEM_TAG_SPACE_ID << 8 ),
-   tag_stats_object_type        = ( STEEM_TAG_SPACE_ID << 8 ) + 1,
-   peer_stats_object_type       = ( STEEM_TAG_SPACE_ID << 8 ) + 2,
-   author_tag_stats_object_type = ( STEEM_TAG_SPACE_ID << 8 ) + 3
+   tag_object_type              = ( freezone_TAG_SPACE_ID << 8 ),
+   tag_stats_object_type        = ( freezone_TAG_SPACE_ID << 8 ) + 1,
+   peer_stats_object_type       = ( freezone_TAG_SPACE_ID << 8 ) + 2,
+   author_tag_stats_object_type = ( freezone_TAG_SPACE_ID << 8 ) + 3
 };
 
 namespace detail { class tags_plugin_impl; }
@@ -345,9 +345,9 @@ class tags_plugin : public plugin< tags_plugin >
       tags_plugin();
       virtual ~tags_plugin();
 
-      APPBASE_PLUGIN_REQUIRES( (steem::plugins::chain::chain_plugin) )
+      APPBASE_PLUGIN_REQUIRES( (freezone::plugins::chain::chain_plugin) )
 
-      static const std::string& name() { static std::string name = STEEM_TAGS_PLUGIN_NAME; return name; }
+      static const std::string& name() { static std::string name = freezone_TAGS_PLUGIN_NAME; return name; }
 
       virtual void set_program_options(
          options_description& cli,
@@ -382,17 +382,17 @@ class tag_api : public std::enable_shared_from_this<tag_api> {
 */
 
 
-} } } //steem::plugins::tags
+} } } //freezone::plugins::tags
 
-FC_REFLECT( steem::plugins::tags::tag_object,
+FC_REFLECT( freezone::plugins::tags::tag_object,
    (id)(tag)(created)(active)(cashout)(net_rshares)(net_votes)(hot)(trending)(promoted_balance)(children)(author)(parent)(comment) )
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::tags::tag_object, steem::plugins::tags::tag_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::tags::tag_object, freezone::plugins::tags::tag_index )
 
-FC_REFLECT( steem::plugins::tags::tag_stats_object,
+FC_REFLECT( freezone::plugins::tags::tag_stats_object,
    (id)(tag)(total_payout)(net_votes)(top_posts)(comments)(total_trending) );
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::tags::tag_stats_object, steem::plugins::tags::tag_stats_index )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::tags::tag_stats_object, freezone::plugins::tags::tag_stats_index )
 
-FC_REFLECT( steem::plugins::tags::comment_metadata, (tags) );
+FC_REFLECT( freezone::plugins::tags::comment_metadata, (tags) );
 
-FC_REFLECT( steem::plugins::tags::author_tag_stats_object, (id)(author)(tag)(total_posts)(total_rewards) )
-CHAINBASE_SET_INDEX_TYPE( steem::plugins::tags::author_tag_stats_object, steem::plugins::tags::author_tag_stats_index )
+FC_REFLECT( freezone::plugins::tags::author_tag_stats_object, (id)(author)(tag)(total_posts)(total_rewards) )
+CHAINBASE_SET_INDEX_TYPE( freezone::plugins::tags::author_tag_stats_object, freezone::plugins::tags::author_tag_stats_index )

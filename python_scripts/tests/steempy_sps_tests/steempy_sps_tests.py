@@ -5,15 +5,15 @@ from time import sleep
 import logging
 import sys
 import os
-import steem_utils.steem_runner
-import steem_utils.steem_tools
+import freezone_utils.freezone_runner
+import freezone_utils.freezone_tools
 import test_utils
 
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)-15s - %(name)s - %(levelname)s - %(message)s"
 MAIN_LOG_PATH = "./sps_test.log"
 
-MODULE_NAME = "SPS-Tester-via-steempy"
+MODULE_NAME = "SPS-Tester-via-freezonepy"
 logger = logging.getLogger(MODULE_NAME)
 logger.setLevel(LOG_LEVEL)
 
@@ -30,22 +30,22 @@ if not logger.hasHandlers():
   logger.addHandler(fh)
 
 try:
-    from steem import Steem
+    from freezone import freezone
 except Exception as ex:
-    logger.error("SteemPy library is not installed.")
+    logger.error("freezonePy library is not installed.")
     sys.exit(1)
 
 
 def test_create_proposal(node, creator_account, receiver_account, wif, subject):
     logger.info("Testing: create_proposal")
-    s = Steem(nodes = [node], no_broadcast = False, keys = [wif])
+    s = freezone(nodes = [node], no_broadcast = False, keys = [wif])
     
     import datetime
     now = datetime.datetime.now()
 
     start_date, end_date = test_utils.get_start_and_end_date(now, 10, 2)
 
-    from steem.account import Account
+    from freezone.account import Account
     try:
         creator = Account(creator_account)
     except Exception as ex:
@@ -58,7 +58,7 @@ def test_create_proposal(node, creator_account, receiver_account, wif, subject):
         logger.error("Account: {} not found. {}".format(receiver_account, ex))
         sys.exit(1)
 
-    ret = s.commit.post("Steempy proposal title", "Steempy proposal body", creator["name"], permlink = "steempy-proposal-title", tags = "proposals")
+    ret = s.commit.post("freezonepy proposal title", "freezonepy proposal body", creator["name"], permlink = "freezonepy-proposal-title", tags = "proposals")
 
     ret = s.commit.create_proposal(
       creator["name"], 
@@ -67,7 +67,7 @@ def test_create_proposal(node, creator_account, receiver_account, wif, subject):
       end_date,
       "16.000 TBD",
       subject,
-      "steempy-proposal-title"
+      "freezonepy-proposal-title"
     )
 
     assert ret["operations"][0][1]["creator"] == creator["name"]
@@ -76,11 +76,11 @@ def test_create_proposal(node, creator_account, receiver_account, wif, subject):
     assert ret["operations"][0][1]["end_date"] == end_date
     assert ret["operations"][0][1]["daily_pay"] == "16.000 TBD"
     assert ret["operations"][0][1]["subject"] == subject
-    assert ret["operations"][0][1]["permlink"] == "steempy-proposal-title"
+    assert ret["operations"][0][1]["permlink"] == "freezonepy-proposal-title"
 
 def test_list_proposals(node, account, wif, subject):
     logger.info("Testing: list_proposals")
-    s = Steem(nodes = [node], no_broadcast = False, keys = [wif])
+    s = freezone(nodes = [node], no_broadcast = False, keys = [wif])
     # list inactive proposals, our proposal shoud be here
     proposals = s.list_proposals(account, "by_creator", "direction_ascending", 1000, "inactive")
     found = None
@@ -111,7 +111,7 @@ def test_list_proposals(node, account, wif, subject):
 
 def test_find_proposals(node, account, wif, subject):
     logger.info("Testing: find_proposals")
-    s = Steem(nodes = [node], no_broadcast = False, keys = [wif])
+    s = freezone(nodes = [node], no_broadcast = False, keys = [wif])
     # first we will find our special proposal and get its id
     proposals = s.list_proposals(account, "by_creator", "direction_ascending", 1000, "inactive")
 
@@ -128,7 +128,7 @@ def test_find_proposals(node, account, wif, subject):
 
 def test_vote_proposal(node, account, wif, subject):
     logger.info("Testing: vote_proposal")
-    s = Steem(nodes = [node], no_broadcast = False, keys = [wif])
+    s = freezone(nodes = [node], no_broadcast = False, keys = [wif])
     # first we will find our special proposal and get its id
     proposals = s.list_proposals(account, "by_creator", "direction_ascending", 1000, "inactive")
 
@@ -145,11 +145,11 @@ def test_vote_proposal(node, account, wif, subject):
     assert ret["operations"][0][1]["voter"] == account
     assert ret["operations"][0][1]["proposal_ids"][0] == proposal_id
     assert ret["operations"][0][1]["approve"] == True
-    steem_utils.steem_tools.wait_for_blocks_produced(2, node)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(2, node)
 
 def test_list_voter_proposals(node, account, wif, subject):
     logger.info("Testing: list_voter_proposals")
-    s = Steem(nodes = [node], no_broadcast = False, keys = [wif])
+    s = freezone(nodes = [node], no_broadcast = False, keys = [wif])
     voter_proposals = s.list_voter_proposals(account, "by_creator", "direction_ascending", 1000, "inactive")
 
     found = None
@@ -162,7 +162,7 @@ def test_list_voter_proposals(node, account, wif, subject):
 
 def test_remove_proposal(node, account, wif, subject):
     logger.info("Testing: remove_proposal")
-    s = Steem(nodes = [node], no_broadcast = False, keys = [wif])
+    s = freezone(nodes = [node], no_broadcast = False, keys = [wif])
     # first we will find our special proposal and get its id
     proposals = s.list_proposals(account, "by_creator", "direction_ascending", 1000, "inactive")
 
@@ -197,9 +197,9 @@ def test_iterate_results_test(node, creator_account, receiver_account, wif, subj
     #   in real life scenatio pagination scheme with limit set to value lower than "k" will be showing
     #   the same results and will hang
     # 4 then we will use newly introduced last_id field, we should see diferent set of proposals
-    s = Steem(nodes = [node], no_broadcast = False, keys = [wif])
+    s = freezone(nodes = [node], no_broadcast = False, keys = [wif])
 
-    from steem.account import Account
+    from freezone.account import Account
     try:
         creator = Account(creator_account)
     except Exception as ex:
@@ -239,9 +239,9 @@ def test_iterate_results_test(node, creator_account, receiver_account, wif, subj
             end_date,
             "16.000 TBD",
             subject,
-            "steempy-proposal-title"
+            "freezonepy-proposal-title"
             )
-    steem_utils.steem_tools.wait_for_blocks_produced(5, node)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(5, node)
 
     start_date = test_utils.date_to_iso(now + datetime.timedelta(days = 5))
 
@@ -284,7 +284,7 @@ def test_iterate_results_test(node, creator_account, receiver_account, wif, subj
             for proposal in proposals:
                 ids.append(int(proposal['id']))
             s.commit.remove_proposal(creator["name"], ids)
-            steem_utils.steem_tools.wait_for_blocks_produced(3, node)
+            freezone_utils.freezone_tools.wait_for_blocks_produced(3, node)
 
 
 if __name__ == '__main__':
@@ -294,26 +294,26 @@ if __name__ == '__main__':
     parser.add_argument("creator", help = "Account to create proposals with")
     parser.add_argument("receiver", help = "Account to receive funds")
     parser.add_argument("wif", help="Private key for creator account")
-    parser.add_argument("--node-url", dest="node_url", default="http://127.0.0.1:8090", help="Url of working steem node")
-    parser.add_argument("--run-steemd", dest="steemd_path", help = "Path to steemd executable. Warning: using this option will erase contents of selected steemd working directory.")
-    parser.add_argument("--working_dir", dest="steemd_working_dir", default="/tmp/steemd-data/", help = "Path to steemd working directory")
-    parser.add_argument("--config_path", dest="steemd_config_path", default="./steem_utils/resources/config.ini.in",help = "Path to source config.ini file")
+    parser.add_argument("--node-url", dest="node_url", default="http://127.0.0.1:8090", help="Url of working freezone node")
+    parser.add_argument("--run-freezoned", dest="freezoned_path", help = "Path to freezoned executable. Warning: using this option will erase contents of selected freezoned working directory.")
+    parser.add_argument("--working_dir", dest="freezoned_working_dir", default="/tmp/freezoned-data/", help = "Path to freezoned working directory")
+    parser.add_argument("--config_path", dest="freezoned_config_path", default="./freezone_utils/resources/config.ini.in",help = "Path to source config.ini file")
     parser.add_argument("--no-erase-proposal", action='store_false', dest = "no_erase_proposal", help = "Do not erase proposal created with this test")
 
     args = parser.parse_args()
 
     node = None
     
-    if args.steemd_path:
-        logger.info("Running steemd via {} in {} with config {}".format(args.steemd_path, 
-            args.steemd_working_dir, 
-            args.steemd_config_path)
+    if args.freezoned_path:
+        logger.info("Running freezoned via {} in {} with config {}".format(args.freezoned_path, 
+            args.freezoned_working_dir, 
+            args.freezoned_config_path)
         )
         
-        node = steem_utils.steem_runner.SteemNode(
-            args.steemd_path, 
-            args.steemd_working_dir, 
-            args.steemd_config_path
+        node = freezone_utils.freezone_runner.freezoneNode(
+            args.freezoned_path, 
+            args.freezoned_working_dir, 
+            args.freezoned_config_path
         )
     
     node_url = args.node_url
@@ -325,27 +325,27 @@ if __name__ == '__main__':
     subject = str(uuid4())
     logger.info("Subject of testing proposal is set to: {}".format(subject))
     if node is not None:
-        node.run_steem_node(["--enable-stale-production"])
+        node.run_freezone_node(["--enable-stale-production"])
     try:
         if node is None or node.is_running():
             test_create_proposal(node_url, args.creator, args.receiver, wif, subject)
-            steem_utils.steem_tools.wait_for_blocks_produced(2, node_url)
+            freezone_utils.freezone_tools.wait_for_blocks_produced(2, node_url)
             test_list_proposals(node_url, args.creator, wif, subject)
             test_find_proposals(node_url, args.creator, wif, subject)
             test_vote_proposal(node_url, args.creator, wif, subject)
             test_list_voter_proposals(node_url, args.creator, wif, subject)
-            steem_utils.steem_tools.wait_for_blocks_produced(2, node_url)
+            freezone_utils.freezone_tools.wait_for_blocks_produced(2, node_url)
             if args.no_erase_proposal:
                 test_remove_proposal(node_url, args.creator, wif, subject)
             test_iterate_results_test(node_url, args.creator, args.receiver, args.wif, str(uuid4()), args.no_erase_proposal)
-            steem_utils.steem_tools.wait_for_blocks_produced(2, node_url)
+            freezone_utils.freezone_tools.wait_for_blocks_produced(2, node_url)
             if node is not None:
-                node.stop_steem_node()
+                node.stop_freezone_node()
             sys.exit(0)
         sys.exit(1)
     except Exception as ex:
         logger.error("Exception: {}".format(ex))
         if node is not None: 
-            node.stop_steem_node()
+            node.stop_freezone_node()
         sys.exit(1)
 

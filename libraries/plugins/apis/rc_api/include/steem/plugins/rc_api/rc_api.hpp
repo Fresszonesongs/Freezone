@@ -1,8 +1,8 @@
 #pragma once
-#include <steem/plugins/json_rpc/utility.hpp>
-#include <steem/plugins/rc/rc_objects.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
+#include <freezone/plugins/rc/rc_objects.hpp>
 
-#include <steem/chain/comment_object.hpp>
+#include <freezone/chain/comment_object.hpp>
 
 #include <fc/optional.hpp>
 #include <fc/variant.hpp>
@@ -10,7 +10,7 @@
 
 #define RC_API_SINGLE_QUERY_LIMIT 1000
 
-namespace steem { namespace plugins { namespace rc {
+namespace freezone { namespace plugins { namespace rc {
 
 namespace detail
 {
@@ -56,7 +56,7 @@ struct get_resource_pool_return
 
 struct pool_delegation
 {
-   steem::chain::util::manabar rc_manabar;
+   freezone::chain::util::manabar rc_manabar;
    int64_t                     max_mana = 0;
 };
 
@@ -94,11 +94,11 @@ struct rc_account_api_object
 
    account_name_type             account;
    account_name_type             creator;
-   steem::chain::util::manabar   rc_manabar;
+   freezone::chain::util::manabar   rc_manabar;
    asset                         max_rc_creation_adjustment = asset( 0, VESTS_SYMBOL );
    int64_t                       max_rc = 0;
    asset                         vests_delegated_to_pools = asset( 0 , VESTS_SYMBOL );
-   fc::array< account_name_type, STEEM_RC_MAX_SLOTS >
+   fc::array< account_name_type, freezone_RC_MAX_SLOTS >
                                  delegation_slots;
 
    flat_map< account_name_type, pool_delegation >
@@ -185,34 +185,34 @@ class rc_api
       std::unique_ptr< detail::rc_api_impl > my;
 };
 
-} } } // steem::plugins::rc
+} } } // freezone::plugins::rc
 
-FC_REFLECT_ENUM( steem::plugins::rc::sort_order_type,
+FC_REFLECT_ENUM( freezone::plugins::rc::sort_order_type,
    (by_name)
    (by_edge)
    (by_pool) )
 
-FC_REFLECT( steem::plugins::rc::list_object_args_type,
+FC_REFLECT( freezone::plugins::rc::list_object_args_type,
    (start)
    (limit)
    (order) )
 
-FC_REFLECT( steem::plugins::rc::get_resource_params_return,
+FC_REFLECT( freezone::plugins::rc::get_resource_params_return,
    (resource_names)
    (resource_params)
    (size_info) )
 
-FC_REFLECT( steem::plugins::rc::resource_pool_api_object,
+FC_REFLECT( freezone::plugins::rc::resource_pool_api_object,
    (pool) )
 
-FC_REFLECT( steem::plugins::rc::get_resource_pool_return,
+FC_REFLECT( freezone::plugins::rc::get_resource_pool_return,
    (resource_pool) )
 
-FC_REFLECT( steem::plugins::rc::pool_delegation,
+FC_REFLECT( freezone::plugins::rc::pool_delegation,
    (rc_manabar)
    (max_mana) )
 
-FC_REFLECT( steem::plugins::rc::rc_account_api_object,
+FC_REFLECT( freezone::plugins::rc::rc_account_api_object,
    (account)
    (creator)
    (rc_manabar)
@@ -223,20 +223,20 @@ FC_REFLECT( steem::plugins::rc::rc_account_api_object,
    (incoming_delegations)
    (out_delegation_total) )
 
-FC_REFLECT( steem::plugins::rc::find_rc_accounts_args,
+FC_REFLECT( freezone::plugins::rc::find_rc_accounts_args,
    (accounts) )
 
-FC_REFLECT( steem::plugins::rc::find_rc_accounts_return,
+FC_REFLECT( freezone::plugins::rc::find_rc_accounts_return,
    (rc_accounts) )
 
-FC_REFLECT( steem::plugins::rc::find_rc_delegation_pools_args,
+FC_REFLECT( freezone::plugins::rc::find_rc_delegation_pools_args,
    (accounts) )
 
-FC_REFLECT( steem::plugins::rc::find_rc_delegation_pools_return,
+FC_REFLECT( freezone::plugins::rc::find_rc_delegation_pools_return,
    (rc_delegation_pools) )
 
-FC_REFLECT( steem::plugins::rc::find_rc_delegations_args,
+FC_REFLECT( freezone::plugins::rc::find_rc_delegations_args,
    (account) )
 
-FC_REFLECT( steem::plugins::rc::find_rc_delegations_return,
+FC_REFLECT( freezone::plugins::rc::find_rc_delegations_return,
    (rc_delegations) )

@@ -1,5 +1,5 @@
-#include <steem/protocol/asset.hpp>
-#include <steem/protocol/validation.hpp>
+#include <freezone/protocol/asset.hpp>
+#include <freezone/protocol/validation.hpp>
 #include <fc/io/json.hpp>
 
 #include <boost/rational.hpp>
@@ -19,7 +19,7 @@ index : field
    7  : \0
 */
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 std::string asset_symbol_type::to_string()const
 {
@@ -33,7 +33,7 @@ asset_symbol_type asset_symbol_type::from_string( const std::string& str )
 
 void asset_symbol_type::to_nai_string( char* buf )const
 {
-   static_assert( STEEM_ASSET_SYMBOL_NAI_STRING_LENGTH >= 12, "This code will overflow a short buffer" );
+   static_assert( freezone_ASSET_SYMBOL_NAI_STRING_LENGTH >= 12, "This code will overflow a short buffer" );
    uint32_t x = to_nai();
    buf[11] = '\0';
    buf[10] = ((x%10)+'0');  x /= 10;
@@ -54,7 +54,7 @@ asset_symbol_type asset_symbol_type::from_nai_string( const char* p, uint8_t dec
    try
    {
       FC_ASSERT( p != nullptr, "NAI string cannot be a null" );
-      FC_ASSERT( std::strlen( p ) == STEEM_ASSET_SYMBOL_NAI_STRING_LENGTH - 1, "Incorrect NAI string length" );
+      FC_ASSERT( std::strlen( p ) == freezone_ASSET_SYMBOL_NAI_STRING_LENGTH - 1, "Incorrect NAI string length" );
       FC_ASSERT( p[0] == '@' && p[1] == '@', "Invalid NAI string prefix" );
       uint32_t nai = boost::lexical_cast< uint32_t >( p + 2 );
       return asset_symbol_type::from_nai( nai, decimal_places );
@@ -112,23 +112,23 @@ uint32_t asset_symbol_type::asset_num_from_nai( uint32_t nai, uint8_t decimal_pl
    uint32_t nai_check_digit = nai % 10;
    uint32_t nai_data_digits = nai / 10;
 
-   FC_ASSERT( (nai_data_digits >= SMT_MIN_NAI) & (nai_data_digits <= SMT_MAX_NAI), "NAI out of range" );
+   FC_ASSERT( (nai_data_digits >= SST_MIN_NAI) & (nai_data_digits <= SST_MAX_NAI), "NAI out of range" );
    FC_ASSERT( nai_check_digit == damm_checksum_8digit(nai_data_digits), "Invalid check digit" );
 
    switch( nai_data_digits )
    {
-      case STEEM_NAI_STEEM:
-         FC_ASSERT( decimal_places == STEEM_PRECISION_STEEM );
-         return STEEM_ASSET_NUM_STEEM;
-      case STEEM_NAI_SBD:
-         FC_ASSERT( decimal_places == STEEM_PRECISION_SBD );
-         return STEEM_ASSET_NUM_SBD;
-      case STEEM_NAI_VESTS:
-         FC_ASSERT( decimal_places == STEEM_PRECISION_VESTS );
-         return STEEM_ASSET_NUM_VESTS;
+      case freezone_NAI_freezone:
+         FC_ASSERT( decimal_places == freezone_PRECISION_freezone );
+         return freezone_ASSET_NUM_freezone;
+      case freezone_NAI_SBD:
+         FC_ASSERT( decimal_places == freezone_PRECISION_SBD );
+         return freezone_ASSET_NUM_SBD;
+      case freezone_NAI_VESTS:
+         FC_ASSERT( decimal_places == freezone_PRECISION_VESTS );
+         return freezone_ASSET_NUM_VESTS;
       default:
-         FC_ASSERT( decimal_places <= STEEM_ASSET_MAX_DECIMALS, "Invalid decimal_places" );
-         return (nai_data_digits << STEEM_NAI_SHIFT) | SMT_ASSET_NUM_CONTROL_MASK | decimal_places;
+         FC_ASSERT( decimal_places <= freezone_ASSET_MAX_DECIMALS, "Invalid decimal_places" );
+         return (nai_data_digits << freezone_NAI_SHIFT) | SST_ASSET_NUM_CONTROL_MASK | decimal_places;
    }
 }
 
@@ -139,18 +139,18 @@ uint32_t asset_symbol_type::to_nai()const
    // Can be replaced with some clever bitshifting
    switch( asset_num )
    {
-      case STEEM_ASSET_NUM_STEEM:
-         nai_data_digits = STEEM_NAI_STEEM;
+      case freezone_ASSET_NUM_freezone:
+         nai_data_digits = freezone_NAI_freezone;
          break;
-      case STEEM_ASSET_NUM_SBD:
-         nai_data_digits = STEEM_NAI_SBD;
+      case freezone_ASSET_NUM_SBD:
+         nai_data_digits = freezone_NAI_SBD;
          break;
-      case STEEM_ASSET_NUM_VESTS:
-         nai_data_digits = STEEM_NAI_VESTS;
+      case freezone_ASSET_NUM_VESTS:
+         nai_data_digits = freezone_NAI_VESTS;
          break;
       default:
-         FC_ASSERT( space() == smt_nai_space );
-         nai_data_digits = (asset_num >> STEEM_NAI_SHIFT);
+         FC_ASSERT( space() == SST_nai_space );
+         nai_data_digits = (asset_num >> freezone_NAI_SHIFT);
    }
 
    uint32_t nai_check_digit = damm_checksum_8digit(nai_data_digits);
@@ -165,20 +165,20 @@ bool asset_symbol_type::is_vesting() const
       {
          switch( asset_num )
          {
-            case STEEM_ASSET_NUM_STEEM:
+            case freezone_ASSET_NUM_freezone:
                return false;
-            case STEEM_ASSET_NUM_SBD:
+            case freezone_ASSET_NUM_SBD:
                // SBD is certainly liquid.
                return false;
-            case STEEM_ASSET_NUM_VESTS:
+            case freezone_ASSET_NUM_VESTS:
                return true;
             default:
                FC_ASSERT( false, "Unknown asset symbol" );
          }
       }
-      case smt_nai_space:
+      case SST_nai_space:
          // 6th bit of asset_num is used as vesting/liquid variant indicator.
-         return asset_num & SMT_ASSET_NUM_VESTING_MASK;
+         return asset_num & SST_ASSET_NUM_VESTING_MASK;
       default:
          FC_ASSERT( false, "Unknown asset symbol" );
    }
@@ -192,20 +192,20 @@ asset_symbol_type asset_symbol_type::get_paired_symbol() const
       {
          switch( asset_num )
          {
-            case STEEM_ASSET_NUM_STEEM:
-               return from_asset_num( STEEM_ASSET_NUM_VESTS );
-            case STEEM_ASSET_NUM_SBD:
+            case freezone_ASSET_NUM_freezone:
+               return from_asset_num( freezone_ASSET_NUM_VESTS );
+            case freezone_ASSET_NUM_SBD:
                return *this;
-            case STEEM_ASSET_NUM_VESTS:
-               return from_asset_num( STEEM_ASSET_NUM_STEEM );
+            case freezone_ASSET_NUM_VESTS:
+               return from_asset_num( freezone_ASSET_NUM_freezone );
             default:
                FC_ASSERT( false, "Unknown asset symbol" );
          }
       }
-      case smt_nai_space:
+      case SST_nai_space:
          {
          // Toggle 6th bit of this asset_num.
-         auto paired_asset_num = asset_num ^ ( SMT_ASSET_NUM_VESTING_MASK );
+         auto paired_asset_num = asset_num ^ ( SST_ASSET_NUM_VESTING_MASK );
          return from_asset_num( paired_asset_num );
          }
       default:
@@ -221,18 +221,18 @@ asset_symbol_type asset_symbol_type::get_vesting_symbol()const
       {
          switch( asset_num )
          {
-            case STEEM_ASSET_NUM_STEEM:
-            case STEEM_ASSET_NUM_VESTS:
+            case freezone_ASSET_NUM_freezone:
+            case freezone_ASSET_NUM_VESTS:
                return VESTS_SYMBOL;
-            case STEEM_ASSET_NUM_SBD:
+            case freezone_ASSET_NUM_SBD:
                FC_ASSERT( false, "SBD does not have a vesting symbol" );
             default:
                FC_ASSERT( false, "Unknown asset symbol" );
          }
       }
-      case smt_nai_space:
+      case SST_nai_space:
       {
-         return from_asset_num( asset_num | SMT_ASSET_NUM_VESTING_MASK );
+         return from_asset_num( asset_num | SST_ASSET_NUM_VESTING_MASK );
       }
       default:
          FC_ASSERT( false, "Unknown asset_symbol" );
@@ -247,18 +247,18 @@ asset_symbol_type asset_symbol_type::get_liquid_symbol()const
       {
          switch( asset_num )
          {
-            case STEEM_ASSET_NUM_STEEM:
-            case STEEM_ASSET_NUM_VESTS:
-               return STEEM_SYMBOL;
-            case STEEM_ASSET_NUM_SBD:
+            case freezone_ASSET_NUM_freezone:
+            case freezone_ASSET_NUM_VESTS:
+               return freezone_SYMBOL;
+            case freezone_ASSET_NUM_SBD:
                return SBD_SYMBOL;
             default:
                FC_ASSERT( false, "Unknown asset symbol" );
          }
       }
-      case smt_nai_space:
+      case SST_nai_space:
       {
-         return from_asset_num( asset_num & ~SMT_ASSET_NUM_VESTING_MASK );
+         return from_asset_num( asset_num & ~SST_ASSET_NUM_VESTING_MASK );
       }
       default:
          FC_ASSERT( false, "Unknown asset_symbol" );
@@ -270,13 +270,13 @@ asset_symbol_type::asset_symbol_space asset_symbol_type::space()const
    asset_symbol_type::asset_symbol_space s = legacy_space;
    switch( asset_num )
    {
-      case STEEM_ASSET_NUM_STEEM:
-      case STEEM_ASSET_NUM_SBD:
-      case STEEM_ASSET_NUM_VESTS:
+      case freezone_ASSET_NUM_freezone:
+      case freezone_ASSET_NUM_SBD:
+      case freezone_ASSET_NUM_VESTS:
          s = legacy_space;
          break;
       default:
-         s = smt_nai_space;
+         s = SST_nai_space;
    }
    return s;
 }
@@ -285,31 +285,31 @@ void asset_symbol_type::validate()const
 {
    switch( asset_num )
    {
-      case STEEM_ASSET_NUM_STEEM:
-      case STEEM_ASSET_NUM_SBD:
-      case STEEM_ASSET_NUM_VESTS:
+      case freezone_ASSET_NUM_freezone:
+      case freezone_ASSET_NUM_SBD:
+      case freezone_ASSET_NUM_VESTS:
          break;
       default:
       {
-         uint32_t nai_data_digits = (asset_num >> STEEM_NAI_SHIFT);
-         uint32_t nai_1bit = (asset_num & SMT_ASSET_NUM_CONTROL_MASK);
-         uint32_t nai_decimal_places = (asset_num & SMT_ASSET_NUM_PRECISION_MASK);
-         FC_ASSERT( (nai_data_digits >= SMT_MIN_NAI) &
-                    (nai_data_digits <= SMT_MAX_NAI) &
-                    (nai_1bit == SMT_ASSET_NUM_CONTROL_MASK) &
-                    (nai_decimal_places <= STEEM_ASSET_MAX_DECIMALS),
+         uint32_t nai_data_digits = (asset_num >> freezone_NAI_SHIFT);
+         uint32_t nai_1bit = (asset_num & SST_ASSET_NUM_CONTROL_MASK);
+         uint32_t nai_decimal_places = (asset_num & SST_ASSET_NUM_PRECISION_MASK);
+         FC_ASSERT( (nai_data_digits >= SST_MIN_NAI) &
+                    (nai_data_digits <= SST_MAX_NAI) &
+                    (nai_1bit == SST_ASSET_NUM_CONTROL_MASK) &
+                    (nai_decimal_places <= freezone_ASSET_MAX_DECIMALS),
                     "Cannot determine space for asset ${n}", ("n", asset_num) );
       }
    }
    // this assert is duplicated by above code in all cases
-   // FC_ASSERT( decimals() <= STEEM_ASSET_MAX_DECIMALS );
+   // FC_ASSERT( decimals() <= freezone_ASSET_MAX_DECIMALS );
 }
 
 void asset::validate()const
 {
    symbol.validate();
    FC_ASSERT( amount.value >= 0 );
-   FC_ASSERT( amount.value <= STEEM_MAX_SATOSHIS );
+   FC_ASSERT( amount.value <= freezone_MAX_SATOSHIS );
 }
 
 #define BQ(a) \
@@ -359,8 +359,8 @@ DEFINE_PRICE_COMPARISON_OPERATOR( >= )
          return price{ base, quote };
       } FC_CAPTURE_AND_RETHROW( (base)(quote) ) }
 
-      price price::max( asset_symbol_type base, asset_symbol_type quote ) { return asset( share_type(STEEM_MAX_SATOSHIS), base ) / asset( share_type(1), quote); }
-      price price::min( asset_symbol_type base, asset_symbol_type quote ) { return asset( 1, base ) / asset( STEEM_MAX_SATOSHIS, quote); }
+      price price::max( asset_symbol_type base, asset_symbol_type quote ) { return asset( share_type(freezone_MAX_SATOSHIS), base ) / asset( share_type(1), quote); }
+      price price::min( asset_symbol_type base, asset_symbol_type quote ) { return asset( 1, base ) / asset( freezone_MAX_SATOSHIS, quote); }
 
       bool price::is_null() const { return *this == price(); }
 
@@ -422,7 +422,7 @@ DEFINE_PRICE_COMPARISON_OPERATOR( >= )
          else
          {
             double approx_real_price;
-            if ( ( base.symbol == SBD_SYMBOL && quote.symbol == STEEM_SYMBOL ) || ( base.symbol == STEEM_SYMBOL && quote.symbol.space() == asset_symbol_type::smt_nai_space ) )
+            if ( ( base.symbol == SBD_SYMBOL && quote.symbol == freezone_SYMBOL ) || ( base.symbol == freezone_SYMBOL && quote.symbol.space() == asset_symbol_type::SST_nai_space ) )
                approx_real_price = static_cast< double >( base.amount.value ) / static_cast< double >( quote.amount.value );
             else
                approx_real_price = static_cast< double >( quote.amount.value ) / static_cast< double >( base.amount.value );
@@ -442,10 +442,10 @@ DEFINE_PRICE_COMPARISON_OPERATOR( >= )
       } FC_CAPTURE_AND_RETHROW( (base)(quote) ) }
 
 
-} } // steem::protocol
+} } // freezone::protocol
 
 namespace fc {
-   void to_variant( const steem::protocol::asset& var, fc::variant& vo )
+   void to_variant( const freezone::protocol::asset& var, fc::variant& vo )
    {
       try
       {
@@ -456,7 +456,7 @@ namespace fc {
       } FC_CAPTURE_AND_RETHROW()
    }
 
-   void from_variant( const fc::variant& var, steem::protocol::asset& vo )
+   void from_variant( const fc::variant& var, freezone::protocol::asset& vo )
    {
       try
       {
@@ -475,7 +475,7 @@ namespace fc {
          FC_ASSERT( v_object.contains( ASSET_NAI_KEY ), "NAI field doesn't exist." );
          FC_ASSERT( v_object[ ASSET_NAI_KEY ].is_string(), "Expected a string type for value '${key}'.", ("key", ASSET_NAI_KEY) );
 
-         vo.symbol = steem::protocol::asset_symbol_type::from_nai_string( v_object[ ASSET_NAI_KEY ].as< std::string >().c_str(), v_object[ ASSET_PRECISION_KEY ].as< uint8_t >() );
+         vo.symbol = freezone::protocol::asset_symbol_type::from_nai_string( v_object[ ASSET_NAI_KEY ].as< std::string >().c_str(), v_object[ ASSET_PRECISION_KEY ].as< uint8_t >() );
       } FC_CAPTURE_AND_RETHROW()
    }
 }

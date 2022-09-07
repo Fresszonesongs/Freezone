@@ -1,28 +1,28 @@
 #!/usr/bin/python3
 
 #example A:
-#"/home/a/steemd" Path to steemd exe
+#"/home/a/freezoned" Path to freezoned exe
 # "/home/a/data"  Path to blockchain directory
-# "./steem_utils/resources/config.ini.in" Path to config.ini.in - usually ./steem_utils/resources/config.ini.in
+# "./freezone_utils/resources/config.ini.in" Path to config.ini.in - usually ./freezone_utils/resources/config.ini.in
 #  1 - number of proposals for every account
 #  200 - number of accounts
-#  200000.000- number of STEEM's for every account
+#  200000.000- number of freezone's for every account
 #  30000.000- number of SBD's for every account
 #  100000.000- number of VEST's for every account
 # finally is created 200(1*200) proposals and 200 votes for every proposals -> 40200 objects are created
-#  ./proposal_benchmark_test.py "/home/a/steemd" "/home/a/data" "./steem_utils/resources/config.ini.in" initminer 1 200 200000.000 30000.000 100000.000
+#  ./proposal_benchmark_test.py "/home/a/freezoned" "/home/a/data" "./freezone_utils/resources/config.ini.in" initminer 1 200 200000.000 30000.000 100000.000
 
 #example B:
-#"/home/a/steemd" Path to steemd exe
+#"/home/a/freezoned" Path to freezoned exe
 # "/home/a/data"  Path to blockchain directory
-# "./steem_utils/resources/config.ini.in" Path to config.ini.in - usually ./steem_utils/resources/config.ini.in
+# "./freezone_utils/resources/config.ini.in" Path to config.ini.in - usually ./freezone_utils/resources/config.ini.in
 #  2 - number of proposals for every account
 #  300 - number of accounts
-#  200000.000- number of STEEM's for every account
+#  200000.000- number of freezone's for every account
 #  30000.000- number of SBD's for every account
 #  100000.000- number of VEST's for every account
 # finally is created 600(2*300) proposals and 300 votes for every proposals -> 180600 objects are created
-#  ./proposal_benchmark_test.py "/home/a/steemd" "/home/a/data" "./steem_utils/resources/config.ini.in" initminer 2 300 200000.000 30000.000 100000.000
+#  ./proposal_benchmark_test.py "/home/a/freezoned" "/home/a/data" "./freezone_utils/resources/config.ini.in" initminer 2 300 200000.000 30000.000 100000.000
 
 #Time[ms] is saved in `r_advanced_benchmark.json` ( position{"op_name": "sps_processor"} ) in directory where this script is called
 
@@ -30,21 +30,21 @@ from uuid import uuid4
 from time import sleep
 import logging
 import sys
-import steem_utils.steem_runner
-import steem_utils.steem_tools
+import freezone_utils.freezone_runner
+import freezone_utils.freezone_tools
 import dateutil.parser
 
 data_size = 100
 delayed_blocks = 1
 delayed_blocks_ex = 3
 SPS_API_SINGLE_QUERY_LIMIT = 1000
-STEEM_PROPOSAL_MAX_IDS_NUMBER = 5
+freezone_PROPOSAL_MAX_IDS_NUMBER = 5
 
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)-15s - %(name)s - %(levelname)s - %(message)s"
 MAIN_LOG_PATH = "./sps_benchmark_test.log"
 
-MODULE_NAME = "SPS-Tester-via-steempy"
+MODULE_NAME = "SPS-Tester-via-freezonepy"
 logger = logging.getLogger(MODULE_NAME)
 logger.setLevel(LOG_LEVEL)
 
@@ -61,9 +61,9 @@ if not logger.hasHandlers():
   logger.addHandler(fh)
 
 try:
-    from steem import Steem
+    from freezone import freezone
 except Exception as ex:
-    logger.error("SteemPy library is not installed.")
+    logger.error("freezonePy library is not installed.")
     sys.exit(1)
 
 
@@ -85,7 +85,7 @@ def create_accounts(node, creator, accounts):
             store_keys = False,
             creator=creator,
             asset='TESTS')
-    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
 
 
 # transfer_to_vesting initminer pychol "310.000 TESTS" true
@@ -94,39 +94,39 @@ def transfer_to_vesting(node, from_account, accounts, vests ):
         logger.info("Transfer to vesting from {} to {} amount {} {}".format(from_account, acnt['name'], vests, "TESTS"))
         node.commit.transfer_to_vesting(vests, to = acnt['name'], 
             account = from_account, asset='TESTS')
-    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
 
 
 # transfer initminer pychol "399.000 TESTS" "initial transfer" true
 # transfer initminer pychol "398.000 TBD" "initial transfer" true
-def transfer_assets_to_accounts(node, from_account, accounts, steems, sbds):
+def transfer_assets_to_accounts(node, from_account, accounts, freezones, sbds):
     for acnt in accounts:
-        logger.info("Transfer from {} to {} amount {} {}".format(from_account, acnt['name'], steems, "TESTS"))
-        node.commit.transfer(acnt['name'], steems, "TESTS", memo = "initial transfer", account = from_account)
-    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+        logger.info("Transfer from {} to {} amount {} {}".format(from_account, acnt['name'], freezones, "TESTS"))
+        node.commit.transfer(acnt['name'], freezones, "TESTS", memo = "initial transfer", account = from_account)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
     for acnt in accounts:
         logger.info("Transfer from {} to {} amount {} {}".format(from_account, acnt['name'], sbds, "TBD"))
         node.commit.transfer(acnt['name'], sbds, "TBD", memo = "initial transfer", account = from_account)
-    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
 
 def create_permlink( node, account ):
-   return "steempy-proposal-title-{}".format( account )
+   return "freezonepy-proposal-title-{}".format( account )
 
 def create_posts(node, accounts):
     logger.info("Creating posts...")
     i = 0
     for acnt in accounts:
-        node.commit.post("Steempy proposal title [{}]".format(acnt['name']), 
-            "Steempy proposal body [{}]".format(acnt['name']), 
+        node.commit.post("freezonepy proposal title [{}]".format(acnt['name']), 
+            "freezonepy proposal body [{}]".format(acnt['name']), 
             acnt['name'], 
             permlink = create_permlink( node, acnt['name'] ), 
             tags = "proposals")
         i += 1
         if ( i % data_size ) == 0:
-            steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks_ex, node.url)
+            freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks_ex, node.url)
             print_progress( i, len( accounts ) )
 
-    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
 
 def generate_dates( node ):
     logger.info("Generating dates...")
@@ -137,7 +137,7 @@ def generate_dates( node ):
 
     start_date = now + datetime.timedelta(hours = 2)
     end_date = start_date + datetime.timedelta(hours = 1)
-    #because of STEEM_PROPOSAL_MAINTENANCE_CLEANUP
+    #because of freezone_PROPOSAL_MAINTENANCE_CLEANUP
     end_date_delay = end_date + datetime.timedelta(days = 1)
 
     start_date = start_date.replace(microsecond=0).isoformat()
@@ -169,10 +169,10 @@ def create_proposals(node, accounts, start_date, end_date, nr_proposals):
             )
             i += 1
             if ( i % data_size ) == 0:
-                steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks_ex, node.url)
+                freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks_ex, node.url)
                 print_progress( i, nr_proposals * len( accounts ) )
 
-    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
 
 def list_proposals(node, ids, limit ):
     logger.info("Listing proposals...")
@@ -213,7 +213,7 @@ def list_voter_proposals(node, limit ):
 def vote_proposals(node, ids, accounts ):
     logger.info("Voting proposals for %i proposals..." % ( len( ids ) ) )
 
-    proposal_limit = STEEM_PROPOSAL_MAX_IDS_NUMBER
+    proposal_limit = freezone_PROPOSAL_MAX_IDS_NUMBER
 
     i = 0
     i_real = 0
@@ -230,11 +230,11 @@ def vote_proposals(node, ids, accounts ):
                 i += 1
                 i_real += len( proposal_set )
                 if ( i % data_size ) == 0:
-                    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+                    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
                     print_progress( i_real, len( ids ) * len( accounts ) )
             proposal_set = []
 
-    steem_utils.steem_tools.wait_for_blocks_produced(delayed_blocks, node.url)
+    freezone_utils.freezone_tools.wait_for_blocks_produced(delayed_blocks, node.url)
 
 def generate_blocks( node, time, wif ):
     logger.info("Generating blocks ...")
@@ -244,7 +244,7 @@ def generate_blocks( node, time, wif ):
     node.debug_generate_blocks( wif, delayed_blocks_ex )
 
 def get_block_time( node ):
-    global_properties = steem_utils.steem_tools.get_dynamic_global_properties( node.url )
+    global_properties = freezone_utils.freezone_tools.get_dynamic_global_properties( node.url )
 
     last_block_number = global_properties.get('result', None)
     return last_block_number[ "time" ]
@@ -260,19 +260,19 @@ if __name__ == '__main__':
     logger.info("Performing SPS tests")
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("path", type=str, help = "Path to steemd")
+    parser.add_argument("path", type=str, help = "Path to freezoned")
     parser.add_argument("dir", type=str, help = "Path to blockchain directory")
-    parser.add_argument("ini", type=str, help = "Path to config.ini.in - usually ./steem_utils/resources/config.ini.in")
+    parser.add_argument("ini", type=str, help = "Path to config.ini.in - usually ./freezone_utils/resources/config.ini.in")
     parser.add_argument("creator", help = "Account to create test accounts with")
     parser.add_argument("nr_proposals", type=int, help = "Nr proposals for every account")
     parser.add_argument("nr_accounts", type=int, help = "Nr accounts")
-    parser.add_argument("steems", type=str, default="200000.000", help = "STEEM's")
+    parser.add_argument("freezones", type=str, default="200000.000", help = "freezone's")
     parser.add_argument("sbds", type=str, default="30000.000", help = "SBD's")
     parser.add_argument("vests", type=str, default="100000.000", help = "VEST's")
 
     args = parser.parse_args()
 
-    node = steem_utils.steem_runner.SteemNode( args.path, args.dir, args.ini )
+    node = freezone_utils.freezone_runner.freezoneNode( args.path, args.dir, args.ini )
     node_url = node.get_node_url()
     wif = node.get_from_config('private-key')[0]
 
@@ -288,14 +288,14 @@ if __name__ == '__main__':
     #for account in accounts:
     keys.append(accounts[0]["private_key"])
     
-    node.run_steem_node(["--enable-stale-production"])
+    node.run_freezone_node(["--enable-stale-production"])
     try:
         if node.is_running():
-            node_client = Steem(nodes = [node_url], no_broadcast = False, keys = keys)
+            node_client = freezone(nodes = [node_url], no_broadcast = False, keys = keys)
 
             create_accounts(node_client, args.creator, accounts)
             transfer_to_vesting(node_client, args.creator, accounts, args.vests )
-            transfer_assets_to_accounts(node_client, args.creator, accounts, args.steems, args.sbds )
+            transfer_assets_to_accounts(node_client, args.creator, accounts, args.freezones, args.sbds )
             create_posts(node_client, accounts)
 
             #total proposals: nr_proposals * accounts
@@ -327,10 +327,10 @@ if __name__ == '__main__':
             else:
                 print( "***There are %i proposals/votes. All proposals should be removed - test failed***" % ( len( ids ) + total_votes ) )
 
-            node.stop_steem_node()
+            node.stop_freezone_node()
             sys.exit(0)
         sys.exit(1)
     except Exception as ex:
         logger.error("Exception: {}".format(ex))
-        node.stop_steem_node()
+        node.stop_freezone_node()
         sys.exit(1)

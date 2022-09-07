@@ -1,23 +1,23 @@
-#include <steem/chain/steem_fwd.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
 
-#include <steem/protocol/sps_operations.hpp>
+#include <freezone/protocol/sps_operations.hpp>
 
-#include <steem/chain/database.hpp>
-#include <steem/chain/steem_evaluator.hpp>
-#include <steem/chain/sps_objects.hpp>
+#include <freezone/chain/database.hpp>
+#include <freezone/chain/freezone_evaluator.hpp>
+#include <freezone/chain/sps_objects.hpp>
 
-#include <steem/chain/util/sps_helper.hpp>
+#include <freezone/chain/util/sps_helper.hpp>
 
 
-namespace steem { namespace chain {
+namespace freezone { namespace chain {
 
-using steem::chain::create_proposal_evaluator;
+using freezone::chain::create_proposal_evaluator;
 
 void create_proposal_evaluator::do_apply( const create_proposal_operation& o )
 {
    try
    {
-      FC_ASSERT( _db.has_hardfork( STEEM_PROPOSALS_HARDFORK ), "Proposals functionality not enabled until hardfork ${hf}", ("hf", STEEM_PROPOSALS_HARDFORK) );
+      FC_ASSERT( _db.has_hardfork( freezone_PROPOSALS_HARDFORK ), "Proposals functionality not enabled until hardfork ${hf}", ("hf", freezone_PROPOSALS_HARDFORK) );
 
       /** start date can be earlier than head_block_time - otherwise creating a proposal can be difficult,
           since passed date should be adjusted by potential transaction execution delay (i.e. 3 sec
@@ -25,10 +25,10 @@ void create_proposal_evaluator::do_apply( const create_proposal_operation& o )
       */
       FC_ASSERT(o.end_date > _db.head_block_time(), "Can't create inactive proposals...");
 
-      asset fee_sbd( STEEM_TREASURY_FEE, SBD_SYMBOL );
+      asset fee_sbd( freezone_TREASURY_FEE, SBD_SYMBOL );
 
       //treasury account must exist, also we need it later to change its balance
-      const auto& treasury_account =_db.get_account( STEEM_TREASURY_ACCOUNT );
+      const auto& treasury_account =_db.get_account( freezone_TREASURY_ACCOUNT );
 
       const auto& owner_account = _db.get_account( o.creator );
       const auto* receiver_account = _db.find_account( o.receiver );
@@ -72,7 +72,7 @@ void update_proposal_votes_evaluator::do_apply( const update_proposal_votes_oper
 {
    try
    {
-      FC_ASSERT( _db.has_hardfork( STEEM_PROPOSALS_HARDFORK ), "Proposals functionality not enabled until hardfork ${hf}", ("hf", STEEM_PROPOSALS_HARDFORK) );
+      FC_ASSERT( _db.has_hardfork( freezone_PROPOSALS_HARDFORK ), "Proposals functionality not enabled until hardfork ${hf}", ("hf", freezone_PROPOSALS_HARDFORK) );
 
       const auto& pidx = _db.get_index< proposal_index >().indices().get< by_proposal_id >();
       const auto& pvidx = _db.get_index< proposal_vote_index >().indices().get< by_voter_proposal >();
@@ -109,13 +109,13 @@ void remove_proposal_evaluator::do_apply(const remove_proposal_operation& op)
 {
    try
    {
-      FC_ASSERT( _db.has_hardfork( STEEM_PROPOSALS_HARDFORK ), "Proposals functionality not enabled until hardfork ${hf}", ("hf", STEEM_PROPOSALS_HARDFORK) );
+      FC_ASSERT( _db.has_hardfork( freezone_PROPOSALS_HARDFORK ), "Proposals functionality not enabled until hardfork ${hf}", ("hf", freezone_PROPOSALS_HARDFORK) );
 
       sps_helper::remove_proposals( _db, op.proposal_ids, op.proposal_owner );
 
       /*
          Because of performance removing proposals are restricted due to the `sps_remove_threshold` threshold.
-         Therefore all proposals are marked with flag `removed` and `end_date` is moved beyond 'head_time + STEEM_PROPOSAL_MAINTENANCE_CLEANUP`
+         Therefore all proposals are marked with flag `removed` and `end_date` is moved beyond 'head_time + freezone_PROPOSAL_MAINTENANCE_CLEANUP`
          flag `removed` - it's information for 'sps_api' plugin
          moving `end_date` - triggers the algorithm in `sps_processor::remove_proposals`
 
@@ -134,7 +134,7 @@ void remove_proposal_evaluator::do_apply(const remove_proposal_operation& op)
             proposal.removed = true;
 
             auto head_date = _db.head_block_time();
-            auto new_end_date = head_date - fc::seconds( STEEM_PROPOSAL_MAINTENANCE_CLEANUP );
+            auto new_end_date = head_date - fc::seconds( freezone_PROPOSAL_MAINTENANCE_CLEANUP );
 
             proposal.end_date = new_end_date;
          } );
@@ -144,4 +144,4 @@ void remove_proposal_evaluator::do_apply(const remove_proposal_operation& op)
    FC_CAPTURE_AND_RETHROW( (op) )
 }
 
-} } // steem::chain
+} } // freezone::chain

@@ -1,8 +1,8 @@
-#include <steem/protocol/operations.hpp>
+#include <freezone/protocol/operations.hpp>
 
-#include <steem/protocol/operation_util_impl.hpp>
+#include <freezone/protocol/operation_util_impl.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
 struct is_market_op_visitor {
    typedef bool result_type;
@@ -32,6 +32,6 @@ bool is_virtual_operation( const operation& op )
    return op.visit( is_vop_visitor() );
 }
 
-} } // steem::protocol
+} } // freezone::protocol
 
-STEEM_DEFINE_OPERATION_TYPE( steem::protocol::operation )
+freezone_DEFINE_OPERATION_TYPE( freezone::protocol::operation )

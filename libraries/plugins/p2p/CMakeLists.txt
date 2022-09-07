@@ -1,11 +1,11 @@
-file(GLOB HEADERS "include/steem/plugins/p2p/*.hpp")
+file(GLOB HEADERS "include/freezone/plugins/p2p/*.hpp")
 
 add_library( p2p_plugin
              p2p_plugin.cpp
              ${HEADERS}
            )
 
-target_link_libraries( p2p_plugin chain_plugin appbase steem_chain graphene_net )
+target_link_libraries( p2p_plugin chain_plugin appbase freezone_chain graphene_net )
 target_include_directories( p2p_plugin
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <steem/protocol/types.hpp>
+#include <freezone/protocol/types.hpp>
 
-#include <steem/protocol/operation_util.hpp>
-#include <steem/protocol/steem_operations.hpp>
-#include <steem/protocol/steem_virtual_operations.hpp>
-#include <steem/protocol/smt_operations.hpp>
-#include <steem/protocol/sps_operations.hpp>
+#include <freezone/protocol/operation_util.hpp>
+#include <freezone/protocol/freezone_operations.hpp>
+#include <freezone/protocol/freezone_virtual_operations.hpp>
+#include <freezone/protocol/SST_operations.hpp>
+#include <freezone/protocol/sps_operations.hpp>
 
-namespace steem { namespace protocol {
+namespace freezone { namespace protocol {
 
    /** NOTE: do not change the order of any operations prior to the virtual operations
     * or it will trigger a hardfork.
@@ -71,17 +71,17 @@ namespace steem { namespace protocol {
             update_proposal_votes_operation,
             remove_proposal_operation,
 
-            /// SMT operations
+            /// SST operations
             claim_reward_balance2_operation,
             vote2_operation,
 
-            smt_setup_operation,
-            smt_setup_emissions_operation,
-            smt_setup_ico_tier_operation,
-            smt_set_setup_parameters_operation,
-            smt_set_runtime_parameters_operation,
-            smt_create_operation,
-            smt_contribute_operation,
+            SST_setup_operation,
+            SST_setup_emissions_operation,
+            SST_setup_ico_tier_operation,
+            SST_set_setup_parameters_operation,
+            SST_set_runtime_parameters_operation,
+            SST_create_operation,
+            SST_contribute_operation,
 
             /// virtual operations below this point
             fill_convert_request_operation,
@@ -116,12 +116,12 @@ namespace steem { namespace protocol {
 
    bool is_virtual_operation( const operation& op );
 
-} } // steem::protocol
+} } // freezone::protocol
 
 /*namespace fc {
-    void to_variant( const steem::protocol::operation& var,  fc::variant& vo );
-    void from_variant( const fc::variant& var,  steem::protocol::operation& vo );
+    void to_variant( const freezone::protocol::operation& var,  fc::variant& vo );
+    void from_variant( const fc::variant& var,  freezone::protocol::operation& vo );
 }*/
 
-STEEM_DECLARE_OPERATION_TYPE( steem::protocol::operation )
-FC_REFLECT_TYPENAME( steem::protocol::operation )
+freezone_DECLARE_OPERATION_TYPE( freezone::protocol::operation )
+FC_REFLECT_TYPENAME( freezone::protocol::operation )

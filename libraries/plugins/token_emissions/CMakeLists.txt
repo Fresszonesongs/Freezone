@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steem/plugins/token_emissions/*.hpp")
+file(GLOB HEADERS "include/freezone/plugins/token_emissions/*.hpp")
 
 add_library( token_emissions_plugin
              token_emissions_plugin.cpp

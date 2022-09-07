@@ -1,15 +1,15 @@
 #pragma once
-#include <steem/chain/steem_fwd.hpp>
-#include <steem/plugins/chain/chain_plugin.hpp>
-#include <steem/plugins/json_rpc/json_rpc_plugin.hpp>
+#include <freezone/chain/freezone_fwd.hpp>
+#include <freezone/plugins/chain/chain_plugin.hpp>
+#include <freezone/plugins/json_rpc/json_rpc_plugin.hpp>
 
 #include <appbase/application.hpp>
 
-namespace steem { namespace plugins { namespace database_api {
+namespace freezone { namespace plugins { namespace database_api {
 
 using namespace appbase;
 
-#define STEEM_DATABASE_API_PLUGIN_NAME "database_api"
+#define freezone_DATABASE_API_PLUGIN_NAME "database_api"
 
 class database_api_plugin : public plugin< database_api_plugin >
 {
@@ -18,11 +18,11 @@ class database_api_plugin : public plugin< database_api_plugin >
       virtual ~database_api_plugin();
 
       APPBASE_PLUGIN_REQUIRES(
-         (steem::plugins::json_rpc::json_rpc_plugin)
-         (steem::plugins::chain::chain_plugin)
+         (freezone::plugins::json_rpc::json_rpc_plugin)
+         (freezone::plugins::chain::chain_plugin)
       )
 
-      static const std::string& name() { static std::string name = STEEM_DATABASE_API_PLUGIN_NAME; return name; }
+      static const std::string& name() { static std::string name = freezone_DATABASE_API_PLUGIN_NAME; return name; }
 
       virtual void set_program_options(
          options_description& cli,
@@ -34,4 +34,4 @@ class database_api_plugin : public plugin< database_api_plugin >
       std::shared_ptr< class database_api > api;
 };
 
-} } } // steem::plugins::database_api
+} } } // freezone::plugins::database_api

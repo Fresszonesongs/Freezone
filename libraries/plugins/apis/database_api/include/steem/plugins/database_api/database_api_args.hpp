@@ -1,13 +1,13 @@
 #pragma once
-#include <steem/plugins/database_api/database_api_objects.hpp>
+#include <freezone/plugins/database_api/database_api_objects.hpp>
 
-#include <steem/protocol/types.hpp>
-#include <steem/protocol/transaction.hpp>
-#include <steem/protocol/block_header.hpp>
+#include <freezone/protocol/types.hpp>
+#include <freezone/protocol/transaction.hpp>
+#include <freezone/protocol/block_header.hpp>
 
-#include <steem/plugins/json_rpc/utility.hpp>
+#include <freezone/plugins/json_rpc/utility.hpp>
 
-namespace steem { namespace plugins { namespace database_api {
+namespace freezone { namespace plugins { namespace database_api {
 
 using protocol::account_name_type;
 using protocol::signed_transaction;
@@ -88,10 +88,10 @@ struct get_version_return
 {
    get_version_return() {}
    get_version_return( fc::string bc_v, fc::string s_v, fc::string fc_v, chain_id_type c_id )
-      :blockchain_version( bc_v ), steem_revision( s_v ), fc_revision( fc_v ), chain_id( c_id ) {}
+      :blockchain_version( bc_v ), freezone_revision( s_v ), fc_revision( fc_v ), chain_id( c_id ) {}
 
    fc::string     blockchain_version;
-   fc::string     steem_revision;
+   fc::string     freezone_revision;
    fc::string     fc_revision;
    chain_id_type  chain_id;
 };
@@ -408,7 +408,7 @@ struct find_votes_args
 {
    account_name_type author;
    string            permlink;
-   asset_symbol_type symbol = STEEM_SYMBOL;
+   asset_symbol_type symbol = freezone_SYMBOL;
 };
 
 typedef list_votes_return find_votes_return;
@@ -580,72 +580,72 @@ struct get_nai_pool_return
    vector< asset_symbol_type > nai_pool;
 };
 
-typedef list_object_args_type list_smt_contributions_args;
+typedef list_object_args_type list_SST_contributions_args;
 
-struct list_smt_contributions_return
+struct list_SST_contributions_return
 {
-   vector< smt_contribution_object > contributions;
+   vector< SST_contribution_object > contributions;
 };
 
-struct find_smt_contributions_args
+struct find_SST_contributions_args
 {
    vector< std::pair< asset_symbol_type, account_name_type > > symbol_contributors;
 };
 
-typedef list_smt_contributions_return find_smt_contributions_return;
+typedef list_SST_contributions_return find_SST_contributions_return;
 
-typedef list_object_args_type list_smt_token_emissions_args;
+typedef list_object_args_type list_SST_token_emissions_args;
 
-typedef list_object_args_type list_smt_tokens_args;
+typedef list_object_args_type list_SST_tokens_args;
 
-struct list_smt_tokens_return
+struct list_SST_tokens_return
 {
-   vector< api_smt_token_object > tokens;
+   vector< api_SST_token_object > tokens;
 };
 
-struct find_smt_tokens_args
+struct find_SST_tokens_args
 {
    vector< asset_symbol_type > symbols;
 };
 
-typedef list_smt_tokens_return find_smt_tokens_return;
+typedef list_SST_tokens_return find_SST_tokens_return;
 
 
-typedef list_object_args_type list_smt_token_emissions_args;
+typedef list_object_args_type list_SST_token_emissions_args;
 
-struct list_smt_token_emissions_return
+struct list_SST_token_emissions_return
 {
-   vector< smt_token_emissions_object > token_emissions;
+   vector< SST_token_emissions_object > token_emissions;
 };
 
-struct find_smt_token_emissions_args
+struct find_SST_token_emissions_args
 {
    asset_symbol_type asset_symbol;
 };
 
-typedef list_smt_token_emissions_return find_smt_token_emissions_return;
+typedef list_SST_token_emissions_return find_SST_token_emissions_return;
 
-struct find_smt_token_balances_args
+struct find_SST_token_balances_args
 {
    vector< std::pair< account_name_type, asset_symbol_type > > account_symbols;
 };
 
-struct find_smt_token_balances_return
+struct find_SST_token_balances_return
 {
-   vector< api_smt_account_balance_object > balances;
+   vector< api_SST_account_balance_object > balances;
 };
 
-typedef list_object_args_type list_smt_token_balances_args;
+typedef list_object_args_type list_SST_token_balances_args;
 
-typedef find_smt_token_balances_return list_smt_token_balances_return;
+typedef find_SST_token_balances_return list_SST_token_balances_return;
 
 
-} } } // steem::database_api
+} } } // freezone::database_api
 
-FC_REFLECT( steem::plugins::database_api::get_version_return,
-            (blockchain_version)(steem_revision)(fc_revision)(chain_id) )
+FC_REFLECT( freezone::plugins::database_api::get_version_return,
+            (blockchain_version)(freezone_revision)(fc_revision)(chain_id) )
 
-FC_REFLECT_ENUM( steem::plugins::database_api::sort_order_type,
+FC_REFLECT_ENUM( freezone::plugins::database_api::sort_order_type,
    (by_name)
    (by_proxy)
    (by_next_vesting_withdrawal)
@@ -692,159 +692,159 @@ FC_REFLECT_ENUM( steem::plugins::database_api::sort_order_type,
    (by_voter_symbol_comment)
    (by_account_symbol) )
 
-FC_REFLECT_ENUM( steem::plugins::database_api::order_direction_type,
+FC_REFLECT_ENUM( freezone::plugins::database_api::order_direction_type,
   (ascending)
   (descending) )
 
-FC_REFLECT( steem::plugins::database_api::list_object_args_type,
+FC_REFLECT( freezone::plugins::database_api::list_object_args_type,
    (start)(limit)(order) )
 
-FC_REFLECT( steem::plugins::database_api::get_reward_funds_return,
+FC_REFLECT( freezone::plugins::database_api::get_reward_funds_return,
    (funds) )
 
-FC_REFLECT( steem::plugins::database_api::list_witnesses_return,
+FC_REFLECT( freezone::plugins::database_api::list_witnesses_return,
    (witnesses) )
 
-FC_REFLECT( steem::plugins::database_api::find_witnesses_args,
+FC_REFLECT( freezone::plugins::database_api::find_witnesses_args,
    (owners) )
 
-FC_REFLECT( steem::plugins::database_api::list_witness_votes_return,
+FC_REFLECT( freezone::plugins::database_api::list_witness_votes_return,
    (votes) )
 
-FC_REFLECT( steem::plugins::database_api::get_active_witnesses_return,
+FC_REFLECT( freezone::plugins::database_api::get_active_witnesses_return,
    (witnesses) )
 
-FC_REFLECT( steem::plugins::database_api::list_accounts_return,
+FC_REFLECT( freezone::plugins::database_api::list_accounts_return,
    (accounts) )
 
-FC_REFLECT( steem::plugins::database_api::find_accounts_args,
+FC_REFLECT( freezone::plugins::database_api::find_accounts_args,
    (accounts) )
 
-FC_REFLECT( steem::plugins::database_api::list_owner_histories_args,
+FC_REFLECT( freezone::plugins::database_api::list_owner_histories_args,
    (start)(limit) )
 
-FC_REFLECT( steem::plugins::database_api::list_owner_histories_return,
+FC_REFLECT( freezone::plugins::database_api::list_owner_histories_return,
    (owner_auths) )
 
-FC_REFLECT( steem::plugins::database_api::find_owner_histories_args,
+FC_REFLECT( freezone::plugins::database_api::find_owner_histories_args,
    (owner) )
 
-FC_REFLECT( steem::plugins::database_api::list_account_recovery_requests_return,
+FC_REFLECT( freezone::plugins::database_api::list_account_recovery_requests_return,
    (requests) )
 
-FC_REFLECT( steem::plugins::database_api::find_account_recovery_requests_args,
+FC_REFLECT( freezone::plugins::database_api::find_account_recovery_requests_args,
    (accounts) )
 
 FC_REFLECT(
-   steem::plugins::database_api::list_change_recovery_account_requests_return,
+   freezone::plugins::database_api::list_change_recovery_account_requests_return,
    (requests) )
 
-FC_REFLECT( steem::plugins::database_api::find_change_recovery_account_requests_args,
+FC_REFLECT( freezone::plugins::database_api::find_change_recovery_account_requests_args,
    (accounts) )
 
-FC_REFLECT( steem::plugins::database_api::list_escrows_return,
+FC_REFLECT( freezone::plugins::database_api::list_escrows_return,
    (escrows) )
 
-FC_REFLECT( steem::plugins::database_api::find_escrows_args,
+FC_REFLECT( freezone::plugins::database_api::find_escrows_args,
    (from) )
 
-FC_REFLECT( steem::plugins::database_api::list_withdraw_vesting_routes_return,
+FC_REFLECT( freezone::plugins::database_api::list_withdraw_vesting_routes_return,
    (routes) )
 
-FC_REFLECT( steem::plugins::database_api::find_withdraw_vesting_routes_args,
+FC_REFLECT( freezone::plugins::database_api::find_withdraw_vesting_routes_args,
    (account)(order) )
 
-FC_REFLECT( steem::plugins::database_api::list_savings_withdrawals_return,
+FC_REFLECT( freezone::plugins::database_api::list_savings_withdrawals_return,
    (withdrawals) )
 
-FC_REFLECT( steem::plugins::database_api::find_savings_withdrawals_args,
+FC_REFLECT( freezone::plugins::database_api::find_savings_withdrawals_args,
    (account) )
 
-FC_REFLECT( steem::plugins::database_api::list_vesting_delegations_return,
+FC_REFLECT( freezone::plugins::database_api::list_vesting_delegations_return,
    (delegations) )
 
-FC_REFLECT( steem::plugins::database_api::find_vesting_delegations_args,
+FC_REFLECT( freezone::plugins::database_api::find_vesting_delegations_args,
    (account) )
 
-FC_REFLECT( steem::plugins::database_api::list_vesting_delegation_expirations_return,
+FC_REFLECT( freezone::plugins::database_api::list_vesting_delegation_expirations_return,
    (delegations) )
 
-FC_REFLECT( steem::plugins::database_api::find_vesting_delegation_expirations_args,
+FC_REFLECT( freezone::plugins::database_api::find_vesting_delegation_expirations_args,
    (account) )
 
-FC_REFLECT( steem::plugins::database_api::list_sbd_conversion_requests_return,
+FC_REFLECT( freezone::plugins::database_api::list_sbd_conversion_requests_return,
    (requests) )
 
-FC_REFLECT( steem::plugins::database_api::find_sbd_conversion_requests_args,
+FC_REFLECT( freezone::plugins::database_api::find_sbd_conversion_requests_args,
    (account) )
 
-FC_REFLECT( steem::plugins::database_api::list_decline_voting_rights_requests_return,
+FC_REFLECT( freezone::plugins::database_api::list_decline_voting_rights_requests_return,
    (requests) )
 
-FC_REFLECT( steem::plugins::database_api::find_decline_voting_rights_requests_args,
+FC_REFLECT( freezone::plugins::database_api::find_decline_voting_rights_requests_args,
    (accounts) )
 
-FC_REFLECT( steem::plugins::database_api::list_comments_return,
+FC_REFLECT( freezone::plugins::database_api::list_comments_return,
    (comments) )
 
-FC_REFLECT( steem::plugins::database_api::find_comments_args,
+FC_REFLECT( freezone::plugins::database_api::find_comments_args,
    (comments) )
 
-FC_REFLECT( steem::plugins::database_api::list_votes_return,
+FC_REFLECT( freezone::plugins::database_api::list_votes_return,
    (votes) )
 
-FC_REFLECT( steem::plugins::database_api::find_votes_args,
+FC_REFLECT( freezone::plugins::database_api::find_votes_args,
    (author)(permlink)(symbol) )
 
-FC_REFLECT( steem::plugins::database_api::list_limit_orders_return,
+FC_REFLECT( freezone::plugins::database_api::list_limit_orders_return,
    (orders) )
 
-FC_REFLECT( steem::plugins::database_api::find_limit_orders_args,
+FC_REFLECT( freezone::plugins::database_api::find_limit_orders_args,
    (account) )
 
-FC_REFLECT( steem::plugins::database_api::get_order_book_args,
+FC_REFLECT( freezone::plugins::database_api::get_order_book_args,
    (limit)(base)(quote) )
 
-FC_REFLECT( steem::plugins::database_api::list_proposals_args,
+FC_REFLECT( freezone::plugins::database_api::list_proposals_args,
    (start)(limit)(order)(order_direction)(status) )
 
-FC_REFLECT( steem::plugins::database_api::list_proposals_return,
+FC_REFLECT( freezone::plugins::database_api::list_proposals_return,
    (proposals) )
 
-FC_REFLECT( steem::plugins::database_api::find_proposals_args,
+FC_REFLECT( freezone::plugins::database_api::find_proposals_args,
    (proposal_ids) )
 
-FC_REFLECT( steem::plugins::database_api::list_proposal_votes_return,
+FC_REFLECT( freezone::plugins::database_api::list_proposal_votes_return,
    (proposal_votes) )
 
-FC_REFLECT( steem::plugins::database_api::get_transaction_hex_args,
+FC_REFLECT( freezone::plugins::database_api::get_transaction_hex_args,
    (trx) )
 
-FC_REFLECT( steem::plugins::database_api::get_transaction_hex_return,
+FC_REFLECT( freezone::plugins::database_api::get_transaction_hex_return,
    (hex) )
 
-FC_REFLECT( steem::plugins::database_api::get_required_signatures_args,
+FC_REFLECT( freezone::plugins::database_api::get_required_signatures_args,
    (trx)
    (available_keys) )
 
-FC_REFLECT( steem::plugins::database_api::get_required_signatures_return,
+FC_REFLECT( freezone::plugins::database_api::get_required_signatures_return,
    (keys) )
 
-FC_REFLECT( steem::plugins::database_api::get_potential_signatures_args,
+FC_REFLECT( freezone::plugins::database_api::get_potential_signatures_args,
    (trx) )
 
-FC_REFLECT( steem::plugins::database_api::verify_authority_args,
+FC_REFLECT( freezone::plugins::database_api::verify_authority_args,
    (trx)
    (auth) )
 
-FC_REFLECT( steem::plugins::database_api::verify_authority_return,
+FC_REFLECT( freezone::plugins::database_api::verify_authority_return,
    (valid) )
 
-FC_REFLECT( steem::plugins::database_api::verify_account_authority_args,
+FC_REFLECT( freezone::plugins::database_api::verify_account_authority_args,
    (account)
    (signers) )
 
-FC_REFLECT( steem::plugins::database_api::verify_signatures_args,
+FC_REFLECT( freezone::plugins::database_api::verify_signatures_args,
    (hash)
    (signatures)
    (required_owner)
@@ -852,33 +852,33 @@ FC_REFLECT( steem::plugins::database_api::verify_signatures_args,
    (required_posting)
    (required_other) )
 
-FC_REFLECT( steem::plugins::database_api::verify_signatures_return,
+FC_REFLECT( freezone::plugins::database_api::verify_signatures_return,
    (valid) )
 
-FC_REFLECT( steem::plugins::database_api::get_nai_pool_return,
+FC_REFLECT( freezone::plugins::database_api::get_nai_pool_return,
    (nai_pool) )
 
-FC_REFLECT( steem::plugins::database_api::list_smt_contributions_return,
+FC_REFLECT( freezone::plugins::database_api::list_SST_contributions_return,
    (contributions) )
 
-FC_REFLECT( steem::plugins::database_api::find_smt_contributions_args,
+FC_REFLECT( freezone::plugins::database_api::find_SST_contributions_args,
    (symbol_contributors) )
 
-FC_REFLECT( steem::plugins::database_api::list_smt_tokens_return,
+FC_REFLECT( freezone::plugins::database_api::list_SST_tokens_return,
    (tokens) )
 
-FC_REFLECT( steem::plugins::database_api::find_smt_tokens_args,
+FC_REFLECT( freezone::plugins::database_api::find_SST_tokens_args,
    (symbols) )
 
-FC_REFLECT( steem::plugins::database_api::list_smt_token_emissions_return,
+FC_REFLECT( freezone::plugins::database_api::list_SST_token_emissions_return,
    (token_emissions) )
 
-FC_REFLECT( steem::plugins::database_api::find_smt_token_emissions_args,
+FC_REFLECT( freezone::plugins::database_api::find_SST_token_emissions_args,
    (asset_symbol) )
 
-FC_REFLECT( steem::plugins::database_api::find_smt_token_balances_args,
+FC_REFLECT( freezone::plugins::database_api::find_SST_token_balances_args,
    (account_symbols) )
 
-FC_REFLECT( steem::plugins::database_api::find_smt_token_balances_return,
+FC_REFLECT( freezone::plugins::database_api::find_SST_token_balances_return,
    (balances) )
 
