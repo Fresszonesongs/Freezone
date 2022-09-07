@@ -10,14 +10,14 @@ Being one of the most actively developed blockchain projects currently in existe
 
 freezone aims to be the preferred blockchain for dApp development with Smart Social Tokens at its core. With SSTs, everyone can leverage the power of freezone.
 
-Originally, freezone was announced on the [Bitcointalk forum](https://bitcointalk.org/index.php?topic=1410943.new) prior to the start of any mining. (freezone is currently not mineable)
+(freezone is currently not mineable)
 
 ## Documents
 
-* Whitepaper: [freezone.io/freezoneWhitepaper.pdf](https://freezone.io/freezoneWhitePaper.pdf)
-* Bluepaper: [freezone.io/freezoneBluepaper.pdf](https://freezone.io/freezone-bluepaper.pdf)
+* Whitepaper: [freezone.io/freezoneWhitepaper.pdf](https://freezone.io/freezoneWhitePaper.pdf) (*not final*)
+* Bluepaper: [freezone.io/freezoneBluepaper.pdf](https://freezone.io/freezone-bluepaper.pdf) (*not final*)
 * SST Whitepaper: [freezone.io/SSTWhitepaper.pdf](https://SST.freezone.io/SST-whitepaper.pdf) (*not final*)
-* Developer Portal: https://developers.freezone.io/
+* Developer Portal: https://developers.freezone.io/ (*not final*)
 
 ## Advantages
 
@@ -45,17 +45,13 @@ Originally, freezone was announced on the [Bitcointalk forum](https://bitcointal
 
 Getting started with freezone is fairly simple. You can either choose to use docker-images, build with docker manually or build from source directly. All steps have been documented and while many different OS are supported, the easiest one is Ubuntu 16.04.
 
-## Quickstart
 
-Just want to get up and running quickly? We have pre-built Docker images for your convenience. More details are in our [Quickstart Guide](https://github.com/freezone/freezone/blob/master/doc/exchangequickstart.md).
 
 ## Building
 
-We **strongly** recommend using one of our pre-built Docker images or using Docker to build freezone. Both of these processes are described in the [Quickstart Guide](https://github.com/freezone/freezone/blob/master/doc/exchangequickstart.md).
+But if you would still like to build from source, we also have [build instructions](https://github.com/Fresszonesongs/freezone/blob/master/doc/building.md) for Linux (Ubuntu LTS) and macOS (*not final*)
 
-But if you would still like to build from source, we also have [build instructions](https://github.com/freezone/freezone/blob/master/doc/building.md) for Linux (Ubuntu LTS) and macOS.
-
-## Dockerized P2P Node
+## Dockerized P2P Node (*not final*)
 
 To run a p2p node (ca. 2GB of memory is required at the moment):
 
@@ -77,7 +73,7 @@ ca. 14GB of memory, and growing, is required:
 
     docker logs -f freezoned-full
 
-## CLI Wallet
+## CLI Wallet (*not final*)
 
 We provide a basic cli wallet for interfacing with `freezoned`. The wallet is self-documented via command line help. The node you connect to via the cli wallet needs to be running the `account_by_key_api`, `condenser_api`, and needs to be configured to accept WebSocket connections via `webserver-ws-endpoint`.
 
